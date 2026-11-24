@@ -289,7 +289,8 @@ class UserWallPresenter(
         view?.openVideosLibrary(
             accountId,
             ownerId,
-            user
+            user,
+            false
         )
     }
 

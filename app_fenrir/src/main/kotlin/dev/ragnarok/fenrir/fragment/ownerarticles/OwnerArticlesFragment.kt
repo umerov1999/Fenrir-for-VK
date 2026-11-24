@@ -24,7 +24,6 @@ import dev.ragnarok.fenrir.model.Article
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.place.PlaceFactory.getExternalLinkPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSimpleGalleryPlace
-import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
 
 class OwnerArticlesFragment : BaseMvpFragment<OwnerArticlesPresenter, IOwnerArticlesView>(),
@@ -62,7 +61,7 @@ class OwnerArticlesFragment : BaseMvpFragment<OwnerArticlesPresenter, IOwnerArti
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = OwnerArticlesAdapter(emptyList(), requireActivity())
+        mAdapter = OwnerArticlesAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()
@@ -171,7 +170,11 @@ class OwnerArticlesFragment : BaseMvpFragment<OwnerArticlesPresenter, IOwnerArti
     }
 
     override fun onShare(article: Article) {
-        startForSendAttachments(requireActivity(), Settings.get().accounts().current, article)
+        startForSendAttachments(
+            requireActivity(),
+            requireArguments().getLong(Extra.ACCOUNT_ID),
+            article
+        )
     }
 
     companion object {

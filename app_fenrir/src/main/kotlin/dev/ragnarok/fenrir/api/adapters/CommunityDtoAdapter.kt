@@ -131,6 +131,7 @@ class CommunityDtoAdapter : AbsDtoAdapter<VKApiCommunity>("VKApiCommunity") {
         dto.can_see_all_posts = optBoolean(root, Fields.GROUP_FIELDS.CAN_SEE_ALL_POSTS)
         dto.can_upload_doc = optBoolean(root, Fields.GROUP_FIELDS.CAN_UPLOAD_DOC)
         dto.can_upload_video = optBoolean(root, Fields.GROUP_FIELDS.CAN_UPLOAD_VIDEO)
+        dto.can_upload_story = optBoolean(root, Fields.GROUP_FIELDS.CAN_UPLOAD_STORY)
         dto.can_create_topic = optBoolean(root, Fields.GROUP_FIELDS.CAN_CREATE_TOPIC)
         dto.is_favorite = optBoolean(root, Fields.GROUP_FIELDS.IS_FAVORITE)
         dto.is_subscribed = optBoolean(root, Fields.GROUP_FIELDS.IS_SUBSCRIBED)

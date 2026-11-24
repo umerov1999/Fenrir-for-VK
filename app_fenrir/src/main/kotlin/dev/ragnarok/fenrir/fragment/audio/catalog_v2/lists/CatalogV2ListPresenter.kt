@@ -25,8 +25,8 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class CatalogV2ListPresenter(
     accountId: Long,
-    private val owner_id: Long,
-    private val artist_id: String?,
+    private val ownerId: Long,
+    private val artistId: String?,
     private val query: String?,
     private val url: String?,
     context: Context,
@@ -45,18 +45,18 @@ class CatalogV2ListPresenter(
     }
 
     fun fireRepost(context: Context) {
-        if (artist_id.isNullOrEmpty()) {
+        if (artistId.isNullOrEmpty()) {
             return
         }
         netDisposable.add(
-            audioInteractor.getArtistById(accountId, artist_id).fromIOToMain({ artistInfo ->
+            audioInteractor.getArtistById(accountId, artistId).fromIOToMain({ artistInfo ->
                 artistInfo.id.ifNonNullNoEmpty({
                     startForSendAttachments(context, accountId, AudioArtist(it))
                 }, {
-                    startForSendAttachments(context, accountId, AudioArtist(artist_id))
+                    startForSendAttachments(context, accountId, AudioArtist(artistId))
                 })
             }, {
-                startForSendAttachments(context, accountId, AudioArtist(artist_id))
+                startForSendAttachments(context, accountId, AudioArtist(artistId))
             })
         )
     }
@@ -72,8 +72,8 @@ class CatalogV2ListPresenter(
         netDisposable.add(
             audioInteractor.getCatalogV2Sections(
                 accountId,
-                owner_id,
-                artist_id,
+                ownerId,
+                artistId,
                 url,
                 query,
                 null
@@ -101,7 +101,7 @@ class CatalogV2ListPresenter(
         @CatalogV2SortListCategory n: Int,
         catalogSections: List<CatalogV2List.CatalogV2ListItem>?
     ) {
-        if ((artist_id.nonNullNoEmpty() || query.nonNullNoEmpty() || url.nonNullNoEmpty()) && n != TYPE_CATALOG) {
+        if ((artistId.nonNullNoEmpty() || query.nonNullNoEmpty() || url.nonNullNoEmpty()) && n != TYPE_CATALOG) {
             return
         }
         when (n) {
@@ -121,7 +121,7 @@ class CatalogV2ListPresenter(
             }
 
             TYPE_LOCAL_AUDIO -> {
-                if (accountId == owner_id) {
+                if (accountId == ownerId) {
                     mSections.add(
                         CatalogV2List.CatalogV2ListItem(
                             TYPE_LOCAL_AUDIO,
@@ -132,7 +132,7 @@ class CatalogV2ListPresenter(
             }
 
             TYPE_LOCAL_SERVER_AUDIO -> {
-                if (accountId == owner_id && accountId >= 0 && Settings.get()
+                if (accountId == ownerId && accountId >= 0 && Settings.get()
                         .main().localServer.enabled
                 ) {
                     mSections.add(

@@ -29,6 +29,7 @@ import dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.CatalogV2SectionFr
 import dev.ragnarok.fenrir.fragment.audio.local.audioslocal.AudiosLocalFragment
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.localserver.audioslocalserver.AudiosLocalServerFragment
+import dev.ragnarok.fenrir.listener.OnSectionResumeCallback
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2List
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_AUDIO
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_CATALOG
@@ -37,6 +38,7 @@ import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Comp
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_PLAYLIST
 import dev.ragnarok.fenrir.model.catalog_v2_audio.CatalogV2SortListCategory.Companion.TYPE_RECOMMENDATIONS
 import dev.ragnarok.fenrir.nonNullNoEmpty
+import dev.ragnarok.fenrir.place.Place
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
@@ -46,6 +48,7 @@ import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toMain
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
+import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 
 class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2ListView>(),
     ICatalogV2ListView, MenuProvider {
@@ -240,10 +243,14 @@ class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2
 
     override fun onResume() {
         super.onResume()
+        Settings.get().ui().notifyPlaceResumed(Place.AUDIOS)
         val actionBar = supportToolbarFor(this)
         if (actionBar != null) {
             actionBar.setTitle(R.string.audio_catalog)
             actionBar.subtitle = null
+        }
+        if (requireActivity() is OnSectionResumeCallback) {
+            (requireActivity() as OnSectionResumeCallback).onSectionResume(AbsNavigationView.SECTION_ITEM_AUDIOS)
         }
         ActivityFeatures.Builder()
             .begin()
@@ -264,7 +271,7 @@ class CatalogV2ListFragment : BaseMvpFragment<CatalogV2ListPresenter, ICatalogV2
         override fun createFragment(position: Int): Fragment {
             if (pFragments[position].customType == TYPE_CATALOG) {
                 return CatalogV2SectionFragment.newInstance(
-                    Settings.get().accounts().current, pFragments[position].id.orEmpty(),
+                    requireArguments().getLong(Extra.ACCOUNT_ID), pFragments[position].id.orEmpty(),
                     isHideToolbar = true, supportSearch = isMain()
                 )
             } else when (pFragments[position].customType) {

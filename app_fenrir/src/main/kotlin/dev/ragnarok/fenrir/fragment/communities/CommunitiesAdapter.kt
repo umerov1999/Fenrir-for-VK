@@ -21,7 +21,6 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
 class CommunitiesAdapter(
-    private val context: Context,
     dataWrappers: List<DataWrapper<Community>>,
     @StringRes titles: Array<Int?>
 ) : MultyDataAdapter<Community, CommunitiesAdapter.Holder>(dataWrappers, titles) {
@@ -51,10 +50,15 @@ class CommunitiesAdapter(
             Constants.PICASSO_TAG
         )
         holder.tvName.text = community.fullName
-        holder.tvName.setTextColor(Utils.getVerifiedColor(context, community.isVerified))
+        holder.tvName.setTextColor(
+            Utils.getVerifiedColor(
+                holder.tvName.context,
+                community.isVerified
+            )
+        )
         holder.ivVerified.visibility = if (community.isVerified) View.VISIBLE else View.GONE
-        holder.subtitle.text = getCommunityType(context, community)
-        addSelectionProfileSupport(context, holder.avatar_root, community)
+        holder.subtitle.text = getCommunityType(holder.subtitle.context, community)
+        addSelectionProfileSupport(holder.avatar_root.context, holder.avatar_root, community)
         holder.contentRoot.setOnClickListener {
             actionListener?.onCommunityClick(community)
         }

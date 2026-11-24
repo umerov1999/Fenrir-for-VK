@@ -131,7 +131,7 @@ class LocalAudioAlbumsFragment :
     }
 
     interface Listener {
-        fun onSelected(bucket_id: Int)
+        fun onSelected(bucketId: Int)
     }
 
     companion object {

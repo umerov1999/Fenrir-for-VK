@@ -27,7 +27,8 @@ import dev.ragnarok.fenrir.api.model.longpoll.MinorIdUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.PinConversationUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.ReactionsUnreadInConversationUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInConversationUpdate
 import dev.ragnarok.fenrir.api.model.response.AttachmentsHistoryResponse
 import dev.ragnarok.fenrir.api.model.response.SendMessageResponse
 import dev.ragnarok.fenrir.db.interfaces.IStorages
@@ -92,7 +93,7 @@ import dev.ragnarok.fenrir.model.ReactionAsset
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.SentMsg
 import dev.ragnarok.fenrir.model.Sex
-import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInConversation
 import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.model.criteria.DialogsCriteria
 import dev.ragnarok.fenrir.model.criteria.MessagesCriteria
@@ -164,8 +165,8 @@ class MessagesRepository(
     private val peerUpdatePublisher = createPublishSubject<List<PeerUpdate>>()
     private val peerDeletingPublisher = createPublishSubject<PeerDeleting>()
     private val messageUpdatesPublisher = createPublishSubject<MessageUpdate>()
-    private val typingMessageOrUploadingInDialogPublisher =
-        createPublishSubject<List<TypingMessageOrUploadingInDialog>>()
+    private val typingMessageOrUploadingInConversationPublisher =
+        createPublishSubject<List<TypingMessageOrUploadingInConversation>>()
     private val sentMessagesPublisher = createPublishSubject<SentMsg>()
     private val sendErrorsPublisher = createPublishSubject<Throwable>()
     private val compositeJob = CompositeJob()
@@ -179,8 +180,8 @@ class MessagesRepository(
         return sendErrorsPublisher
     }
 
-    override fun observeTypingMessageOrUploadingInDialog(): SharedFlow<List<TypingMessageOrUploadingInDialog>> {
-        return typingMessageOrUploadingInDialogPublisher
+    override fun observeTypingMessageOrUploadingInDialog(): SharedFlow<List<TypingMessageOrUploadingInConversation>> {
+        return typingMessageOrUploadingInConversationPublisher
     }
 
     /*
@@ -356,16 +357,16 @@ class MessagesRepository(
         return applyMessagesPatchesAndPublish(accountId, patches)
     }
 
-    override fun handleTypingMessageOrUploadingInDialogUpdates(
+    override fun handleTypingMessageOrUploadingInConversationUpdates(
         accountId: Long,
-        updates: List<TypingMessageOrUploadingInDialogUpdate>?
+        updates: List<TypingMessageOrUploadingInConversationUpdate>?
     ): Flow<Boolean> {
         return flow {
             if (updates.nonNullNoEmpty()) {
-                val list: MutableList<TypingMessageOrUploadingInDialog> = ArrayList()
+                val list: MutableList<TypingMessageOrUploadingInConversation> = ArrayList()
                 for (update in updates) {
                     list.add(
-                        TypingMessageOrUploadingInDialog(
+                        TypingMessageOrUploadingInConversation(
                             accountId,
                             update.peerId,
                             update.fromIds,
@@ -373,7 +374,7 @@ class MessagesRepository(
                         )
                     )
                 }
-                typingMessageOrUploadingInDialogPublisher.emit(list)
+                typingMessageOrUploadingInConversationPublisher.emit(list)
             }
             emit(true)
         }
@@ -472,6 +473,23 @@ class MessagesRepository(
         if (updates.nonNullNoEmpty()) {
             for (update in updates) {
                 patches.add(PeerPatch(update.peerId).withMinorId(update.minorId))
+            }
+        }
+        return applyPeerUpdatesAndPublish(accountId, patches)
+    }
+
+    override fun handleReactionsUnreadInConversationUpdates(
+        accountId: Long,
+        updates: List<ReactionsUnreadInConversationUpdate>?
+    ): Flow<Boolean> {
+        val patches: MutableList<PeerPatch> = ArrayList()
+        if (updates.nonNullNoEmpty()) {
+            for (update in updates) {
+                patches.add(
+                    PeerPatch(update.peerId).withUnreadReactions(
+                        update.conversationMessageIds?.toList().orEmpty()
+                    )
+                )
             }
         }
         return applyPeerUpdatesAndPublish(accountId, patches)

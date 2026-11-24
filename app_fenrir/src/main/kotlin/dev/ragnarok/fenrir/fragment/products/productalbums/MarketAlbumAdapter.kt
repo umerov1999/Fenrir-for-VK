@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.products.productalbums
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,12 +14,12 @@ import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
-class MarketAlbumAdapter(private var data: List<MarketAlbum>, private val context: Context) :
+class MarketAlbumAdapter(private var data: List<MarketAlbum>) :
     RecyclerView.Adapter<MarketAlbumAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
-            LayoutInflater.from(context).inflate(R.layout.item_market_album, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_market_album, parent, false)
         )
     }
 
@@ -34,12 +33,12 @@ class MarketAlbumAdapter(private var data: List<MarketAlbum>, private val contex
         holder.title.text = market.title
         if (market.count == 0) holder.count.visibility = View.GONE else {
             holder.count.visibility = View.VISIBLE
-            holder.count.text = context.getString(R.string.markets_count, market.count)
+            holder.count.text = holder.count.context.getString(R.string.markets_count, market.count)
         }
         if (market.updated_time == 0L) holder.time.visibility = View.GONE else {
             holder.time.visibility = View.VISIBLE
             holder.time.text =
-                AppTextUtils.getDateFromUnixTime(context, market.updated_time)
+                AppTextUtils.getDateFromUnixTime(holder.time.context, market.updated_time)
         }
         holder.market_container.setOnClickListener {
             clickListener?.onOpenClick(holder.bindingAdapterPosition, market)

@@ -13,6 +13,7 @@ import dev.ragnarok.fenrir.place.PlaceFactory
 class DialogLocalServerOptionDialog : BottomSheetDialogFragment() {
     private var isDiscography = false
     private var isReverse = false
+    private var accountId = 0L
     private var toggleDiscography: MaterialButton? = null
     private var listener: DialogLocalServerOptionListener? = null
     override fun onPause() {
@@ -27,7 +28,7 @@ class DialogLocalServerOptionDialog : BottomSheetDialogFragment() {
     ): View? {
         val root = View.inflate(requireActivity(), R.layout.dialog_local_server_options, null)
         root.findViewById<MaterialButton>(R.id.file_manager).setOnClickListener {
-            PlaceFactory.getRemoteFileManager().tryOpenWith(requireActivity())
+            PlaceFactory.getRemoteFileManager(accountId).tryOpenWith(requireActivity())
             dismiss()
         }
         val scReverse: MaterialSwitch = root.findViewById(R.id.reverse_time)
@@ -63,11 +64,13 @@ class DialogLocalServerOptionDialog : BottomSheetDialogFragment() {
 
     companion object {
         fun newInstance(
+            accountId: Long,
             isDiscography: Boolean,
             isReverse: Boolean,
             listener: DialogLocalServerOptionListener?
         ): DialogLocalServerOptionDialog {
             val dialog = DialogLocalServerOptionDialog()
+            dialog.accountId = accountId
             dialog.listener = listener
             dialog.isDiscography = isDiscography
             dialog.isReverse = isReverse

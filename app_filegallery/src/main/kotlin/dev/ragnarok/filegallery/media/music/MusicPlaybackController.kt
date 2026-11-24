@@ -370,6 +370,18 @@ object MusicPlaybackController {
         }
 
     /**
+     * @return The queueCount.
+     */
+    val queueCount: Int
+        get() {
+            try {
+                return mService?.queueCount ?: 0
+            } catch (_: RemoteException) {
+            }
+            return 0
+        }
+
+    /**
      * Called when one of the lists should refresh or requery.
      */
     fun refresh() {

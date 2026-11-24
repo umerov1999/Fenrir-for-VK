@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.Photo
@@ -19,17 +20,22 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
 class SearchPhotosAdapter(
-    private val mContext: Context,
+    context: Context,
     photos: List<Photo>,
     private val mPicassoTag: String
 ) : RecyclerView.Adapter<SearchPhotosAdapter.PhotoViewHolder>() {
+    @ColorInt
     private val mColorPrimaryWithAlpha: Int =
-        Utils.adjustAlpha(CurrentTheme.getColorPrimary(mContext), 0.75f)
+        Utils.adjustAlpha(CurrentTheme.getColorPrimary(context), 0.75f)
+
+    @ColorInt
     private val mColorSecondaryWithAlpha: Int =
-        Utils.adjustAlpha(CurrentTheme.getColorSecondary(mContext), 0.60f)
+        Utils.adjustAlpha(CurrentTheme.getColorSecondary(context), 0.60f)
     private var data: List<Photo>
     private var mPhotosActionListener: PhotosActionListener? = null
-    private val colorPrimary: Int = CurrentTheme.getColorPrimary(mContext)
+
+    @ColorInt
+    private val colorPrimary: Int = CurrentTheme.getColorPrimary(context)
 
     private var currentPosition = -1
     fun updateCurrentPosition(currentPosition: Int) {
@@ -39,7 +45,7 @@ class SearchPhotosAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
         return PhotoViewHolder(
-            LayoutInflater.from(mContext).inflate(R.layout.vk_photo_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.vk_photo_item, parent, false)
         )
     }
 
@@ -83,7 +89,8 @@ class SearchPhotosAdapter(
             if (photo.likesCount + photo.commentsCount > 0) View.VISIBLE else View.GONE
         holder.bottomTop.visibility = View.VISIBLE
         holder.bottomTop.setBackgroundColor(mColorSecondaryWithAlpha)
-        holder.tvDate.text = AppTextUtils.getDateFromUnixTimeShorted(mContext, photo.date)
+        holder.tvDate.text =
+            AppTextUtils.getDateFromUnixTimeShorted(holder.tvDate.context, photo.date)
         holder.setSelected(false)
         val targetUrl = photo.getUrlForSize(PhotoSize.Q, false)
         if (targetUrl.nonNullNoEmpty()) {

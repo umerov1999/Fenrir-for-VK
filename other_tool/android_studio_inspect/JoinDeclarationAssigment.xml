@@ -134,6 +134,7 @@
   <inspection_tool class="AndroidLintGradleOverrides" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AndroidLintGradlePath" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AndroidLintGradlePluginVersion" enabled="false" level="ERROR" enabled_by_default="false" />
+  <inspection_tool class="AndroidLintGradleVersion" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AndroidLintGrantAllUris" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AndroidLintGridLayout" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintHalfFloat" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -246,6 +247,7 @@
   <inspection_tool class="AndroidLintMotionLayoutInvalidSceneFileReference" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintMotionLayoutMissingId" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintMotionSceneFileValidationError" enabled="false" level="ERROR" enabled_by_default="false" />
+  <inspection_tool class="AndroidLintMultiAppFunctionService" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintMultipleUsesSdk" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintMutableImplicitPendingIntent" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintMutatingSharedPrefs" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -365,6 +367,7 @@
   <inspection_tool class="AndroidLintStartActivityAndCollapseDeprecated" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintStateListReachable" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AndroidLintStaticFieldLeak" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="AndroidLintStaticInitializerThreadConstraint" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AndroidLintStringEscaping" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintStringFormatCount" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AndroidLintStringFormatInvalid" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -449,6 +452,7 @@
   <inspection_tool class="AndroidLintWatchFaceFormatDeclaresHasNoCode" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintWatchFaceFormatInvalidVersion" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintWatchFaceFormatMissingVersion" enabled="false" level="ERROR" enabled_by_default="false" />
+  <inspection_tool class="AndroidLintWatchFaceFormatRequiresHigherMinSdk" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintWearBackNavigation" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="AndroidLintWearMaterialTheme" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="AndroidLintWearPasswordInput" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -1097,6 +1101,7 @@
   <inspection_tool class="LightServiceMigrationCode" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LightServiceMigrationXML" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LightServiceMustBeFinal" enabled="false" level="ERROR" enabled_by_default="false" />
+  <inspection_tool class="LightbuildYamlSchemaValidation" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="LimitedScopeInnerClass" enabled="false" level="INFORMATION" enabled_by_default="false" />
   <inspection_tool class="ListIndexOfReplaceableByContains" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="ListRemoveInLoop" enabled="false" level="WARNING" enabled_by_default="false" />

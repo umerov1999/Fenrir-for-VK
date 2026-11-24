@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.feedback.feedbackvkofficial
 
-import android.content.Context
 import android.text.Html
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
@@ -33,8 +32,7 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
 class FeedbackVKOfficialAdapter(
-    private var items: List<FeedbackVKOfficial>,
-    private val context: Context
+    private var items: List<FeedbackVKOfficial>
 ) : RecyclerView.Adapter<FeedbackVKOfficialAdapter.Holder>() {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val mStartOfToday: Long = Utils.startOfTodayMillis()
@@ -50,7 +48,7 @@ class FeedbackVKOfficialAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
             LayoutInflater.from(
-                context
+                parent.context
             ).inflate(R.layout.item_feedback_official, parent, false)
         )
     }
@@ -70,7 +68,7 @@ class FeedbackVKOfficialAdapter(
                 )
                 Utils.setColorFilter(
                     holder.small, CurrentTheme.getColorPrimary(
-                        context
+                        holder.small.context
                     )
                 )
             } else {
@@ -82,7 +80,7 @@ class FeedbackVKOfficialAdapter(
                 )
                 Utils.setColorFilter(
                     holder.avatar, CurrentTheme.getColorPrimary(
-                        context
+                        holder.avatar.context
                     )
                 )
             }
@@ -177,7 +175,7 @@ class FeedbackVKOfficialAdapter(
             holder.name.visibility = View.VISIBLE
             val replace = SpannableStringBuilder(fromHtml(lit))
             holder.name.setText(
-                FeedbackLinkSpanFactory.parseLinks(context, replace),
+                FeedbackLinkSpanFactory.parseLinks(holder.name.context, replace),
                 TextView.BufferType.SPANNABLE
             )
             if (page.headerOwnerId != null) {
@@ -210,7 +208,7 @@ class FeedbackVKOfficialAdapter(
             holder.description.visibility = View.VISIBLE
             val replace = SpannableStringBuilder(fromHtml(it))
             holder.description.setText(
-                FeedbackLinkSpanFactory.parseLinks(context, replace),
+                FeedbackLinkSpanFactory.parseLinks(holder.description.context, replace),
                 TextView.BufferType.SPANNABLE
             )
         }, { holder.description.visibility = View.GONE })
@@ -218,11 +216,11 @@ class FeedbackVKOfficialAdapter(
             holder.footer.visibility = View.VISIBLE
             val replace = SpannableStringBuilder(fromHtml(it))
             holder.footer.setText(
-                FeedbackLinkSpanFactory.parseLinks(context, replace),
+                FeedbackLinkSpanFactory.parseLinks(holder.footer.context, replace),
                 TextView.BufferType.SPANNABLE
             )
         }, { holder.footer.visibility = View.GONE })
-        holder.time.text = AppTextUtils.getDateFromUnixTime(context, page.time)
+        holder.time.text = AppTextUtils.getDateFromUnixTime(holder.time.context, page.time)
         val img = page.getImage(256)
         if (img == null) {
             holder.additional.setOnClickListener { }
@@ -265,7 +263,7 @@ class FeedbackVKOfficialAdapter(
                                 listOf(r)
                             ), 0, true
                         ).tryOpenWith(
-                            context
+                            holder.photoImage.context
                         )
                     }
                 }
@@ -276,7 +274,7 @@ class FeedbackVKOfficialAdapter(
                 holder.photoImage.visibility = View.GONE
                 holder.attachments.visibility = View.VISIBLE
                 holder.attachments.layoutManager =
-                    LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+                    LinearLayoutManager(holder.attachments.context, RecyclerView.HORIZONTAL, false)
                 val adapter = FeedbackPhotosAdapter(page.attachments.orEmpty())
                 adapter.setPhotoSelectionListener(object :
                     FeedbackPhotosAdapter.PhotoSelectionListener {
@@ -288,7 +286,7 @@ class FeedbackVKOfficialAdapter(
                                 position,
                                 true
                             ).tryOpenWith(
-                                context
+                                holder.attachments.context
                             )
                         }
                     }

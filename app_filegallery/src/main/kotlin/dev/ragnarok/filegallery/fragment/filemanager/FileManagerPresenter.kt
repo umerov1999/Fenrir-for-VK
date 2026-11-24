@@ -1,8 +1,11 @@
 package dev.ragnarok.filegallery.fragment.filemanager
 
 import android.annotation.SuppressLint
+import android.media.MediaMetadataRetriever
+import android.os.Build
 import android.os.Environment
 import android.os.Parcelable
+import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManagerSavedState
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
@@ -11,6 +14,7 @@ import dev.ragnarok.filegallery.Includes
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.filePathToUrl
 import dev.ragnarok.filegallery.fragment.base.RxSupportPresenter
+import dev.ragnarok.filegallery.media.music.MusicPlaybackController.observeServiceBinding
 import dev.ragnarok.filegallery.model.Audio
 import dev.ragnarok.filegallery.model.FileItem
 import dev.ragnarok.filegallery.model.FileType
@@ -27,6 +31,7 @@ import dev.ragnarok.filegallery.upload.UploadDestination.Companion.forRemotePlay
 import dev.ragnarok.filegallery.upload.UploadIntent
 import dev.ragnarok.filegallery.upload.UploadResult
 import dev.ragnarok.filegallery.util.Utils
+import dev.ragnarok.filegallery.util.coroutines.CancelableJob
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import kotlinx.coroutines.flow.Flow
@@ -42,6 +47,7 @@ class FileManagerPresenter(
 ) : RxSupportPresenter<IFileManagerView>() {
     private val fileList: ArrayList<FileItem> = ArrayList()
     private val fileListSearch: ArrayList<FileItem> = ArrayList()
+    private var serviceStatusJob = CancelableJob()
     private var isLoading = false
     private val basePath = path.absolutePath
     private val directoryScrollPositions = HashMap<String, Pair<Parcelable, Int>>()
@@ -54,6 +60,11 @@ class FileManagerPresenter(
     fun setSelectedOwner(selectedOwner: TagOwner?) {
         this.selectedOwner = selectedOwner
         view?.updateSelectedMode(selectedOwner != null)
+    }
+
+    override fun onDestroyed() {
+        serviceStatusJob.cancel()
+        super.onDestroyed()
     }
 
     private val filter: FilenameFilter = FilenameFilter { dir, filename ->
@@ -160,10 +171,16 @@ class FileManagerPresenter(
         viewHost.displayData(if (q == null) fileList else fileListSearch)
         (if (q == null) path.absolutePath else q)?.let { viewHost.updatePathString(it) }
         viewHost.resolveEmptyText(if (q == null) fileList.isEmpty() else fileListSearch.isEmpty())
-        viewHost.resolveLoading(isLoading)
         viewHost.updateSelectedMode(selectedOwner != null)
         viewHost.displayUploads(uploadsData)
         resolveUploadDataVisibility()
+        resolveRefreshingView()
+    }
+
+    private fun resolveRefreshingView() {
+        view?.resolveLoading(
+            isLoading
+        )
     }
 
     private fun resolveUploadDataVisibility() {
@@ -305,8 +322,9 @@ class FileManagerPresenter(
 
     private fun loadCache(back: Boolean) {
         isLoading = true
+        resolveRefreshingView()
+
         view?.resolveEmptyText(false)
-        view?.resolveLoading(isLoading)
 
         appendJob(Includes.stores.searchQueriesStore().getFiles(path.absolutePath).fromIOToMain({
             fileList.clear()
@@ -322,7 +340,7 @@ class FileManagerPresenter(
                 )
             } else {
                 isLoading = false
-                view?.resolveLoading(isLoading)
+                resolveRefreshingView()
             }
         }, {
             view?.restoreScroll(LinearLayoutManagerSavedState(), 0)
@@ -344,14 +362,15 @@ class FileManagerPresenter(
         view?.resolveEmptyText(false)
         if (!fromCache) {
             isLoading = true
-            view?.resolveLoading(isLoading)
+            resolveRefreshingView()
         }
         appendJob(rxLoadFileList().fromIOToMain({
             fileList.clear()
             fileList.addAll(it)
             isLoading = false
+            resolveRefreshingView()
+
             view?.resolveEmptyText(fileList.isEmpty())
-            view?.resolveLoading(isLoading)
             view?.notifyAllChanged()
         }, {
             view?.showThrowable(it)
@@ -525,7 +544,8 @@ class FileManagerPresenter(
             return
         }
         isLoading = true
-        view?.resolveLoading(isLoading)
+        resolveRefreshingView()
+
         fixDirTimeRx(dir).fromIOToMain({
             view?.showMessage(R.string.success)
             isLoading = false
@@ -677,19 +697,19 @@ class FileManagerPresenter(
                 audio.setThumb_image(i.file_path?.filePathToUrl("thumb_file"))
                 audio.setDuration(i.size.toInt())
 
-                var TrackName: String =
+                var trackName: String =
                     i.file_name?.replace(".mp3", "") ?: ""
-                val Artist: String
-                val arr = TrackName.split(Regex(" - ")).toTypedArray()
+                val artist: String
+                val arr = trackName.split(Regex(" - ")).toTypedArray()
                 if (arr.size > 1) {
-                    Artist = arr[0]
-                    TrackName = TrackName.replace("$Artist - ", "")
+                    artist = arr[0]
+                    trackName = trackName.replace("$artist - ", "")
                 } else {
-                    Artist = i.parent_name ?: ""
+                    artist = i.parent_name ?: ""
                 }
                 audio.setIsLocal()
-                audio.setArtist(Artist)
-                audio.setTitle(TrackName)
+                audio.setArtist(artist)
+                audio.setTitle(trackName)
 
                 mAudios.add(audio)
                 o++
@@ -719,7 +739,8 @@ class FileManagerPresenter(
     @SuppressLint("CheckResult")
     fun fireDelete(item: FileItem) {
         isLoading = true
-        view?.resolveLoading(isLoading)
+        resolveRefreshingView()
+
         flow {
             if (item.type != FileType.folder) {
                 if (item.file_path?.let { it1 -> File(it1).delete() } == true) {
@@ -775,8 +796,58 @@ class FileManagerPresenter(
         return FileType.error
     }
 
+    private fun doLocalBitrate(url: String): Flow<Pair<Int, Long>> {
+        return flow {
+            val retriever = MediaMetadataRetriever()
+            var finalUrl = url
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                val uri = url.toUri()
+                if ("file" == uri.scheme) {
+                    finalUrl = uri.path.toString()
+                }
+            }
+            retriever.setDataSource(finalUrl)
+            val bitrate =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+            if (bitrate != null) {
+                emit(
+                    Pair(
+                        (bitrate.toLong() / 1000).toInt(),
+                        url.toUri().toFile().length()
+                    )
+                )
+            } else {
+                throw Throwable("Can't receipt bitrate ")
+            }
+        }
+    }
+
+    fun fireGetLocalBitrate(audio: Audio) {
+        val url = audio.url
+        if (url.isNullOrEmpty()) {
+            return
+        }
+        isLoading = true
+        resolveRefreshingView()
+
+        appendJob(doLocalBitrate(url).fromIOToMain({
+            isLoading = false
+            resolveRefreshingView()
+            view?.onShowBitrate(it.first, it.second)
+        }, {
+            isLoading = false
+            resolveRefreshingView()
+            view?.showThrowable(it)
+        }))
+    }
+
     init {
         loadFiles(back = false, caches = true, fromCache = false)
+
+        serviceStatusJob += observeServiceBinding()
+            .sharedFlowToMain {
+                view?.onServiceBindEvent(it)
+            }
 
         appendJob(
             uploadManager[remotePlay]

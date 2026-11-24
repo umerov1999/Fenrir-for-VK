@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.friends.allfriends
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +20,7 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.util.ViewUtils.getOnlineIcon
 
-class FriendsRecycleAdapter(private var data: List<UsersPart>, private val context: Context) :
+class FriendsRecycleAdapter(private var data: List<UsersPart>) :
     RecyclerView.Adapter<FriendsRecycleAdapter.Holder>() {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val transformationWithStory: Transformation =
@@ -29,7 +28,9 @@ class FriendsRecycleAdapter(private var data: List<UsersPart>, private val conte
     private var group = false
     private var listener: Listener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_new_user, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_new_user, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
@@ -43,9 +44,10 @@ class FriendsRecycleAdapter(private var data: List<UsersPart>, private val conte
             holder.headerTitle.setText(itemInfo.sectionTitleRes)
         }
         holder.name.text = user.fullName
-        holder.name.setTextColor(Utils.getVerifiedColor(context, user.isVerified))
-        holder.status.text = UserInfoResolveUtil.getUserActivityLine(context, user, true)
-        holder.status.setTextColor(if (user.isOnline) CurrentTheme.getColorPrimary(context) else STATUS_COLOR_OFFLINE)
+        holder.name.setTextColor(Utils.getVerifiedColor(holder.name.context, user.isVerified))
+        holder.status.text =
+            UserInfoResolveUtil.getUserActivityLine(holder.status.context, user, true)
+        holder.status.setTextColor(if (user.isOnline) CurrentTheme.getColorPrimary(holder.status.context) else STATUS_COLOR_OFFLINE)
         holder.online.visibility = if (user.isOnline) View.VISIBLE else View.GONE
         val onlineIcon =
             getOnlineIcon(user.isOnline, user.isOnlineMobile, user.platform, user.onlineApp)
@@ -61,7 +63,7 @@ class FriendsRecycleAdapter(private var data: List<UsersPart>, private val conte
         holder.itemView.setOnClickListener {
             listener?.onUserClick(user)
         }
-        addSelectionProfileSupport(context, holder.avatarRoot, user)
+        addSelectionProfileSupport(holder.avatarRoot.context, holder.avatarRoot, user)
         holder.ivVerified.visibility = if (user.isVerified) View.VISIBLE else View.GONE
     }
 
@@ -121,7 +123,7 @@ class FriendsRecycleAdapter(private var data: List<UsersPart>, private val conte
         val sectionTitleRes: Int
     )
 
-    inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val header: View = itemView.findViewById(R.id.header)
         val headerTitle: TextView = itemView.findViewById(R.id.title)
         val headerCount: TextView = itemView.findViewById(R.id.count)
@@ -135,7 +137,7 @@ class FriendsRecycleAdapter(private var data: List<UsersPart>, private val conte
         init {
             Utils.setColorFilter(
                 online, CurrentTheme.getColorPrimary(
-                    context
+                    online.context
                 )
             )
         }

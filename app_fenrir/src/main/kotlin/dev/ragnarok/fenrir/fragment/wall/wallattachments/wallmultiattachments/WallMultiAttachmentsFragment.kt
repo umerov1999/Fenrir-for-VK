@@ -145,13 +145,13 @@ class WallMultiAttachmentsFragment :
         mLinksAdapter = LinksAdapter(mutableListOf())
         mLinksAdapter?.setActionListener(this)
 
-        mPhotoAlbumAdapter = PhotoAlbumsAdapter(emptyList(), requireActivity())
+        mPhotoAlbumAdapter = PhotoAlbumsAdapter(emptyList())
         mPhotoAlbumAdapter?.setClickListener(this)
 
         mPhotoAdapter = FavePhotosAdapter(requireActivity(), emptyList())
         mPhotoAdapter?.setPhotoSelectionListener(this)
 
-        mVideoAdapter = VideosAdapter(requireActivity(), emptyList())
+        mVideoAdapter = VideosAdapter(emptyList())
         mVideoAdapter?.setVideoOnClickListener(this)
 
         mPostsWithCommentsAdapter = WallAdapter(requireActivity(), mutableListOf(), this, this)

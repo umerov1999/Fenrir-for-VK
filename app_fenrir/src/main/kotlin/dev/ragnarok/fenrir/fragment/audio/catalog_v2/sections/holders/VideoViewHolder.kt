@@ -24,7 +24,7 @@ import dev.ragnarok.fenrir.view.natives.animation.AspectRatioAnimatedShapeableIm
 class VideoViewHolder(itemView: View) : IViewHolder(itemView) {
     val card: View = itemView.findViewById(R.id.card_view)
     val image: AspectRatioAnimatedShapeableImageView = itemView.findViewById(R.id.video_image)
-    val videoLenght: TextView = itemView.findViewById(R.id.video_lenght)
+    val videoLength: TextView = itemView.findViewById(R.id.video_length)
     val videoService: ImageView = itemView.findViewById(R.id.video_service)
     val title: TextView = itemView.findViewById(R.id.title)
     val viewsCount: TextView = itemView.findViewById(R.id.view_count)
@@ -53,7 +53,7 @@ class VideoViewHolder(itemView: View) : IViewHolder(itemView) {
         val video = itemDataHolder as Video
         viewsCount.text = String.format(Utils.appLocale, "%d", video.views)
         title.text = video.title
-        videoLenght.text = AppTextUtils.getDurationString(video.duration)
+        videoLength.text = AppTextUtils.getDurationString(video.duration)
         val photoUrl = video.image
         val trailerUrl = video.trailer
         if (isAutoPlayVideo == 1 && trailerUrl.nonNullNoEmpty() || isAutoPlayVideo == 2) {

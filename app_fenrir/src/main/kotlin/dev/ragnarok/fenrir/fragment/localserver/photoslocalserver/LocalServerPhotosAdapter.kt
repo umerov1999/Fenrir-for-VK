@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
@@ -19,12 +20,15 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.AspectRatioImageView
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
-class LocalServerPhotosAdapter(private val mContext: Context, private var data: List<Photo>) :
+class LocalServerPhotosAdapter(context: Context, private var data: List<Photo>) :
     RecyclerView.Adapter<LocalServerPhotosAdapter.ViewHolder>() {
-    private val colorPrimary: Int = CurrentTheme.getColorPrimary(mContext)
+    @ColorInt
+    private val colorPrimary: Int = CurrentTheme.getColorPrimary(context)
+
+    @ColorInt
     private val mColorSecondaryWithAlpha: Int = Utils.adjustAlpha(
         CurrentTheme.getColorSecondary(
-            mContext
+            context
         ), 0.60f
     )
     private var photoSelectionListener: PhotoSelectionListener? = null
@@ -72,7 +76,8 @@ class LocalServerPhotosAdapter(private val mContext: Context, private var data: 
             photoSelectionListener?.onPhotoClicked(viewHolder.bindingAdapterPosition, photo)
         }
         viewHolder.bottomTop.setBackgroundColor(mColorSecondaryWithAlpha)
-        viewHolder.tvDate.text = AppTextUtils.getDateFromUnixTimeShorted(mContext, photo.date)
+        viewHolder.tvDate.text =
+            AppTextUtils.getDateFromUnixTimeShorted(viewHolder.tvDate.context, photo.date)
     }
 
     override fun getItemCount(): Int {

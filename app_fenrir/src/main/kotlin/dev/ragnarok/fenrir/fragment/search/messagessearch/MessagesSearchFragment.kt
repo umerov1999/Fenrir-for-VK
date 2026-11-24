@@ -18,7 +18,6 @@ import dev.ragnarok.fenrir.model.Peer
 import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.place.PlaceFactory.getChatPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getMessagesLookupPlace
-import dev.ragnarok.fenrir.settings.Settings
 
 class MessagesSearchFragment :
     AbsSearchFragment<MessagesSearchPresenter, IMessagesSearchView, Message, MessagesAdapter>(),
@@ -30,7 +29,7 @@ class MessagesSearchFragment :
     override fun postCreate(root: View) {}
     override fun createAdapter(data: MutableList<Message>): MessagesAdapter {
         val adapter = MessagesAdapter(
-            Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             requireActivity(),
             data,
             LastReadId(0, 0),

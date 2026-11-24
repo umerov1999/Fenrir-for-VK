@@ -18,6 +18,18 @@ class CommunityDetailsEntity {
         private set
     var isCanMessage = false
         private set
+    var isCanUploadVideo = false
+        private set
+    var isCanPost = false
+        private set
+    var isCanSeeAllPost = false
+        private set
+    var isCanUploadDoc = false
+        private set
+    var isCanUploadStory = false
+        private set
+    var isCanCreateTopic = false
+        private set
     var isSetFavorite = false
         private set
     var isSetSubscribed = false
@@ -112,6 +124,36 @@ class CommunityDetailsEntity {
 
     fun setCanMessage(canMessage: Boolean): CommunityDetailsEntity {
         isCanMessage = canMessage
+        return this
+    }
+
+    fun setCanUploadVideo(canUploadVideo: Boolean): CommunityDetailsEntity {
+        isCanUploadVideo = canUploadVideo
+        return this
+    }
+
+    fun setCanPost(canPost: Boolean): CommunityDetailsEntity {
+        isCanPost = canPost
+        return this
+    }
+
+    fun setCanSeeAllPost(canSeeAllPost: Boolean): CommunityDetailsEntity {
+        isCanSeeAllPost = canSeeAllPost
+        return this
+    }
+
+    fun setCanUploadDoc(canUploadDoc: Boolean): CommunityDetailsEntity {
+        isCanUploadDoc = canUploadDoc
+        return this
+    }
+
+    fun setCanUploadStory(canUploadStory: Boolean): CommunityDetailsEntity {
+        isCanUploadStory = canUploadStory
+        return this
+    }
+
+    fun setCanCreateTopic(canCreateTopic: Boolean): CommunityDetailsEntity {
+        isCanCreateTopic = canCreateTopic
         return this
     }
 

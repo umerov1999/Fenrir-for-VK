@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.holder.IdentificableHolder
@@ -28,17 +29,21 @@ import dev.ragnarok.fenrir.view.CircleRoadProgress
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
 class BigVKPhotosAdapter(
-    private val mContext: Context,
+    context: Context,
     uploads: List<Upload>,
     photoWrappers: List<SelectablePhotoWrapper>,
     picassoTag: String
 ) : DifferentDataAdapter() {
     private val mUploadViewHolders: SharedHolders<UploadViewHolder> = SharedHolders(false)
     private val mPhotoHolders: MutableSet<PhotoViewHolder> = HashSet()
+
+    @ColorInt
     private val mColorPrimaryWithAlpha: Int =
-        Utils.adjustAlpha(CurrentTheme.getColorPrimary(mContext), 0.75f)
+        Utils.adjustAlpha(CurrentTheme.getColorPrimary(context), 0.75f)
+
+    @ColorInt
     private val mColorSecondaryWithAlpha: Int =
-        Utils.adjustAlpha(CurrentTheme.getColorSecondary(mContext), 0.60f)
+        Utils.adjustAlpha(CurrentTheme.getColorSecondary(context), 0.60f)
     private val mPicassoTag: String = picassoTag
     private var isShowBDate = false
     private var mPhotosActionListener: PhotosActionListener? = null
@@ -50,11 +55,13 @@ class BigVKPhotosAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             VIEW_TYPE_PHOTO -> PhotoViewHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.vk_photo_item_big, parent, false)
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.vk_photo_item_big, parent, false)
             )
 
             VIEW_TYPE_UPLOAD -> UploadViewHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.vk_upload_photo_item, parent, false)
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.vk_upload_photo_item, parent, false)
             )
 
             else -> throw UnsupportedOperationException()
@@ -117,7 +124,8 @@ class BigVKPhotosAdapter(
         if (isShowBDate) {
             holder.bottomTop.visibility = View.VISIBLE
             holder.bottomTop.setBackgroundColor(mColorSecondaryWithAlpha)
-            holder.tvDate.text = AppTextUtils.getDateFromUnixTimeShorted(mContext, photo.date)
+            holder.tvDate.text =
+                AppTextUtils.getDateFromUnixTimeShorted(holder.tvDate.context, photo.date)
         } else {
             holder.bottomTop.visibility = View.GONE
         }
@@ -126,7 +134,7 @@ class BigVKPhotosAdapter(
                 holder.current.visibility = View.VISIBLE
                 holder.current.fromRes(
                     dev.ragnarok.fenrir_common.R.raw.donater_fire,
-                    intArrayOf(0xFF812E, CurrentTheme.getColorPrimary(mContext)),
+                    intArrayOf(0xFF812E, CurrentTheme.getColorPrimary(holder.current.context)),
                     true
                 )
                 holder.current.startAnimation()

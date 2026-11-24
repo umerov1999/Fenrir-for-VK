@@ -74,7 +74,7 @@ class RequestsFragment : BaseMvpFragment<RequestsPresenter, IRequestsView>(),
         val imm =
             requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
         imm?.hideSoftInputFromWindow(mySearchView.windowToken, 0)
-        mAdapter = FriendsRecycleAdapter(emptyList(), requireActivity())
+        mAdapter = FriendsRecycleAdapter(emptyList())
         mAdapter?.setListener(this)
         mRecyclerView.adapter = mAdapter
         return root

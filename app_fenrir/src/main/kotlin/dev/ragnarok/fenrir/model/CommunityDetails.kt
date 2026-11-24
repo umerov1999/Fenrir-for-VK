@@ -20,6 +20,18 @@ class CommunityDetails : Parcelable {
         private set
     var canMessage = false
         private set
+    var isCanUploadVideo = false
+        private set
+    var isCanPost = false
+        private set
+    var isCanSeeAllPost = false
+        private set
+    var isCanUploadDoc = false
+        private set
+    var isCanUploadStory = false
+        private set
+    var isCanCreateTopic = false
+        private set
     var isFavorite = false
         private set
     var isSubscribed = false
@@ -65,6 +77,12 @@ class CommunityDetails : Parcelable {
         suggestedWallCount = parcel.readInt()
         donutWallCount = parcel.readInt()
         canMessage = parcel.getBoolean()
+        isCanUploadVideo = parcel.getBoolean()
+        isCanPost = parcel.getBoolean()
+        isCanSeeAllPost = parcel.getBoolean()
+        isCanUploadDoc = parcel.getBoolean()
+        isCanUploadStory = parcel.getBoolean()
+        isCanCreateTopic = parcel.getBoolean()
         isFavorite = parcel.getBoolean()
         isSubscribed = parcel.getBoolean()
         topicsCount = parcel.readInt()
@@ -152,6 +170,36 @@ class CommunityDetails : Parcelable {
 
     fun setCanMessage(canMessage: Boolean): CommunityDetails {
         this.canMessage = canMessage
+        return this
+    }
+
+    fun setCanUploadVideo(canUploadVideo: Boolean): CommunityDetails {
+        isCanUploadVideo = canUploadVideo
+        return this
+    }
+
+    fun setCanPost(canPost: Boolean): CommunityDetails {
+        isCanPost = canPost
+        return this
+    }
+
+    fun setCanSeeAllPost(canSeeAllPost: Boolean): CommunityDetails {
+        isCanSeeAllPost = canSeeAllPost
+        return this
+    }
+
+    fun setCanUploadDoc(canUploadDoc: Boolean): CommunityDetails {
+        isCanUploadDoc = canUploadDoc
+        return this
+    }
+
+    fun setCanUploadStory(canUploadStory: Boolean): CommunityDetails {
+        isCanUploadStory = canUploadStory
+        return this
+    }
+
+    fun setCanCreateTopic(canCreateTopic: Boolean): CommunityDetails {
+        isCanCreateTopic = canCreateTopic
         return this
     }
 
@@ -320,6 +368,12 @@ class CommunityDetails : Parcelable {
         parcel.writeInt(suggestedWallCount)
         parcel.writeInt(donutWallCount)
         parcel.putBoolean(canMessage)
+        parcel.putBoolean(isCanUploadVideo)
+        parcel.putBoolean(isCanPost)
+        parcel.putBoolean(isCanSeeAllPost)
+        parcel.putBoolean(isCanUploadDoc)
+        parcel.putBoolean(isCanUploadStory)
+        parcel.putBoolean(isCanCreateTopic)
         parcel.putBoolean(isFavorite)
         parcel.putBoolean(isSubscribed)
         parcel.writeInt(topicsCount)

@@ -22,7 +22,7 @@ class CommunitiesSearchFragment :
 
     override fun postCreate(root: View) {}
     override fun createAdapter(data: MutableList<Community>): PeopleAdapter {
-        val adapter = PeopleAdapter(requireActivity(), data)
+        val adapter = PeopleAdapter(data)
         adapter.setClickListener(this)
         return adapter
     }

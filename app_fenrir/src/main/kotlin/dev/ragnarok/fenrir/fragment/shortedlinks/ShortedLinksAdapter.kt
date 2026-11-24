@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.shortedlinks
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,17 +11,19 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.ShortLink
 import dev.ragnarok.fenrir.util.AppTextUtils
 
-class ShortedLinksAdapter(private var data: List<ShortLink>, private val context: Context) :
+class ShortedLinksAdapter(private var data: List<ShortLink>) :
     RecyclerView.Adapter<ShortedLinksAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_short_link, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_short_link, parent, false)
+        )
     }
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val link = data[position]
-        holder.time.text = AppTextUtils.getDateFromUnixTime(context, link.timestamp)
+        holder.time.text = AppTextUtils.getDateFromUnixTime(holder.time.context, link.timestamp)
         holder.views.text = link.views.toString()
         holder.short_link.text = link.short_url
         holder.original.text = link.url

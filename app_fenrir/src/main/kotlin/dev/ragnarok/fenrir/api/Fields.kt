@@ -80,6 +80,7 @@ object Fields {
         const val CAN_SEE_ALL_POSTS = "can_see_all_posts"
         const val CAN_UPLOAD_DOC = "can_upload_doc"
         const val CAN_UPLOAD_VIDEO = "can_upload_video"
+        const val CAN_UPLOAD_STORY = "can_upload_story"
         const val CHATS_STATUS = "chats_status"
         const val CITY = "city"
         const val CONTACTS = "contacts"

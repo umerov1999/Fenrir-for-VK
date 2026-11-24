@@ -23,8 +23,7 @@ import kotlinx.serialization.json.internal.formatEncodingException
  * @property hint optional suggestions for the developer that can help fix or diagnose the problem.
  */
 @ExperimentalSerializationApi
-sealed class JsonException(override val message: String, cause: Throwable?) :
-    SerializationException(message, cause) {
+sealed class JsonException(override val message: String) : SerializationException(message) {
     abstract val shortMessage: String
     abstract val hint: String?
 }
@@ -66,8 +65,7 @@ class JsonDecodingException @Deprecated(
     val path: String?,
     val input: String?,
     override val hint: String?,
-    cause: Throwable? = null
-) : JsonException(fullMessage, cause)
+) : JsonException(fullMessage)
 
 /**
  * Thrown when [Json] fails to encode a value to a JSON string.
@@ -87,6 +85,5 @@ class JsonDecodingException @Deprecated(
 class JsonEncodingException internal constructor(
     override val shortMessage: String,
     val classSerialName: String? = null,
-    override val hint: String? = null,
-    cause: Throwable? = null
-) : JsonException(formatEncodingException(shortMessage, hint), cause)
+    override val hint: String? = null
+) : JsonException(formatEncodingException(shortMessage, hint))

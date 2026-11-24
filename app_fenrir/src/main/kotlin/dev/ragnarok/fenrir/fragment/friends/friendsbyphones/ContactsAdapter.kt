@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.friends.friendsbyphones
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,13 +19,13 @@ import dev.ragnarok.fenrir.util.UserInfoResolveUtil
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
-class ContactsAdapter(private val mContext: Context, private var mData: List<ContactConversation>) :
+class ContactsAdapter(private var mData: List<ContactConversation>) :
     RecyclerView.Adapter<ContactsAdapter.ContactHolder>() {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private var mClickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactHolder {
         return ContactHolder(
-            LayoutInflater.from(mContext).inflate(R.layout.item_contact, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_contact, parent, false)
         )
     }
 

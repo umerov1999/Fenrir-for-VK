@@ -26,7 +26,13 @@ interface IWallView : IAttachmentsPlacesView, IMvpView, ISnackbarView,
     fun openPhotoAlbums(accountId: Long, ownerId: Long, owner: Owner?)
     fun openAudios(accountId: Long, ownerId: Long, owner: Owner?)
     fun openArticles(accountId: Long, ownerId: Long, owner: Owner?)
-    fun openVideosLibrary(accountId: Long, ownerId: Long, owner: Owner?)
+    fun openVideosLibrary(
+        accountId: Long,
+        ownerId: Long,
+        owner: Owner?,
+        canCommunityUpload: Boolean
+    )
+
     fun goToPostCreation(accountId: Long, ownerId: Long, @EditingPostType postType: Int)
     fun copyToClipboard(label: String?, body: String?)
     fun displayGallery(

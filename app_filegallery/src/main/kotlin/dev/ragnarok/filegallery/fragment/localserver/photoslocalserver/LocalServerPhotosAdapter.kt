@@ -19,12 +19,12 @@ import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.view.AspectRatioImageView
 import dev.ragnarok.filegallery.view.natives.animation.ThorVGLottieView
 
-class LocalServerPhotosAdapter(private val mContext: Context, private var data: List<Photo>) :
+class LocalServerPhotosAdapter(context: Context, private var data: List<Photo>) :
     RecyclerView.Adapter<LocalServerPhotosAdapter.ViewHolder>() {
-    private val colorPrimary: Int = getColorPrimary(mContext)
+    private val colorPrimary: Int = getColorPrimary(context)
     private val mColorSecondaryWithAlpha: Int = Utils.adjustAlpha(
         getColorSecondary(
-            mContext
+            context
         ), 0.60f
     )
     private var photoSelectionListener: PhotoSelectionListener? = null
@@ -72,7 +72,8 @@ class LocalServerPhotosAdapter(private val mContext: Context, private var data: 
             photoSelectionListener?.onPhotoClicked(viewHolder.bindingAdapterPosition, photo)
         }
         viewHolder.bottomTop.setBackgroundColor(mColorSecondaryWithAlpha)
-        viewHolder.tvDate.text = AppTextUtils.getDateFromUnixTimeShorted(mContext, photo.date)
+        viewHolder.tvDate.text =
+            AppTextUtils.getDateFromUnixTimeShorted(viewHolder.tvDate.context, photo.date)
     }
 
     override fun getItemCount(): Int {

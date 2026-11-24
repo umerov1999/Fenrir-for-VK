@@ -179,11 +179,11 @@ object OwnerLinkSpanFactory {
             if (link.targetLine.isNullOrEmpty()) {
                 continue
             }
-            val origLenght = link.end - link.start
-            val newLenght = link.targetLine?.length.orZero()
-            shiftLinks(links, link, origLenght - newLenght)
+            val origLength = link.end - link.start
+            val newLength = link.targetLine?.length.orZero()
+            shiftLinks(links, link, origLength - newLength)
             link.targetLine?.let { result.replace(link.start, link.end, it) }
-            link.end -= (origLenght - newLenght)
+            link.end -= (origLength - newLength)
         }
         return result.toString()
     }

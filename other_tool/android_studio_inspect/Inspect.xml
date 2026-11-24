@@ -160,6 +160,7 @@
   <inspection_tool class="LightServiceMigrationCode" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LightServiceMigrationXML" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LightServiceMustBeFinal" enabled="false" level="ERROR" enabled_by_default="false" />
+  <inspection_tool class="LightbuildYamlSchemaValidation" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="ListenerImplementationMustNotBeDisposable" enabled="false" level="ERROR" enabled_by_default="false" />
   <inspection_tool class="LiveTemplateI18n" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="LocalVariableName" enabled="false" level="WEAK WARNING" enabled_by_default="false" />

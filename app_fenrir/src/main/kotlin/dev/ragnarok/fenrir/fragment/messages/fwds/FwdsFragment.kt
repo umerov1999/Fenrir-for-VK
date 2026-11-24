@@ -24,7 +24,6 @@ import dev.ragnarok.fenrir.model.LastReadId
 import dev.ragnarok.fenrir.model.Message
 import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.place.PlaceFactory
-import dev.ragnarok.fenrir.settings.Settings
 
 class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMessageActionListener,
     IFwdsView, VoiceActionListener {
@@ -47,7 +46,7 @@ class FwdsFragment : PlaceSupportMvpFragment<FwdsPresenter, IFwdsView>(), OnMess
         val recyclerView: RecyclerView = root.findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireActivity())
         mAdapter = MessagesAdapter(
-            Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             requireActivity(),
             mutableListOf(),
             LastReadId(0, 0),

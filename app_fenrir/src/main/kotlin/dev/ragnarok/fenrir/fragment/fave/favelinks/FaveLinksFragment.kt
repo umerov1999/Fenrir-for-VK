@@ -50,7 +50,7 @@ class FaveLinksFragment : BaseMvpFragment<FaveLinksPresenter, IFaveLinksView>(),
         mSwipeRefreshLayout?.setOnRefreshListener {
             presenter?.fireRefresh()
         }
-        mAdapter = FaveLinksAdapter(emptyList(), requireActivity())
+        mAdapter = FaveLinksAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyText()

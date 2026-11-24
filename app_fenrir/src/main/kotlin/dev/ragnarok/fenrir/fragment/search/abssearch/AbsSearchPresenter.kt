@@ -98,7 +98,7 @@ abstract class AbsSearchPresenter<V : IBaseSearchView<T>, C : BaseSearchCriteria
         view?.setEmptyTextVisible(data.isEmpty())
     }
 
-    private fun setLoadingNow(loadingNow: Boolean) {
+    protected fun setLoadingNow(loadingNow: Boolean) {
         this.loadingNow = loadingNow
         resolveLoadingView()
     }

@@ -10,7 +10,8 @@ import dev.ragnarok.fenrir.api.model.longpoll.MinorIdUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.PinConversationUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.ReactionsUnreadInConversationUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInConversationUpdate
 import dev.ragnarok.fenrir.api.model.response.AttachmentsHistoryResponse
 import dev.ragnarok.fenrir.domain.FetchMode
 import dev.ragnarok.fenrir.model.AbsModel
@@ -28,7 +29,7 @@ import dev.ragnarok.fenrir.model.ReactedMessagesPeers
 import dev.ragnarok.fenrir.model.ReactionAsset
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.SentMsg
-import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInConversation
 import dev.ragnarok.fenrir.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
@@ -57,14 +58,19 @@ interface IMessagesRepository {
         updates: List<MinorIdUpdate>?,
     ): Flow<Boolean>
 
+    fun handleReactionsUnreadInConversationUpdates(
+        accountId: Long,
+        updates: List<ReactionsUnreadInConversationUpdate>?,
+    ): Flow<Boolean>
+
     fun handleUnreadBadgeUpdates(
         accountId: Long,
         updates: List<BadgeCountChangeUpdate>?
     ): Flow<Boolean>
 
-    fun handleTypingMessageOrUploadingInDialogUpdates(
+    fun handleTypingMessageOrUploadingInConversationUpdates(
         accountId: Long,
-        updates: List<TypingMessageOrUploadingInDialogUpdate>?
+        updates: List<TypingMessageOrUploadingInConversationUpdate>?
     ): Flow<Boolean>
 
     fun handleMessageReactionsChangedUpdates(
@@ -75,7 +81,7 @@ interface IMessagesRepository {
     fun observeSentMessages(): SharedFlow<SentMsg>
     fun observePeerUpdates(): SharedFlow<List<PeerUpdate>>
     fun observeMessageUpdates(): SharedFlow<MessageUpdate>
-    fun observeTypingMessageOrUploadingInDialog(): SharedFlow<List<TypingMessageOrUploadingInDialog>>
+    fun observeTypingMessageOrUploadingInDialog(): SharedFlow<List<TypingMessageOrUploadingInConversation>>
     fun observePeerDeleting(): SharedFlow<PeerDeleting>
     fun getConversationByIdSingle(
         accountId: Long,

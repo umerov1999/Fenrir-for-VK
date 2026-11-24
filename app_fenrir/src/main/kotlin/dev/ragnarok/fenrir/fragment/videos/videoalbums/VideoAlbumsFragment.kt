@@ -35,7 +35,7 @@ class VideoAlbumsFragment : BaseMvpFragment<VideoAlbumsPresenter, IVideoAlbumsVi
         }
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
         mEmpty = root.findViewById(R.id.empty)
-        val columns = requireActivity().resources.getInteger(R.integer.videos_column_count)
+        val columns = resources.getInteger(R.integer.videos_column_count)
         val manager = StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.layoutManager = manager
         PicassoPauseOnScrollListener.addListener(recyclerView, VideoAlbumsNewAdapter.PICASSO_TAG)
@@ -44,7 +44,7 @@ class VideoAlbumsFragment : BaseMvpFragment<VideoAlbumsPresenter, IVideoAlbumsVi
                 presenter?.fireScrollToLast()
             }
         })
-        mAdapter = VideoAlbumsNewAdapter(requireActivity(), emptyList())
+        mAdapter = VideoAlbumsNewAdapter(emptyList())
         mAdapter?.setListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()
@@ -98,7 +98,8 @@ class VideoAlbumsFragment : BaseMvpFragment<VideoAlbumsPresenter, IVideoAlbumsVi
             ownerId,
             albumId,
             action,
-            title
+            title,
+            requireArguments().getBoolean(Extra.CAN_COMMUNITY_UPLOAD)
         ).tryOpenWith(requireActivity())
     }
 
@@ -123,15 +124,26 @@ class VideoAlbumsFragment : BaseMvpFragment<VideoAlbumsPresenter, IVideoAlbumsVi
             return fragment
         }
 
-        fun newInstance(accountId: Long, ownerId: Long, action: String?): VideoAlbumsFragment {
-            return newInstance(buildArgs(accountId, ownerId, action))
+        fun newInstance(
+            accountId: Long,
+            ownerId: Long,
+            action: String?,
+            canCommunityUpload: Boolean
+        ): VideoAlbumsFragment {
+            return newInstance(buildArgs(accountId, ownerId, action, canCommunityUpload))
         }
 
-        fun buildArgs(aid: Long, ownerId: Long, action: String?): Bundle {
+        fun buildArgs(
+            aid: Long,
+            ownerId: Long,
+            action: String?,
+            canCommunityUpload: Boolean
+        ): Bundle {
             val args = Bundle()
             args.putLong(Extra.ACCOUNT_ID, aid)
             args.putLong(Extra.OWNER_ID, ownerId)
             args.putString(Extra.ACTION, action)
+            args.putBoolean(Extra.CAN_COMMUNITY_UPLOAD, canCommunityUpload)
             return args
         }
     }

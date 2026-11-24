@@ -35,15 +35,16 @@ import dev.ragnarok.fenrir.view.navigation.AbsNavigationView
 import kotlin.math.max
 
 class VideosTabsFragment : BaseFragment(), MenuProvider {
-    var accountId = 0L
-        private set
+    private var accountId = 0L
     private var ownerId = 0L
     private var action: String? = null
+    private var canCommunityUpload = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         accountId = requireArguments().getLong(Extra.ACCOUNT_ID)
         ownerId = requireArguments().getLong(Extra.OWNER_ID)
         action = requireArguments().getString(Extra.ACTION)
+        canCommunityUpload = requireArguments().getBoolean(Extra.CAN_COMMUNITY_UPLOAD)
     }
 
     override fun onCreateView(
@@ -153,19 +154,31 @@ class VideosTabsFragment : BaseFragment(), MenuProvider {
         return false
     }
 
-    internal fun CreateVideosFragment(option_menu: Int): Fragment {
-        when (option_menu) {
+    internal fun createVideosFragment(optionMenu: Int): Fragment {
+        when (optionMenu) {
             LOCAL_SERVER -> return VideosLocalServerFragment.newInstance(
                 accountId
             )
 
             VIDEOS -> {
-                val fragment = VideosFragment.newInstance(accountId, ownerId, 0, action, null)
+                val fragment = VideosFragment.newInstance(
+                    accountId,
+                    ownerId,
+                    0,
+                    action,
+                    null,
+                    canCommunityUpload
+                )
                 fragment.requireArguments().putBoolean(Extra.IN_TABS_CONTAINER, true)
                 return fragment
             }
 
-            ALBUMS -> return VideoAlbumsFragment.newInstance(accountId, ownerId, action)
+            ALBUMS -> return VideoAlbumsFragment.newInstance(
+                accountId,
+                ownerId,
+                action,
+                canCommunityUpload
+            )
         }
         throw UnsupportedOperationException()
     }
@@ -181,7 +194,7 @@ class VideosTabsFragment : BaseFragment(), MenuProvider {
         }
 
         override fun createFragment(position: Int): Fragment {
-            return CreateVideosFragment(pFragments[position])
+            return createVideosFragment(pFragments[position])
         }
 
         override fun getItemCount(): Int {
@@ -193,16 +206,22 @@ class VideosTabsFragment : BaseFragment(), MenuProvider {
         const val LOCAL_SERVER = -1
         const val VIDEOS = 0
         const val ALBUMS = 1
-        fun buildArgs(accountId: Long, ownerId: Long, action: String?): Bundle {
+        fun buildArgs(
+            accountId: Long,
+            ownerId: Long,
+            action: String?,
+            canCommunityUpload: Boolean
+        ): Bundle {
             val args = Bundle()
             args.putLong(Extra.ACCOUNT_ID, accountId)
             args.putLong(Extra.OWNER_ID, ownerId)
             args.putString(Extra.ACTION, action)
+            args.putBoolean(Extra.CAN_COMMUNITY_UPLOAD, canCommunityUpload)
             return args
         }
 
         fun newInstance(accountId: Long, ownerId: Long, action: String?): VideosTabsFragment {
-            return newInstance(buildArgs(accountId, ownerId, action))
+            return newInstance(buildArgs(accountId, ownerId, action, false))
         }
 
         fun newInstance(args: Bundle?): VideosTabsFragment {

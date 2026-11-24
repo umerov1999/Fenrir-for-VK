@@ -91,6 +91,7 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
      * True - если фрагмент находится внутри TabLayout
      */
     private var inTabsContainer = false
+    private var canCommunityUpload = false
     private var mAdapter: VideosAdapter? = null
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mUploadAdapter: DocsUploadAdapter? = null
@@ -116,6 +117,7 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inTabsContainer = requireArguments().getBoolean(Extra.IN_TABS_CONTAINER)
+        canCommunityUpload = requireArguments().getBoolean(Extra.CAN_COMMUNITY_UPLOAD)
     }
 
     override fun setToolbarTitle(title: String?) {
@@ -250,15 +252,13 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
                 return false
             }
         })
-        var isNotMy = true
-        presenter?.let {
-            isNotMy = it.accountId != it.ownerId
-        }
-        if (isNotMy) mAdd.visibility = View.GONE else {
+        if (requireArguments().getLong(Extra.ACCOUNT_ID) == requireArguments().getLong(Extra.OWNER_ID) || canCommunityUpload) {
             mAdd.visibility = View.VISIBLE
             mAdd.setOnClickListener {
                 presenter?.doUpload()
             }
+        } else {
+            mAdd.visibility = View.GONE
         }
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener {
@@ -269,7 +269,7 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
         val uploadRecyclerView: RecyclerView = root.findViewById(R.id.uploads_recycler_view)
         uploadRecyclerView.layoutManager =
             LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false)
-        val columns = requireActivity().resources.getInteger(R.integer.videos_column_count)
+        val columns = resources.getInteger(R.integer.videos_column_count)
         val manager =
             if (Settings.get().main().single_line_videos) Utils.getSingleElementsLayoutManager(
                 requireActivity()
@@ -281,7 +281,7 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
                 presenter?.fireScrollToEnd()
             }
         })
-        mAdapter = VideosAdapter(requireActivity(), emptyList())
+        mAdapter = VideosAdapter(emptyList())
         mAdapter?.setVideoOnClickListener(this)
         mUploadAdapter = DocsUploadAdapter(emptyList(), this)
         uploadRecyclerView.adapter = mUploadAdapter
@@ -587,7 +587,8 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
             ownerId: Long,
             albumId: Int,
             action: String?,
-            albumTitle: String?
+            albumTitle: String?,
+            canCommunityUpload: Boolean
         ): Bundle {
             val args = Bundle()
             args.putLong(Extra.ACCOUNT_ID, accountId)
@@ -597,6 +598,7 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
                 args.putString(EXTRA_ALBUM_TITLE, albumTitle)
             }
             args.putString(Extra.ACTION, action)
+            args.putBoolean(Extra.CAN_COMMUNITY_UPLOAD, canCommunityUpload)
             return args
         }
 
@@ -605,9 +607,19 @@ class VideosFragment : BaseMvpFragment<VideosListPresenter, IVideosListView>(), 
             ownerId: Long,
             albumId: Int,
             action: String?,
-            albumTitle: String?
+            albumTitle: String?,
+            canCommunityUpload: Boolean
         ): VideosFragment {
-            return newInstance(buildArgs(accountId, ownerId, albumId, action, albumTitle))
+            return newInstance(
+                buildArgs(
+                    accountId,
+                    ownerId,
+                    albumId,
+                    action,
+                    albumTitle,
+                    canCommunityUpload
+                )
+            )
         }
 
         fun newInstance(args: Bundle?): VideosFragment {

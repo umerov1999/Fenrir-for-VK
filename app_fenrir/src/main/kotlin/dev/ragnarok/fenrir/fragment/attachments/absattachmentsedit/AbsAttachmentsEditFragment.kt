@@ -172,7 +172,7 @@ abstract class AbsAttachmentsEditFragment<P : AbsAttachmentsEditPresenter<V>, V 
         val manager: RecyclerView.LayoutManager = GridLayoutManager(requireActivity(), spancount)
         recyclerView.layoutManager = manager
         val headerView = inflater.inflate(R.layout.header_attachments_manager, recyclerView, false)
-        mAdapter = AttchmentsEditorAdapter(requireActivity(), mutableListOf(), this)
+        mAdapter = AttchmentsEditorAdapter(mutableListOf(), this)
         mAdapter?.addHeader(headerView)
         recyclerView.adapter = mAdapter
         underBodyContainer = headerView.findViewById(R.id.under_body_container)

@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.fragment.comments
 
-import android.app.Activity
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +15,7 @@ import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
-class OwnersListAdapter(context: Activity, private val data: ArrayList<Owner>) :
+class OwnersListAdapter(context: Context, private val data: ArrayList<Owner>) :
     ArrayAdapter<Owner>(
         context, R.layout.item_simple_owner, data
     ) {

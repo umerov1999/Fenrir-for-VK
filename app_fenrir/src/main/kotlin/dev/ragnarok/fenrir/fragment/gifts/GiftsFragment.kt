@@ -58,7 +58,7 @@ class GiftsFragment : BaseMvpFragment<GiftsPresenter, IGiftsView>(), IGiftsView,
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = GiftAdapter(emptyList(), requireActivity())
+        mAdapter = GiftAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.dialog.selectschools
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,13 +8,13 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.database.School
 
-class SchoolsAdapter(private val mContext: Context, private val mData: List<School>) :
+class SchoolsAdapter(private val mData: List<School>) :
     RecyclerView.Adapter<SchoolsAdapter.Holder>() {
     private var mListener: Listener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
             LayoutInflater.from(
-                mContext
+                parent.context
             ).inflate(R.layout.item_country, parent, false)
         )
     }

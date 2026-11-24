@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.view.emoji
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.OnMyStickerClickedListener
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 import java.io.File
 
-class MyStickersAdapter(private val context: Context) :
+class MyStickersAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var myStickerClickedListener: OnMyStickerClickedListener? = null
     fun setMyStickerClickedListener(listener: OnMyStickerClickedListener?) {
@@ -25,13 +24,13 @@ class MyStickersAdapter(private val context: Context) :
         return when (viewType) {
             TYPE_IMAGE -> StickerHolder(
                 LayoutInflater.from(
-                    context
+                    parent.context
                 ).inflate(R.layout.sticker_grid_item, parent, false)
             )
 
             TYPE_ANIMATED -> StickerAnimatedHolder(
                 LayoutInflater.from(
-                    context
+                    parent.context
                 ).inflate(R.layout.sticker_grid_item_animated, parent, false)
             )
 

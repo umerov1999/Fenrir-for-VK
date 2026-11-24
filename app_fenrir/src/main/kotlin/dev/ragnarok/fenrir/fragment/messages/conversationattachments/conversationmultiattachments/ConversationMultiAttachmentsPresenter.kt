@@ -6,10 +6,13 @@ import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiPost
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.db.serialize.Serializers
+import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.Repository
+import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.domain.interfaces.IMessagesRepository
 import dev.ragnarok.fenrir.domain.interfaces.IWallsRepository
 import dev.ragnarok.fenrir.fragment.base.PlaceSupportPresenter
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.observeServiceBinding
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.Document
@@ -26,12 +29,16 @@ import dev.ragnarok.fenrir.module.parcel.ParcelNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.Mp3InfoHelper.getLength
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.intValueIn
 import dev.ragnarok.fenrir.util.Utils.safeCountOf
+import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.dummy
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
+import dev.ragnarok.fenrir.util.hls.M3U8
 
 class ConversationMultiAttachmentsPresenter(
     accountId: Long,
@@ -48,11 +55,15 @@ class ConversationMultiAttachmentsPresenter(
 
     private val messagesRepository: IMessagesRepository = Repository.messages
     private val fInteractor: IWallsRepository = Repository.walls
+    private val audioInteractor: IAudioInteractor = InteractorFactory.audio
     private val actualDataDisposable = CompositeJob()
+    private var serviceStatusJob = CancelableJob()
     private var loaded = 0
     private var actualDataReceived = false
     private var endOfContent = false
     private var actualDataLoading = false
+    private var tmpDownloadAudio: Audio? = null
+    private var tmpDownloadPos = -1
 
     @AttachmentConversationType
     private var currentPage: Int = AttachmentConversationType.PHOTO
@@ -279,7 +290,7 @@ class ConversationMultiAttachmentsPresenter(
         )
     }
 
-    fun playAudio(context: Context, position: Int) {
+    fun firePlayAudio(context: Context, position: Int) {
         MusicPlaybackService.startForPlayList(context, mAudios, position)
         if (!Settings.get().main().isShow_mini_player) PlaceFactory.getPlayerPlace(accountId)
             .tryOpenWith(
@@ -463,7 +474,185 @@ class ConversationMultiAttachmentsPresenter(
                 })
     }
 
+    fun fireEditTrack(position: Int, artist: String, title: String?, audio: Audio) {
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            audioInteractor.edit(
+                accountId,
+                audio.ownerId,
+                audio.id,
+                artist,
+                title
+            ).fromIOToMain({
+                actualDataLoading = false
+                resolveRefreshingView()
+                if (position < mAudios.size && position >= 0) {
+                    mAudios[position].setTitle(title).setArtist(artist)
+                    view?.notifyAudioItemChanged(position)
+                }
+            }) {
+                actualDataLoading = false
+                resolveRefreshingView()
+
+                showError(it)
+            })
+    }
+
+    fun fireOpenMenu(position: Int, audio: Audio) {
+        if (position < mAudios.size && position >= 0) {
+            view?.onOpenMenu(accountId, position, audio)
+        }
+    }
+
+    fun fireDelete(position: Int, audio: Audio) {
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            audioInteractor.delete(accountId, audio.id, audio.ownerId).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    if (position < mAudios.size && position >= 0) {
+                        mAudios.removeAt(position)
+                        view?.notifyAudioItemRemoved(position)
+                    }
+
+                    view?.customToast?.showToastSuccessBottom(R.string.deleted)
+                }) {
+                actualDataLoading = false
+                resolveRefreshingView()
+
+                view?.showThrowable(it)
+            }
+        )
+    }
+
+    fun fireAddTrack(audio: Audio) {
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            audioInteractor.add(accountId, audio, null).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+                    view?.customToast?.showToastSuccessBottom(R.string.added)
+                }) {
+                actualDataLoading = false
+                resolveRefreshingView()
+                view?.showThrowable(it)
+            })
+    }
+
+    fun fireGetBitrate(audio: Audio) {
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        if (audio.needRefresh()) {
+            appendJob(
+                audioInteractor.getById(
+                    accountId,
+                    listOf(audio)
+                ).fromIOToMain({
+                    getBitrateTask(it[0])
+                }) {
+                    getBitrateTask(
+                        audio
+                    )
+                })
+        } else {
+            getBitrateTask(audio)
+        }
+    }
+
+    private fun getBitrateTask(audio: Audio) {
+        val pUrl = audio.url
+        if (pUrl.isNullOrEmpty()) {
+            actualDataLoading = false
+            resolveRefreshingView()
+            return
+        }
+        appendJob(
+            if (audio.isHLS) {
+                M3U8(pUrl).length.fromIOToMain(
+                    {
+                        actualDataLoading = false
+                        resolveRefreshingView()
+
+                        view?.onShowBitrate(audio.duration, it)
+                    }
+                ) {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                }
+            } else {
+                getLength(pUrl).fromIOToMain(
+                    {
+                        actualDataLoading = false
+                        resolveRefreshingView()
+
+                        view?.onShowBitrate(audio.duration, it)
+                    }
+                ) {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                }
+            })
+    }
+
+    fun fireGetLyrics(audio: Audio) {
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            audioInteractor.getLyrics(accountId, audio)
+                .fromIOToMain({
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.onAudioLyricsReceived(
+                        it,
+                        audio
+                    )
+                }) {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+    }
+
+    fun firePrepareDownload(position: Int, audio: Audio) {
+        tmpDownloadPos = position
+        tmpDownloadAudio = audio
+        view?.onDownloadAudioNextStage()
+    }
+
+    fun continueDownload() {
+        val position = tmpDownloadPos
+        val audio = tmpDownloadAudio
+        if (position < 0 || position > mAudios.size - 1 || audio == null) {
+            return
+        }
+        view?.onStartAudioDownload(accountId, position, audio)
+        tmpDownloadPos = -1
+        tmpDownloadAudio = null
+    }
+
     init {
+        serviceStatusJob += observeServiceBinding()
+            .sharedFlowToMain {
+                view?.onServiceBindEvent(it)
+            }
+
         loadActualData(0)
     }
 }

@@ -1,14 +1,22 @@
 package dev.ragnarok.fenrir.fragment.audio.local.audioslocal
 
 import android.content.Context
+import android.content.Intent
+import android.media.MediaMetadataRetriever
 import android.os.Bundle
+import android.provider.BaseColumns
+import android.provider.MediaStore
 import androidx.core.net.toUri
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.db.Stores
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
+import dev.ragnarok.fenrir.getString
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.observeServiceBinding
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
+import dev.ragnarok.fenrir.module.FileUtils
+import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.upload.IUploadManager
@@ -22,28 +30,32 @@ import dev.ragnarok.fenrir.upload.UploadResult
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.findIndexById
 import dev.ragnarok.fenrir.util.Utils.safeCheck
-import dev.ragnarok.fenrir.util.coroutines.CompositeJob
+import dev.ragnarok.fenrir.util.coroutines.CancelableJob
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayedFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
+import java.io.File
 
 class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
     AccountDependencyPresenter<IAudiosLocalView>(accountId, savedInstanceState) {
-    private val origin_audios: ArrayList<Audio> = ArrayList()
+    private val originAudios: ArrayList<Audio> = ArrayList()
     private val audios: ArrayList<Audio> = ArrayList()
-    private val audioListDisposable = CompositeJob()
     private val uploadManager: IUploadManager = Includes.uploadManager
     private val uploadsData: MutableList<Upload> = ArrayList(0)
     private val destination: UploadDestination = forAudio(accountId)
     private val remotePlay: UploadDestination = forRemotePlay()
+    private var serviceStatusJob = CancelableJob()
     private var actualReceived = false
     private var loadingNow = false
     private var query: String? = null
     private var errorPermissions = false
     private var doAudioLoadTabs = false
-    private var bucket_id: Int
-    fun fireBucketSelected(bucket_id: Int) {
-        this.bucket_id = bucket_id
+    private var bucketId: Int
+    fun fireBucketSelected(bucketId: Int) {
+        this.bucketId = bucketId
         fireRefresh()
     }
 
@@ -75,7 +87,7 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
     }
 
     fun fireLocalAudioAlbums() {
-        view?.goToLocalAudioAlbums(bucket_id)
+        view?.goToLocalAudioAlbums(bucketId)
     }
 
     private fun setLoadingNow(loadingNow: Boolean) {
@@ -109,14 +121,14 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
         setLoadingNow(true)
         audios.clear()
         if (query.isNullOrEmpty()) {
-            audios.addAll(origin_audios)
+            audios.addAll(originAudios)
             setLoadingNow(false)
             view?.notifyListChanged()
             return
         }
         query?.let {
             val locale = Utils.appLocale
-            for (i in origin_audios) {
+            for (i in originAudios) {
                 if (safeCheck(i.title) {
                         i.title?.lowercase(locale)?.contains(
                             it.lowercase(locale)
@@ -162,24 +174,24 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
 
     private fun requestList() {
         setLoadingNow(true)
-        if (bucket_id == 0) {
-            audioListDisposable.add(
+        if (bucketId == 0) {
+            appendJob(
                 Stores.instance
                     .localMedia()
                     .getAudios(accountId)
-                    .fromIOToMain({ onListReceived(it) }) { t ->
+                    .fromIOToMain({ onListReceived(it) }) {
                         onListGetError(
-                            t
+                            it
                         )
                     })
         } else {
-            audioListDisposable.add(
+            appendJob(
                 Stores.instance
                     .localMedia()
-                    .getAudios(accountId, bucket_id.toLong())
-                    .fromIOToMain({ onListReceived(it) }) { t ->
+                    .getAudios(accountId, bucketId.toLong())
+                    .fromIOToMain({ onListReceived(it) }) {
                         onListGetError(
-                            t
+                            it
                         )
                     })
         }
@@ -191,14 +203,14 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
             setLoadingNow(false)
             return
         }
-        origin_audios.clear()
+        originAudios.clear()
         actualReceived = true
-        origin_audios.addAll(data)
+        originAudios.addAll(data)
         updateCriteria()
         setLoadingNow(false)
     }
 
-    fun playAudio(context: Context, position: Int) {
+    fun firePlayAudio(context: Context, position: Int) {
         startForPlayList(context, audios, position)
         if (!Settings.get().main().isShow_mini_player) getPlayerPlace(accountId).tryOpenWith(
             context
@@ -211,7 +223,7 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
     }
 
     override fun onDestroyed() {
-        audioListDisposable.cancel()
+        serviceStatusJob.cancel()
         super.onDestroyed()
     }
 
@@ -260,12 +272,14 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
     }
 
     fun fireRefresh() {
+        if (loadingNow) {
+            return
+        }
         if (errorPermissions) {
             errorPermissions = false
             view?.checkPermission()
             return
         }
-        audioListDisposable.clear()
         requestList()
     }
 
@@ -357,12 +371,183 @@ class AudiosLocalPresenter(accountId: Long, savedInstanceState: Bundle?) :
         view?.setUploadDataVisible(uploadsData.isNotEmpty())
     }
 
-    init {
+    fun fireOpenMenu(position: Int, audio: Audio) {
+        if (position < audios.size && position >= 0) {
+            view?.onOpenMenu(accountId, position, audio)
+        }
+    }
 
-        bucket_id = if (Settings.get().main().isRememberLocalAudioAlbum) {
+    private fun doLocalBitrate(context: Context, url: String): Flow<Pair<Int, Long>> {
+        return flow {
+            val cursor = context.contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                arrayOf(MediaStore.MediaColumns.DATA),
+                BaseColumns._ID + "=? ",
+                arrayOf(url.toUri().lastPathSegment),
+                null
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                val retriever = MediaMetadataRetriever()
+                val fl =
+                    cursor.getString(MediaStore.MediaColumns.DATA)
+                retriever.setDataSource(fl)
+                cursor.close()
+                val bitrate =
+                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+                if (bitrate != null && fl != null) {
+                    emit(Pair((bitrate.toLong() / 1000).toInt(), File(fl).length()))
+                } else {
+                    throw Throwable("Can't receipt bitrate!")
+                }
+            } else {
+                throw Throwable("Can't receipt bitrate!")
+            }
+        }
+    }
+
+    private fun stripMetadata(context: Context, url: String): Flow<Boolean> {
+        return flow {
+            val cursor = context.contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                arrayOf(MediaStore.MediaColumns.DATA),
+                BaseColumns._ID + "=? ",
+                arrayOf(url.toUri().lastPathSegment),
+                null
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                val fl =
+                    cursor.getString(MediaStore.MediaColumns.DATA)
+                cursor.close()
+                if (fl.nonNullNoEmpty()) {
+                    if (fl.contains(".m4a")) {
+                        if (FileUtils.videoTagStrip(fl)) {
+                            emit(true)
+                        } else {
+                            throw Throwable("Can't strip metadata")
+                        }
+                    } else {
+                        if (FileUtils.audioTagStrip(fl)) {
+                            emit(true)
+                        } else {
+                            throw Throwable("Can't strip metadata")
+                        }
+                    }
+                } else {
+                    throw Throwable("Can't find file")
+                }
+            } else {
+                throw Throwable("Can't find file")
+            }
+        }
+    }
+
+    private fun updateAudioTime(context: Context, url: String): Flow<Boolean> {
+        return flow {
+            val cursor = context.contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                arrayOf(MediaStore.MediaColumns.DATA),
+                BaseColumns._ID + "=? ",
+                arrayOf(url.toUri().lastPathSegment),
+                null
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                val fl =
+                    cursor.getString(MediaStore.MediaColumns.DATA)
+                cursor.close()
+                if (fl.nonNullNoEmpty()) {
+                    val file = File(fl)
+                    if (file.exists()) {
+                        if (file.setLastModified(System.currentTimeMillis())) {
+                            context.sendBroadcast(
+                                @Suppress("deprecation")
+                                Intent(
+                                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                                    file.toUri()
+                                )
+                            )
+                            emit(true)
+                        } else {
+                            throw Throwable("Can't update time $fl")
+                        }
+                    } else {
+                        throw Throwable("Can't find file $fl")
+                    }
+                } else {
+                    throw Throwable("Can't find file")
+                }
+            } else {
+                throw Throwable("Can't find file")
+            }
+        }
+    }
+
+    fun fireGetLocalBitrate(context: Context, url: String?) {
+        if (url.isNullOrEmpty()) {
+            return
+        }
+        setLoadingNow(true)
+        appendJob(
+            doLocalBitrate(context, url).fromIOToMain(
+                {
+                    setLoadingNow(false)
+                    view?.onShowBitrate(it.first, it.second)
+                }
+            ) {
+                setLoadingNow(false)
+                view?.showThrowable(it)
+            })
+    }
+
+    fun fireStripMetadata(context: Context, url: String?) {
+        if (url.isNullOrEmpty()) {
+            return
+        }
+        setLoadingNow(true)
+        appendJob(
+            stripMetadata(context, url).fromIOToMain(
+                {
+                    setLoadingNow(false)
+                    view?.showSuccess()
+                    fireRefresh()
+                },
+                {
+                    setLoadingNow(false)
+                    view?.showThrowable(it)
+                }
+            ))
+    }
+
+    fun fireUpdateAudioTime(context: Context, audio: Audio, position: Int) {
+        val url = audio.url
+        if (url.isNullOrEmpty()) {
+            return
+        }
+        setLoadingNow(true)
+        appendJob(
+            updateAudioTime(context, url).delayedFlow(500).fromIOToMain(
+                {
+                    setLoadingNow(false)
+                    audios.removeAt(position)
+                    audios.add(0, audio)
+                    view?.notifyItemMoved(position, 0)
+                    view?.showSuccess()
+                },
+                {
+                    setLoadingNow(false)
+                    view?.showThrowable(it)
+                }
+            ))
+    }
+
+    init {
+        bucketId = if (Settings.get().main().isRememberLocalAudioAlbum) {
             Settings.get().main().currentLocalAudioAlbum
         } else {
             0
         }
+        serviceStatusJob += observeServiceBinding()
+            .sharedFlowToMain {
+                view?.onServiceBindEvent(it)
+            }
     }
 }

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.videos.videoalbums
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,13 +11,13 @@ import dev.ragnarok.fenrir.model.VideoAlbum
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 
-class VideoAlbumsNewAdapter(private val context: Context, private var data: List<VideoAlbum>) :
+class VideoAlbumsNewAdapter(private var data: List<VideoAlbum>) :
     RecyclerView.Adapter<VideoAlbumsNewAdapter.ViewHolder>() {
     private var listener: Listener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(
-                context
+                parent.context
             ).inflate(R.layout.item_video_album, parent, false)
         )
     }
@@ -26,7 +25,7 @@ class VideoAlbumsNewAdapter(private val context: Context, private var data: List
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = data[position]
         holder.tvCount.text =
-            context.getString(R.string.videos_albums_videos_counter, item.count)
+            holder.tvCount.context.getString(R.string.videos_albums_videos_counter, item.count)
         holder.tvTitle.text = item.title
         val photoUrl = item.image
         holder.ivPhoto.visibility = if (photoUrl.isNullOrEmpty()) View.INVISIBLE else View.VISIBLE

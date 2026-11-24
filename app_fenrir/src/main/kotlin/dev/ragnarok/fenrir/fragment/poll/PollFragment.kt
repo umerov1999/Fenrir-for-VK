@@ -54,7 +54,7 @@ class PollFragment : BaseMvpFragment<PollPresenter, IPollView>(), IPollView,
 
         recyclerView = root.findViewById(R.id.recycler_view)
         recyclerView?.layoutManager = LinearLayoutManager(requireActivity())
-        mAnswersAdapter = PollAnswersAdapter(requireActivity(), mutableListOf())
+        mAnswersAdapter = PollAnswersAdapter(mutableListOf())
         mAnswersAdapter?.setListener(this)
         val header = LayoutInflater.from(requireActivity())
             .inflate(R.layout.header_poll, recyclerView, false)

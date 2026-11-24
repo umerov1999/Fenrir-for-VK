@@ -458,6 +458,17 @@ __arm_locally_streaming void HalfMergeUVRow_SME(const uint8_t* src_u,
                         width);
 }
 
+#ifdef HAS_HALFUVROW_SME
+__arm_locally_streaming void HalfUVRow_SME(const uint8_t* src_u,
+                                           ptrdiff_t src_stride_u,
+                                           const uint8_t* src_v,
+                                           ptrdiff_t src_stride_v,
+                                           uint8_t* dst_uv,
+                                           int width) {
+  HalfUVRow_SVE_SC(src_u, src_stride_u, src_v, src_stride_v, dst_uv, width);
+}
+#endif  // HAS_HALFUVROW_SME
+
 __arm_locally_streaming void MergeUVRow_16_SME(const uint16_t* src_u,
                                                const uint16_t* src_v,
                                                uint16_t* dst_uv,
@@ -575,6 +586,12 @@ __arm_locally_streaming void CopyRow_SME(const uint8_t* src,
                                          uint8_t* dst,
                                          int width) {
   CopyRow_SVE_SC(src, dst, width);
+}
+
+__arm_locally_streaming void CopyRow_16_SME(const uint16_t* src,
+                                            uint16_t* dst,
+                                            int count) {
+  CopyRow_SVE_SC((const uint8_t*)src, (uint8_t*)dst, count * 2);
 }
 
 __arm_locally_streaming void HalfRow_SME(const uint8_t* src_ptr,
@@ -789,64 +806,22 @@ __arm_locally_streaming void HalfWidthRow_16To8_SME(const uint16_t* src_ptr,
                                                     uint8_t* dst_ptr,
                                                     int scale,
                                                     int width) {
-  const uint16_t* src_ptr1 = src_ptr + src_stride;
-  const int shift = 23 - __builtin_clz((int32_t)scale);
-  int vl;
-  asm volatile(
-      "cnth     %x[vl]                                  \n"
-      "dup      z31.h, %w[shift]                        \n"
-      "subs     %w[width], %w[width], %w[vl]            \n"
-      "b.lt     2f                                      \n"
+  HalfWidthRow_16To8_SVE_SC(src_ptr, src_stride, dst_ptr, scale, width);
+}
 
-      "ptrue    p0.h                                    \n"
-      "1:                                               \n"
-      "ld2h     {z0.h, z1.h}, p0/z, [%[src_ptr]]        \n"
-      "ld2h     {z2.h, z3.h}, p0/z, [%[src_ptr1]]       \n"
-      "incb     %[src_ptr], all, mul #2                 \n"
-      "incb     %[src_ptr1], all, mul #2                \n"
-      "uaddlb   z4.s, z0.h, z1.h                        \n"
-      "uaddlt   z5.s, z0.h, z1.h                        \n"
-      "uaddlb   z6.s, z2.h, z3.h                        \n"
-      "uaddlt   z7.s, z2.h, z3.h                        \n"
-      "add      z4.s, z4.s, z6.s                        \n"
-      "add      z5.s, z5.s, z7.s                        \n"
-      "rshrnb   z0.h, z4.s, #2                          \n"
-      "rshrnt   z0.h, z5.s, #2                          \n"
-      "subs     %w[width], %w[width], %w[vl]            \n"
-      "uqshl    z0.h, p0/m, z0.h, z31.h                 \n"
-      "shrnb    z0.b, z0.h, #8                          \n"
-      "st1b     {z0.h}, p0, [%[dst_ptr]]                \n"
-      "inch     %[dst_ptr]                              \n"
-      "b.ge     1b                                      \n"
-
-      "2:                                               \n"
-      "adds     %w[width], %w[width], %w[vl]            \n"
-      "b.eq     99f                                     \n"
-
-      "whilelt  p0.h, wzr, %w[width]                    \n"
-      "ld2h     {z0.h, z1.h}, p0/z, [%[src_ptr]]        \n"
-      "ld2h     {z2.h, z3.h}, p0/z, [%[src_ptr1]]       \n"
-      "uaddlb   z4.s, z0.h, z1.h                        \n"
-      "uaddlt   z5.s, z0.h, z1.h                        \n"
-      "uaddlb   z6.s, z2.h, z3.h                        \n"
-      "uaddlt   z7.s, z2.h, z3.h                        \n"
-      "add      z4.s, z4.s, z6.s                        \n"
-      "add      z5.s, z5.s, z7.s                        \n"
-      "rshrnb   z0.h, z4.s, #2                          \n"
-      "rshrnt   z0.h, z5.s, #2                          \n"
-      "uqshl    z0.h, p0/m, z0.h, z31.h                 \n"
-      "shrnb    z0.b, z0.h, #8                          \n"
-      "st1b     {z0.h}, p0, [%[dst_ptr]]                \n"
-
-      "99:                                              \n"
-      : [src_ptr] "+r"(src_ptr),    // %[src_ptr]
-        [src_ptr1] "+r"(src_ptr1),  // %[src_ptr1]
-        [dst_ptr] "+r"(dst_ptr),    // %[dst_ptr]
-        [width] "+r"(width),        // %[width]
-        [vl] "=&r"(vl)              // %[vl]
-      : [shift] "r"(shift)          // %[shift]
-      : "cc", "memory", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "z31",
-        "p0");
+// Odd width: the last output pixel is a 1x2 average.
+void HalfWidthRow_16To8_Odd_SME(const uint16_t* src_uv,
+                                ptrdiff_t src_uv_stride,
+                                uint8_t* dst_uv,
+                                int scale,
+                                int width) {
+  int n = width - 1;
+  if (n > 0) {
+    HalfWidthRow_16To8_SME(src_uv, src_uv_stride, dst_uv, scale, n);
+    src_uv += (ptrdiff_t)n * 2;
+    dst_uv += n;
+  }
+  HalfWidthRow_16To8_Odd_C(src_uv, src_uv_stride, dst_uv, scale, 1);
 }
 
 __arm_locally_streaming void Convert8To8Row_SME(const uint8_t* src_y,
@@ -918,12 +893,7 @@ __arm_locally_streaming void ARGBToUVMatrixRow_SME(
     uint8_t* dst_v,
     int width,
     const struct ArgbConstants* c) {
-  int8_t uvconstants[8] = {(int8_t)c->kRGBToU[0], (int8_t)c->kRGBToU[1],
-                           (int8_t)c->kRGBToU[2], (int8_t)c->kRGBToU[3],
-                           (int8_t)c->kRGBToV[0], (int8_t)c->kRGBToV[1],
-                           (int8_t)c->kRGBToV[2], (int8_t)c->kRGBToV[3]};
-  ARGBToUVMatrixRow_SVE_SC(src_argb, src_stride_argb, dst_u, dst_v, width,
-                           uvconstants);
+  ARGBToUVMatrixRow_SVE_SC(src_argb, src_stride_argb, dst_u, dst_v, width, c);
 }
 
 __arm_locally_streaming void ARGBToYMatrixRow_SME(
@@ -970,6 +940,346 @@ __arm_locally_streaming void ARGBAlphaBlendRow_SME(const uint8_t* src_argb0,
   ARGBAlphaBlendRow_SVE_SC(src_argb0, src_argb1, dst_argb, width);
 }
 #endif  // HAS_ARGBALPHABLENDROW_SME
+
+#define HALFWIDTHROW_SME                              \
+  "ld2b        {z0.b, z1.b}, p0/z, [%[src]]       \n" \
+  "incb        %[src], all, mul #2                \n" \
+  "urhadd      z0.b, p0/m, z0.b, z1.b             \n" \
+  "subs        %w[width], %w[width], %w[vl]       \n" \
+  "st1b        {z0.b}, p0, [%[dst]]               \n" \
+  "incb        %[dst]                             \n"
+
+__arm_locally_streaming void HalfWidthRow_SME(const uint8_t* src_ptr,
+                                              uint8_t* dst_ptr,
+                                              int width) {
+  int vl;
+  asm volatile(
+      "cntb        %x[vl]                             \n"
+      "subs        %w[width], %w[width], %w[vl]       \n"
+      "b.lt        2f                                 \n"
+
+      "ptrue       p0.b                               \n"
+      "1:                                             \n"  //
+      HALFWIDTHROW_SME
+      "b.ge        1b                                 \n"
+
+      "2:                                             \n"
+      "adds        %w[width], %w[width], %w[vl]       \n"
+      "b.eq        99f                                \n"
+
+      "whilelt     p0.b, wzr, %w[width]               \n"  //
+      HALFWIDTHROW_SME
+
+      "99:                                            \n"
+      : [src] "+r"(src_ptr), [dst] "+r"(dst_ptr), [width] "+r"(width),
+        [vl] "=&r"(vl)
+      :
+      : "memory", "cc", "z0", "z1", "p0");
+}
+#undef HALFWIDTHROW_SME
+
+void HalfWidthRow_Odd_SME(const uint8_t* src_ptr, uint8_t* dst_ptr, int width) {
+  width -= 1;
+  if (width > 0) {
+    HalfWidthRow_SME(src_ptr, dst_ptr, width);
+    src_ptr += (ptrdiff_t)width * 2;
+    dst_ptr += width;
+  }
+  dst_ptr[0] = src_ptr[0];
+}
+
+#define HALFWIDTHROW_16_SME                           \
+  "ld2h        {z0.h, z1.h}, p0/z, [%[src]]       \n" \
+  "incb        %[src], all, mul #2                \n" \
+  "urhadd      z0.h, p0/m, z0.h, z1.h             \n" \
+  "subs        %w[width], %w[width], %w[vl]       \n" \
+  "st1h        {z0.h}, p0, [%[dst]]               \n" \
+  "incb        %[dst]                             \n"
+
+__arm_locally_streaming void HalfWidthRow_16_SME(const uint16_t* src_ptr,
+                                                 uint16_t* dst_ptr,
+                                                 int width) {
+  int vl;
+  asm volatile(
+      "cnth        %x[vl]                             \n"
+      "subs        %w[width], %w[width], %w[vl]       \n"
+      "b.lt        2f                                 \n"
+
+      "ptrue       p0.h                               \n"
+      "1:                                             \n"  //
+      HALFWIDTHROW_16_SME
+      "b.ge        1b                                 \n"
+
+      "2:                                             \n"
+      "adds        %w[width], %w[width], %w[vl]       \n"
+      "b.eq        99f                                \n"
+
+      "whilelt     p0.h, wzr, %w[width]               \n"  //
+      HALFWIDTHROW_16_SME
+
+      "99:                                            \n"
+      : [src] "+r"(src_ptr), [dst] "+r"(dst_ptr), [width] "+r"(width),
+        [vl] "=&r"(vl)
+      :
+      : "memory", "cc", "z0", "z1", "p0");
+}
+#undef HALFWIDTHROW_16_SME
+
+void HalfWidthRow_16_Odd_SME(const uint16_t* src_ptr,
+                             uint16_t* dst_ptr,
+                             int width) {
+  width -= 1;
+  if (width > 0) {
+    HalfWidthRow_16_SME(src_ptr, dst_ptr, width);
+    src_ptr += (ptrdiff_t)width * 2;
+    dst_ptr += width;
+  }
+  dst_ptr[0] = src_ptr[0];
+}
+
+#define HALFWIDTHUVROW_SME                            \
+  "ld2h        {z0.h, z1.h}, p0/z, [%[src]]       \n" \
+  "incb        %[src], all, mul #2                \n" \
+  "urhadd      z0.b, p1/m, z0.b, z1.b             \n" \
+  "subs        %w[width], %w[width], %w[vl]       \n" \
+  "st1h        {z0.h}, p0, [%[dst]]               \n" \
+  "incb        %[dst]                             \n"
+
+__arm_locally_streaming void HalfWidthUVRow_SME(const uint8_t* src_uv,
+                                                uint8_t* dst_uv,
+                                                int width) {
+  int vl;
+  asm volatile(
+      "cnth        %x[vl]                             \n"
+      "ptrue       p1.b                               \n"
+      "subs        %w[width], %w[width], %w[vl]       \n"
+      "b.lt        2f                                 \n"
+
+      "ptrue       p0.h                               \n"
+      "1:                                             \n"  //
+      HALFWIDTHUVROW_SME
+      "b.ge        1b                                 \n"
+
+      "2:                                             \n"
+      "adds        %w[width], %w[width], %w[vl]       \n"
+      "b.eq        99f                                \n"
+
+      "whilelt     p0.h, wzr, %w[width]               \n"  //
+      HALFWIDTHUVROW_SME
+
+      "99:                                            \n"
+      : [src] "+r"(src_uv), [dst] "+r"(dst_uv), [width] "+r"(width),
+        [vl] "=&r"(vl)
+      :
+      : "memory", "cc", "z0", "z1", "p0", "p1");
+}
+#undef HALFWIDTHUVROW_SME
+
+void HalfWidthUVRow_Odd_SME(const uint8_t* src_uv, uint8_t* dst_uv, int width) {
+  width -= 1;
+  if (width > 0) {
+    HalfWidthUVRow_SME(src_uv, dst_uv, width);
+    src_uv += (ptrdiff_t)width * 4;
+    dst_uv += (ptrdiff_t)width * 2;
+  }
+  dst_uv[0] = src_uv[0];
+  dst_uv[1] = src_uv[1];
+}
+
+#define HALFWIDTHUVROW_16_SME                         \
+  "ld2w        {z0.s, z1.s}, p0/z, [%[src]]       \n" \
+  "incb        %[src], all, mul #2                \n" \
+  "urhadd      z0.h, p1/m, z0.h, z1.h             \n" \
+  "subs        %w[width], %w[width], %w[vl]       \n" \
+  "st1w        {z0.s}, p0, [%[dst]]               \n" \
+  "incb        %[dst]                             \n"
+
+__arm_locally_streaming void HalfWidthUVRow_16_SME(const uint16_t* src_uv,
+                                                   uint16_t* dst_uv,
+                                                   int width) {
+  int vl;
+  asm volatile(
+      "cntw        %x[vl]                             \n"
+      "ptrue       p1.b                               \n"
+      "subs        %w[width], %w[width], %w[vl]       \n"
+      "b.lt        2f                                 \n"
+
+      "ptrue       p0.s                               \n"
+      "1:                                             \n"  //
+      HALFWIDTHUVROW_16_SME
+      "b.ge        1b                                 \n"
+
+      "2:                                             \n"
+      "adds        %w[width], %w[width], %w[vl]       \n"
+      "b.eq        99f                                \n"
+
+      "whilelt     p0.s, wzr, %w[width]               \n"  //
+      HALFWIDTHUVROW_16_SME
+
+      "99:                                            \n"
+      : [src] "+r"(src_uv), [dst] "+r"(dst_uv), [width] "+r"(width),
+        [vl] "=&r"(vl)
+      :
+      : "memory", "cc", "z0", "z1", "p0", "p1");
+}
+#undef HALFWIDTHUVROW_16_SME
+
+void HalfWidthUVRow_16_Odd_SME(const uint16_t* src_uv,
+                               uint16_t* dst_uv,
+                               int width) {
+  width -= 1;
+  if (width > 0) {
+    HalfWidthUVRow_16_SME(src_uv, dst_uv, width);
+    src_uv += (ptrdiff_t)width * 4;
+    dst_uv += (ptrdiff_t)width * 2;
+  }
+  dst_uv[0] = src_uv[0];
+  dst_uv[1] = src_uv[1];
+}
+
+__arm_locally_streaming void HalfBoxRow_SME(const uint8_t* src_ptr,
+                                            ptrdiff_t src_stride,
+                                            uint8_t* dst_ptr,
+                                            int width) {
+  HalfBoxRow_SVE_SC(src_ptr, src_stride, dst_ptr, width);
+}
+
+void HalfBoxRow_Odd_SME(const uint8_t* src_ptr,
+                        ptrdiff_t src_stride,
+                        uint8_t* dst_ptr,
+                        int width) {
+  width -= 1;
+  if (width > 0) {
+    HalfBoxRow_SME(src_ptr, src_stride, dst_ptr, width);
+    src_ptr += (ptrdiff_t)width * 2;
+    dst_ptr += width;
+  }
+  dst_ptr[0] = (src_ptr[0] + src_ptr[src_stride] + 1) >> 1;
+}
+
+__arm_locally_streaming void HalfBoxRow_16_SME(const uint16_t* src_ptr,
+                                               ptrdiff_t src_stride,
+                                               uint16_t* dst_ptr,
+                                               int width) {
+  HalfBoxRow_16_SVE_SC(src_ptr, src_stride, dst_ptr, width);
+}
+
+void HalfBoxRow_16_Odd_SME(const uint16_t* src_ptr,
+                           ptrdiff_t src_stride,
+                           uint16_t* dst_ptr,
+                           int width) {
+  width -= 1;
+  if (width > 0) {
+    HalfBoxRow_16_SME(src_ptr, src_stride, dst_ptr, width);
+    src_ptr += (ptrdiff_t)width * 2;
+    dst_ptr += width;
+  }
+  dst_ptr[0] =
+      (uint16_t)(((uint32_t)src_ptr[0] + src_ptr[src_stride] + 1u) >> 1);
+}
+
+__arm_locally_streaming void HalfBoxUVRow_SME(const uint8_t* src_uv,
+                                              ptrdiff_t src_stride_uv,
+                                              uint8_t* dst_uv,
+                                              int width) {
+  HalfBoxUVRow_SVE_SC(src_uv, src_stride_uv, dst_uv, width);
+}
+
+void HalfBoxUVRow_Odd_SME(const uint8_t* src_uv,
+                          ptrdiff_t src_stride_uv,
+                          uint8_t* dst_uv,
+                          int width) {
+  width -= 1;
+  if (width > 0) {
+    HalfBoxUVRow_SME(src_uv, src_stride_uv, dst_uv, width);
+    src_uv += (ptrdiff_t)width * 4;
+    dst_uv += (ptrdiff_t)width * 2;
+  }
+  dst_uv[0] = (src_uv[0] + src_uv[src_stride_uv] + 1) >> 1;
+  dst_uv[1] = (src_uv[1] + src_uv[src_stride_uv + 1] + 1) >> 1;
+}
+
+__arm_locally_streaming void HalfBoxUVRow_16_SME(const uint16_t* src_uv,
+                                                 ptrdiff_t src_stride_uv,
+                                                 uint16_t* dst_uv,
+                                                 int width) {
+  HalfBoxUVRow_16_SVE_SC(src_uv, src_stride_uv, dst_uv, width);
+}
+
+void HalfBoxUVRow_16_Odd_SME(const uint16_t* src_uv,
+                             ptrdiff_t src_stride_uv,
+                             uint16_t* dst_uv,
+                             int width) {
+  width -= 1;
+  if (width > 0) {
+    HalfBoxUVRow_16_SME(src_uv, src_stride_uv, dst_uv, width);
+    src_uv += (ptrdiff_t)width * 4;
+    dst_uv += (ptrdiff_t)width * 2;
+  }
+  dst_uv[0] =
+      (uint16_t)(((uint32_t)src_uv[0] + src_uv[src_stride_uv] + 1u) >> 1);
+  dst_uv[1] =
+      (uint16_t)(((uint32_t)src_uv[1] + src_uv[src_stride_uv + 1] + 1u) >> 1);
+}
+
+#ifdef HAS_ARGBSHUFFLEROW_SME
+__arm_locally_streaming void ARGBShuffleRow_SME(const uint8_t* src_argb,
+                                                uint8_t* dst_argb,
+                                                const uint8_t* shuffler,
+                                                int width) {
+  ARGBShuffleRow_SVE_SC(src_argb, dst_argb, shuffler, width);
+}
+#endif  // HAS_ARGBSHUFFLEROW_SME
+
+#ifdef HAS_AR64SHUFFLEROW_SME
+__arm_locally_streaming void AR64ShuffleRow_SME(const uint8_t* src_ar64,
+                                                uint8_t* dst_ar64,
+                                                const uint8_t* shuffler,
+                                                int width) {
+  AR64ShuffleRow_SVE_SC(src_ar64, dst_ar64, shuffler, width);
+}
+#endif  // HAS_AR64SHUFFLEROW_SME
+
+#ifdef HAS_MIRRORROW_SME
+__arm_locally_streaming void MirrorRow_SME(const uint8_t* src,
+                                           uint8_t* dst,
+                                           int width) {
+  MirrorRow_SVE_SC(src, dst, width);
+}
+#endif  // HAS_MIRRORROW_SME
+
+#ifdef HAS_MIRRORUVROW_SME
+__arm_locally_streaming void MirrorUVRow_SME(const uint8_t* src_uv,
+                                             uint8_t* dst_uv,
+                                             int width) {
+  MirrorUVRow_SVE_SC(src_uv, dst_uv, width);
+}
+#endif  // HAS_MIRRORUVROW_SME
+
+#ifdef HAS_MIRRORSPLITUVROW_SME
+__arm_locally_streaming void MirrorSplitUVRow_SME(const uint8_t* src_uv,
+                                                  uint8_t* dst_u,
+                                                  uint8_t* dst_v,
+                                                  int width) {
+  MirrorSplitUVRow_SVE_SC(src_uv, dst_u, dst_v, width);
+}
+#endif  // HAS_MIRRORSPLITUVROW_SME
+
+#ifdef HAS_ARGBMIRRORROW_SME
+__arm_locally_streaming void ARGBMirrorRow_SME(const uint8_t* src_argb,
+                                               uint8_t* dst_argb,
+                                               int width) {
+  ARGBMirrorRow_SVE_SC(src_argb, dst_argb, width);
+}
+#endif  // HAS_ARGBMIRRORROW_SME
+
+#ifdef HAS_RGB24MIRRORROW_SME
+__arm_locally_streaming void RGB24MirrorRow_SME(const uint8_t* src_rgb24,
+                                                uint8_t* dst_rgb24,
+                                                int width) {
+  RGB24MirrorRow_SVE_SC(src_rgb24, dst_rgb24, width);
+}
+#endif  // HAS_RGB24MIRRORROW_SME
 
 #if defined(__clang__)
 #pragma clang attribute pop

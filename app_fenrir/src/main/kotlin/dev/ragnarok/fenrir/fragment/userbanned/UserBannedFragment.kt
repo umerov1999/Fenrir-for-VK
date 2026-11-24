@@ -77,7 +77,7 @@ class UserBannedFragment : BaseMvpFragment<UserBannedPresenter, IUserBannedView>
                 presenter?.fireScrollToEnd()
             }
         })
-        mPeopleAdapter = PeopleAdapter(requireActivity(), emptyList())
+        mPeopleAdapter = PeopleAdapter(emptyList())
         mPeopleAdapter?.setLongClickListener(this)
         mPeopleAdapter?.setClickListener(object : PeopleAdapter.ClickListener {
             override fun onOwnerClick(owner: Owner) {

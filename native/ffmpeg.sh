@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-FFMPEG_VERSION="9.0"
+FFMPEG_VERSION="9.1"
 SCRIPT_DIR=${PWD}
 cd $HOME
 ##git clone https://git.ffmpeg.org/ffmpeg.git -b release/$FFMPEG_VERSION --single-branch

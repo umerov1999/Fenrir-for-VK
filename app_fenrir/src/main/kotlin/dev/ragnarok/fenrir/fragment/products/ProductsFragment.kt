@@ -58,7 +58,7 @@ class ProductsFragment : BaseMvpFragment<ProductsPresenter, IProductsView>(), IP
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = MarketAdapter(emptyList(), requireActivity())
+        mAdapter = MarketAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()

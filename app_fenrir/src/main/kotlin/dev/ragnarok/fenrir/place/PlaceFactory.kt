@@ -17,11 +17,11 @@ import dev.ragnarok.fenrir.fragment.PreferencesFragment
 import dev.ragnarok.fenrir.fragment.accounts.processauthcode.ProcessAuthCodeFragment
 import dev.ragnarok.fenrir.fragment.attachments.postcreate.PostCreateFragment
 import dev.ragnarok.fenrir.fragment.attachments.repost.RepostFragment
-import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.audio.audios.AudiosFragment
 import dev.ragnarok.fenrir.fragment.audio.audiosbyartist.AudiosByArtistFragment
 import dev.ragnarok.fenrir.fragment.audio.catalog_v2.lists.CatalogV2ListFragment
 import dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.CatalogV2SectionFragment
+import dev.ragnarok.fenrir.fragment.audio.player.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.comments.CommentsFragment
 import dev.ragnarok.fenrir.fragment.communities.communitycontrol.communitymembers.CommunityMembersFragment
 import dev.ragnarok.fenrir.fragment.communities.groupchats.GroupChatsFragment
@@ -594,8 +594,9 @@ object PlaceFactory {
         return Place(Place.IMPORTANT_MESSAGES).withLongExtra(Extra.ACCOUNT_ID, accountId)
     }
 
-    fun getRemoteFileManager(): Place {
+    fun getRemoteFileManager(accountId: Long): Place {
         return Place(Place.REMOTE_FILE_MANAGER)
+            .withLongExtra(Extra.ACCOUNT_ID, accountId)
     }
 
     fun getOwnerArticles(accountId: Long, ownerId: Long): Place {
@@ -636,12 +637,18 @@ object PlaceFactory {
         return Place(Place.PLAYER).setArguments(AudioPlayerFragment.buildArgs(accountId))
     }
 
-    fun getVideosPlace(accountId: Long, ownerId: Long, action: String?): Place {
+    fun getVideosPlace(
+        accountId: Long,
+        ownerId: Long,
+        action: String?,
+        canCommunityUpload: Boolean
+    ): Place {
         return Place(Place.VIDEOS).setArguments(
             VideosTabsFragment.buildArgs(
                 accountId,
                 ownerId,
-                action
+                action,
+                canCommunityUpload
             )
         )
     }
@@ -651,10 +658,20 @@ object PlaceFactory {
         ownerId: Long,
         albumId: Int,
         action: String?,
-        albumTitle: String?
+        albumTitle: String?,
+        canCommunityUpload: Boolean
     ): Place {
         return Place(Place.VIDEO_ALBUM)
-            .setArguments(VideosFragment.buildArgs(accountId, ownerId, albumId, action, albumTitle))
+            .setArguments(
+                VideosFragment.buildArgs(
+                    accountId,
+                    ownerId,
+                    albumId,
+                    action,
+                    albumTitle,
+                    canCommunityUpload
+                )
+            )
     }
 
     fun getVideoPreviewPlace(accountId: Long, video: Video): Place {

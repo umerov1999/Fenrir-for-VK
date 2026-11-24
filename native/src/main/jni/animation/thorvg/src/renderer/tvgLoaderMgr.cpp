@@ -53,8 +53,13 @@
     #include "tvgMediaLoader.h"
 #endif
 
+#ifdef THORVG_GIF_LOADER_SUPPORT
+    #include "tvgGifLoader.h"
+#endif
+
 #include "tvgRawLoader.h"
 
+// FIXME: include image properties such as size, colorspace and etc, in the hash key.
 uintptr_t HASH_KEY(const char* data)
 {
     return reinterpret_cast<uintptr_t>(data);
@@ -94,6 +99,9 @@ static tvg::Loader* _find(FileType type)
 #ifdef THORVG_MEDIA_LOADER_SUPPORT
         case FileType::Media: return MediaLoader::gen();
 #endif
+#ifdef THORVG_GIF_LOADER_SUPPORT
+        case FileType::Gif: return new GifLoader;
+#endif
         case FileType::Raw: return new RawLoader;
         default: break;
     }
@@ -131,6 +139,7 @@ static tvg::Loader* _findByPath(const char* filename, Result& ret)
         else if (!strcmp(ext, "jpg")) type = FileType::Jpg;
         else if (!strcmp(ext, "webp")) type = FileType::Webp;
         else if (!strcmp(ext, "mp4")) type = FileType::Media;  // TODO: add common media formats
+        else if (!strcmp(ext, "gif")) type = FileType::Gif;
         if (type != FileType::Unknown) {
             ret = Result::NonSupport;
             return _find(type);
@@ -153,6 +162,7 @@ static FileType _convert(const char* mimeType)
     else if (!strcmp(mimeType, "jpg") || !strcmp(mimeType, "jpeg")) type = FileType::Jpg;
     else if (!strcmp(mimeType, "webp")) type = FileType::Webp;
     else if (!strcmp(mimeType, "mp4")) type = FileType::Media;  // TODO: add common media formats
+    else if (!strcmp(mimeType, "gif")) type = FileType::Gif;
     else if (!strcmp(mimeType, "raw")) type = FileType::Raw;
     else TVGLOG("RENDERER", "Given mimetype is unknown = \"%s\".", mimeType);
 
@@ -171,7 +181,7 @@ static tvg::Loader* _findFromCache(const char* filename)
     return nullptr;
 }
 
-static tvg::Loader* _findFromCache(const char* data, uint32_t size, const char* mimeType)
+static tvg::Loader* _findFromCache(const char* data, const char* mimeType)
 {
     auto type = _convert(mimeType);
     if (type == FileType::Unknown) return nullptr;
@@ -274,7 +284,7 @@ tvg::Loader* LoaderMgr::loader(const char* data, uint32_t size, const char* mime
     // Note that users could use the same data pointer with the different content.
     // Thus caching is only valid for shareable.
     if (ops.owner == Ownership::Borrow) {
-        if (auto loader = _findFromCache(data, size, mimeType)) return loader;
+        if (auto loader = _findFromCache(data, mimeType)) return loader;
     }
 
     // Try with the given MimeType
@@ -315,19 +325,23 @@ tvg::Loader* LoaderMgr::loader(const char* data, uint32_t size, const char* mime
     return nullptr;
 }
 
-tvg::Loader* LoaderMgr::loader(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, Ownership owner)
+tvg::Loader* LoaderMgr::loader(const uint32_t* data, uint32_t stride, uint32_t w, uint32_t h, ColorSpace cs, Ownership owner)
 {
     // Note that users could use the same data pointer with the different content.
     // Thus caching is only valid for shareable.
-    if (owner == Ownership::Borrow) {
+    if (owner != Ownership::Copy) {
         // TODO: should we check premultiplied??
-        if (auto loader = _findFromCache((const char*)(data), w * h, "raw")) return loader;
+        if (auto loader = _findFromCache((const char*)(data), "raw")) {
+            // TODO: this condition is for legacy. remove this at v2
+            if (owner == Ownership::Transfer) loader->owner = Ownership::Transfer;
+            return loader;
+        }
     }
 
     // function is dedicated for raw images only
     auto loader = new RawLoader;
-    if (loader->open(data, w, h, cs, owner)) {
-        if (owner == Ownership::Borrow && loader->cache(HASH_KEY((const char*)data))) {
+    if (loader->open(data, stride, w, h, cs, owner)) {
+        if (owner != Ownership::Copy && loader->cache(HASH_KEY((const char*)data))) {
             ScopedLock lock(_key);
             _activeLoaders.back(loader);
         }

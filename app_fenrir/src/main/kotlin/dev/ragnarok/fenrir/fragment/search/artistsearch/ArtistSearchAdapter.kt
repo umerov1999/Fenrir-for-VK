@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.search.artistsearch
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,12 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.api.model.VKApiArtist
 
-class ArtistSearchAdapter(private var data: List<VKApiArtist>, private val context: Context) :
+class ArtistSearchAdapter(private var data: List<VKApiArtist>) :
     RecyclerView.Adapter<ArtistSearchAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
-            LayoutInflater.from(context).inflate(R.layout.item_artist_search, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_artist_search, parent, false)
         )
     }
 

@@ -8,7 +8,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.dialog.DialogLocalServerOptionDialog.Companion.newInstance
@@ -17,21 +21,31 @@ import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.canPlayAfterCurrent
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.currentAudio
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.playAfterCurrent
+import dev.ragnarok.fenrir.media.music.PlayerStatus
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Audio
+import dev.ragnarok.fenrir.model.menu.options.AudioLocalServerOption
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleURLPhotoPlace
-import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.toColor
+import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
+import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadAudio
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.doSyncRemoteAudio
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.MySearchView.OnAdditionalButtonClickListener
 import java.io.IOException
 
 class AudiosLocalServerFragment :
     BaseMvpFragment<AudiosLocalServerPresenter, IAudiosLocalServerView>(),
-    MySearchView.OnQueryTextListener, AudioLocalServerRecyclerAdapter.ClickListener,
+    MySearchView.OnQueryTextListener,
     IAudiosLocalServerView {
     private val requestWritePermission = requestPermissionsAbs(
         arrayOf(
@@ -39,10 +53,10 @@ class AudiosLocalServerFragment :
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        customToast?.showToast(R.string.permission_all_granted_text)
+        presenter?.continueDownload()
     }
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
-    private var mAudioRecyclerAdapter: AudioLocalServerRecyclerAdapter? = null
+    private var mAudiosAdapter: AudiosLocalServerAdapter? = null
     private var searchView: MySearchView? = null
     internal fun clearSearch() {
         searchView?.setOnQueryTextListener(null)
@@ -81,16 +95,18 @@ class AudiosLocalServerFragment :
                 presenter?.fireScrollToEnd()
             }
         })
-        val Goto: FloatingActionButton = root.findViewById(R.id.goto_button)
-        Goto.setImageResource(R.drawable.audio_player)
-        Goto.setOnLongClickListener {
+        val goTo: FloatingActionButton = root.findViewById(R.id.goto_button)
+        goTo.setImageResource(R.drawable.audio_player)
+        goTo.setOnLongClickListener {
             val curr = currentAudio
             if (curr != null) {
-                getPlayerPlace(Settings.get().accounts().current).tryOpenWith(requireActivity())
+                getPlayerPlace(requireArguments().getLong(Extra.ACCOUNT_ID)).tryOpenWith(
+                    requireActivity()
+                )
             } else customToast?.showToastError(R.string.null_audio)
             false
         }
-        Goto.setOnClickListener {
+        goTo.setOnClickListener {
             val curr = currentAudio
             if (curr != null) {
                 val index =
@@ -100,9 +116,28 @@ class AudiosLocalServerFragment :
                 } else customToast?.showToast(R.string.audio_not_found)
             } else customToast?.showToastError(R.string.null_audio)
         }
-        mAudioRecyclerAdapter = AudioLocalServerRecyclerAdapter(requireActivity(), emptyList())
-        mAudioRecyclerAdapter?.setClickListener(this)
-        recyclerView.adapter = mAudioRecyclerAdapter
+        mAudiosAdapter = AudiosLocalServerAdapter(emptyList())
+        mAudiosAdapter?.setClickListener(object : AudiosLocalServerAdapter.ClickListener {
+            override fun onClick(position: Int, audio: Audio) {
+                presenter?.firePlayAudio(
+                    requireActivity(),
+                    position
+                )
+            }
+
+            override fun onUrlPhotoOpen(url: String, prefix: String, photoPrefix: String) {
+                getSingleURLPhotoPlace(url, prefix, photoPrefix).tryOpenWith(requireActivity())
+            }
+
+            override fun openMenu(position: Int, audio: Audio) {
+                presenter?.fireOpenMenu(position, audio)
+            }
+
+            override fun onDownload(position: Int, audio: Audio) {
+                presenter?.firePrepareDownload(position, audio)
+            }
+        })
+        recyclerView.adapter = mAudiosAdapter
         return root
     }
 
@@ -112,19 +147,19 @@ class AudiosLocalServerFragment :
     )
 
     override fun displayList(audios: List<Audio>) {
-        mAudioRecyclerAdapter?.setItems(audios)
+        mAudiosAdapter?.setItems(audios)
     }
 
     override fun notifyListChanged() {
-        mAudioRecyclerAdapter?.notifyDataSetChanged()
+        mAudiosAdapter?.notifyDataSetChanged()
     }
 
     override fun displayLoading(loading: Boolean) {
         mSwipeRefreshLayout?.isRefreshing = loading
     }
 
-    override fun displayOptionsDialog(isReverse: Boolean, isDiscography: Boolean) {
-        newInstance(isDiscography, isReverse, object : DialogLocalServerOptionListener {
+    override fun displayOptionsDialog(accountId: Long, isReverse: Boolean, isDiscography: Boolean) {
+        newInstance(accountId, isDiscography, isReverse, object : DialogLocalServerOptionListener {
             override fun onReverse(reverse: Boolean) {
                 presenter?.updateReverse(
                     reverse
@@ -154,11 +189,15 @@ class AudiosLocalServerFragment :
     }
 
     override fun notifyItemChanged(index: Int) {
-        mAudioRecyclerAdapter?.notifyItemChanged(index)
+        mAudiosAdapter?.notifyItemChanged(index)
+    }
+
+    override fun notifyItemRemoved(index: Int) {
+        mAudiosAdapter?.notifyItemRemoved(index)
     }
 
     override fun notifyDataAdded(position: Int, count: Int) {
-        mAudioRecyclerAdapter?.notifyItemRangeInserted(position, count)
+        mAudiosAdapter?.notifyItemRangeInserted(position, count)
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
@@ -175,19 +214,225 @@ class AudiosLocalServerFragment :
         return false
     }
 
-    override fun onClick(position: Int, audio: Audio) {
-        presenter?.playAudio(
+    override fun onServiceBindEvent(@PlayerStatus status: Int) {
+        mAudiosAdapter?.onServiceBindEvent(status)
+    }
+
+    override fun onDownloadAudioNextStage() {
+        if (!hasReadWriteStoragePermission(requireActivity())) {
+            requestWritePermission.launch()
+            return
+        }
+        presenter?.continueDownload()
+    }
+
+    override fun showSuccess() {
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+            ?.coloredSnack(
+                R.string.success,
+                "#48BE2D".toColor(), false
+            )
+            ?.show()
+    }
+
+    override fun displayEditFileNameDialog(
+        hash: String,
+        fileName: String
+    ) {
+        val root =
+            View.inflate(requireActivity(), R.layout.entry_file_name, null)
+        root.findViewById<TextInputEditText>(R.id.edit_file_name).setText(fileName)
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.change_name)
+            .setCancelable(true)
+            .setView(root)
+            .setPositiveButton(R.string.button_ok) { _, _ ->
+                val newFileName =
+                    root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
+                        ?.trim()
+                if (newFileName.isNullOrEmpty()) {
+                    return@setPositiveButton
+                }
+                presenter?.firEditFileName(hash, newFileName)
+            }
+            .setNegativeButton(R.string.button_cancel, null)
+            .show()
+    }
+
+    override fun onStartAudioDownload(
+        accountId: Long,
+        position: Int,
+        audio: Audio
+    ) {
+        audio.downloadIndicator = 1
+        notifyItemChanged(position)
+        val ret = doDownloadAudio(
             requireActivity(),
-            position
+            audio,
+            accountId,
+            Force = false,
+            isLocal = false
         )
+        when (ret) {
+            0 -> customToast?.showToastBottom(R.string.saved_audio)
+
+            1, 2 -> {
+                CustomSnackbars.createCustomSnackbars(view)
+                    ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+                    ?.themedSnack(if (ret == 1) R.string.audio_force_download else R.string.audio_force_download_pc)
+                    ?.setAction(
+                        R.string.button_yes
+                    ) {
+                        doDownloadAudio(
+                            requireActivity(),
+                            audio,
+                            accountId,
+                            Force = true,
+                            isLocal = false
+                        )
+                    }
+                    ?.show()
+            }
+
+            else -> {
+                audio.downloadIndicator = 0
+                notifyItemChanged(position)
+                customToast?.showToastError(R.string.error_audio)
+            }
+        }
     }
 
-    override fun onUrlPhotoOpen(url: String, prefix: String, photo_prefix: String) {
-        getSingleURLPhotoPlace(url, prefix, photo_prefix).tryOpenWith(requireActivity())
+    override fun onShowBitrate(bitrate: Int, size: Int) {
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
+            ?.themedSnack(getString(R.string.bitrate, bitrate, Utils.BytesToSize(size.toLong())))
+            ?.show()
     }
 
-    override fun onRequestWritePermissions() {
-        requestWritePermission.launch()
+    override fun onOpenMenu(accountId: Long, position: Int, audio: Audio) {
+        val menus = ModalBottomSheetDialogFragment.Builder()
+        menus.add(
+            OptionRequest(
+                AudioLocalServerOption.save_item_audio,
+                getString(R.string.download),
+                R.drawable.save,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalServerOption.play_item_audio,
+                getString(R.string.play),
+                R.drawable.play,
+                true
+            )
+        )
+        if (canPlayAfterCurrent()) {
+            menus.add(
+                OptionRequest(
+                    AudioLocalServerOption.play_item_after_current_audio,
+                    getString(R.string.play_audio_after_current),
+                    R.drawable.play_next,
+                    false
+                )
+            )
+        }
+        menus.add(
+            OptionRequest(
+                AudioLocalServerOption.bitrate_item_audio,
+                getString(R.string.get_bitrate),
+                R.drawable.high_quality,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalServerOption.delete_item_audio,
+                getString(R.string.delete),
+                R.drawable.ic_outline_delete,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalServerOption.update_time_item_audio,
+                getString(R.string.update_time),
+                R.drawable.ic_recent,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalServerOption.edit_item_audio,
+                getString(R.string.edit),
+                R.drawable.about_writed,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalServerOption.upload_item_audio,
+                getString(R.string.upload),
+                R.drawable.web,
+                true
+            )
+        )
+        menus.header(
+            Utils.firstNonEmptyString(audio.artist, " ") + " - " + audio.title,
+            R.drawable.song,
+            audio.thumb_image_little
+        )
+        menus.columns(2)
+        menus.show(
+            childFragmentManager,
+            "audio_options"
+        ) { _, option ->
+            when (option.id) {
+                AudioLocalServerOption.save_item_audio -> {
+                    presenter?.firePrepareDownload(position, audio)
+                }
+
+                AudioLocalServerOption.play_item_audio -> {
+                    presenter?.firePlayAudio(
+                        requireActivity(),
+                        position
+                    )
+                }
+
+                AudioLocalServerOption.play_item_after_current_audio -> playAfterCurrent(
+                    audio
+                )
+
+                AudioLocalServerOption.bitrate_item_audio -> presenter?.fireGetBitrate(audio)
+
+                AudioLocalServerOption.update_time_item_audio -> {
+                    presenter?.fireUpdateTime(audio)
+                }
+
+                AudioLocalServerOption.edit_item_audio -> {
+                    presenter?.firePrepareEditFileName(audio)
+                }
+
+                AudioLocalServerOption.delete_item_audio -> MaterialAlertDialogBuilder(
+                    requireActivity()
+                )
+                    .setMessage(R.string.do_delete)
+                    .setTitle(R.string.confirmation)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.button_yes) { _, _ ->
+                        presenter?.fireDeleteAudio(position, audio)
+                    }
+                    .setNegativeButton(R.string.button_cancel, null)
+                    .show()
+
+                AudioLocalServerOption.upload_item_audio -> {
+                    presenter?.fireUploadAudio(audio)
+                }
+
+                else -> {}
+            }
+        }
     }
 
     companion object {

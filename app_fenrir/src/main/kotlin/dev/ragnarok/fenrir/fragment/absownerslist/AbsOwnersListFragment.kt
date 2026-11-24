@@ -70,7 +70,7 @@ abstract class AbsOwnersListFragment<P : SimpleOwnersPresenter<V>, V : ISimpleOw
                 presenter?.fireScrollToEnd()
             }
         })
-        mOwnersAdapter = OwnersAdapter(requireActivity(), emptyList())
+        mOwnersAdapter = OwnersAdapter(emptyList())
         mOwnersAdapter?.setClickListener(object : OwnersAdapter.ClickListener {
             override fun onOwnerClick(owner: Owner) {
                 presenter?.fireOwnerClick(owner)

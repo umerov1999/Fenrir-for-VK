@@ -2,7 +2,9 @@ package dev.ragnarok.filegallery.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
+import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.api.adapters.AudioDtoAdapter
 import dev.ragnarok.filegallery.getBoolean
 import dev.ragnarok.filegallery.putBoolean
@@ -100,6 +102,15 @@ class Audio : Parcelable {
         this.duration = duration
         return this
     }
+
+    @get:DrawableRes
+    val songIcon: Int
+        get() {
+            if (url.isNullOrEmpty()) {
+                return R.drawable.audio_died
+            }
+            return R.drawable.song
+        }
 
     fun setUrl(url: String?): Audio {
         this.url = url

@@ -14,7 +14,8 @@ import dev.ragnarok.fenrir.api.model.longpoll.OutputMessagesSetReadUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.PinConversationUpdate
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionEventType
 import dev.ragnarok.fenrir.api.model.longpoll.ReactionMessageChangeUpdate
-import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInDialogUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.ReactionsUnreadInConversationUpdate
+import dev.ragnarok.fenrir.api.model.longpoll.TypingMessageOrUploadingInConversationUpdate
 import dev.ragnarok.fenrir.api.util.VKStringUtils
 import dev.ragnarok.fenrir.kJson
 import dev.ragnarok.fenrir.model.Peer
@@ -84,14 +85,14 @@ class LongpollUpdateDtoAdapter : AbsDtoAdapter<AbsLongpollEvent?>("AbsLongpollEv
                 )
             }
 
-            AbsLongpollEvent.ACTION_USER_TYPING_TEXT_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_DIALOG -> {
-                val w = TypingMessageOrUploadingInDialogUpdate(action)
+            AbsLongpollEvent.ACTION_USER_TYPING_TEXT_IN_CONVERSATION,
+            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_CONVERSATION,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_CONVERSATION,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_CONVERSATION,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_CONVERSATION -> {
+                val w = TypingMessageOrUploadingInConversationUpdate(action)
                 w.peerId = optLong(array, 1)
-                w.fromIds = optLongArray(array, 2, longArrayOf())
+                w.fromIds = optLongArray(array, 2, null)
                 w.fromIdsCount = optInt(array, 3)
                 return w
             }
@@ -145,6 +146,15 @@ class LongpollUpdateDtoAdapter : AbsDtoAdapter<AbsLongpollEvent?>("AbsLongpollEv
                 update.peerId = optLong(array, 1)
                 update.cmId = optInt(array, 2)
                 update.unreadCount = optInt(array, 3) // undocumented
+                return if (update.peerId != 0L) update else null
+            }
+
+            AbsLongpollEvent.ACTION_UPDATE_UNREAD_REACTIONS_IN_CONVERSATION -> {
+                val update = ReactionsUnreadInConversationUpdate(
+                    optLong(array, 1),
+                    optInt(array, 2),
+                    optIntArray(array, 3, null)
+                )
                 return if (update.peerId != 0L) update else null
             }
         }

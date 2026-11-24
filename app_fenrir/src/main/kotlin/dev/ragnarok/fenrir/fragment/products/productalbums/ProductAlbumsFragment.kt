@@ -58,7 +58,7 @@ class ProductAlbumsFragment : BaseMvpFragment<ProductAlbumsPresenter, IProductAl
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = MarketAlbumAdapter(emptyList(), requireActivity())
+        mAdapter = MarketAlbumAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()
@@ -117,7 +117,7 @@ class ProductAlbumsFragment : BaseMvpFragment<ProductAlbumsPresenter, IProductAl
             Extra.ACCOUNT_ID
         ),
         requireArguments().getLong(Extra.OWNER_ID),
-        requireActivity().getString(R.string.markets_all),
+        getString(R.string.markets_all),
         saveInstanceState
     )
 

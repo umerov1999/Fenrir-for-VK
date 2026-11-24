@@ -35,7 +35,7 @@ class SelectCountryDialog : BaseMvpDialogFragment<CountriesPresenter, ICountries
         })
         val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        mAdapter = CountriesAdapter(requireActivity(), emptyList())
+        mAdapter = CountriesAdapter(emptyList())
         mAdapter?.setListener(this)
         recyclerView.adapter = mAdapter
         mLoadingView = view.findViewById(R.id.progress_root)

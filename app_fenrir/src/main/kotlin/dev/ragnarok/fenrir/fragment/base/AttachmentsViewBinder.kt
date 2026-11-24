@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.util.size
 import androidx.core.view.isEmpty
@@ -75,19 +76,29 @@ import java.lang.ref.WeakReference
 import kotlin.math.abs
 
 class AttachmentsViewBinder(
-    private val mContext: Context,
+    context: Context,
     attachmentsActionCallback: OnAttachmentsActionCallback?
 ) {
     private val photosViewHelper: PhotosViewHelper =
-        PhotosViewHelper(mContext, attachmentsActionCallback)
+        PhotosViewHelper(context, attachmentsActionCallback)
     private val mAvatarTransformation: Transformation = CurrentTheme.createTransformationForAvatar()
-    private val mActiveWaveFormColor: Int = CurrentTheme.getColorPrimary(mContext)
+
+    @ColorInt
+    private val mColorPrimary: Int = CurrentTheme.getColorPrimary(context)
+
+    @ColorInt
+    private val mColorOnSurface: Int = CurrentTheme.getColorOnSurface(context)
+
+    @ColorInt
+    private val mActiveWaveFormColor: Int = mColorPrimary
+
+    @ColorInt
     private val mNoActiveWaveFormColor: Int = Utils.adjustAlpha(mActiveWaveFormColor, 0.5f)
     private val mVoiceSharedHolders: SharedHolders<VoiceHolder> = SharedHolders(true)
     private val mAttachmentsActionCallback: OnAttachmentsActionCallback? = attachmentsActionCallback
     private val isNightSticker: Boolean =
         Settings.get().ui().isStickers_by_theme && Settings.get().ui().isDarkModeEnabled(
-            mContext
+            context
         )
     private val expandVoiceTranscript: Boolean = Settings.get().main().isExpand_voice_transcript
     private var mVoiceActionListener: VoiceActionListener? = null
@@ -175,7 +186,8 @@ class AttachmentsViewBinder(
         val i = voices.size - container.childCount
         (0 until i).forEach { _ ->
             val itemView =
-                LayoutInflater.from(mContext).inflate(R.layout.item_voice_message, container, false)
+                LayoutInflater.from(container.context)
+                    .inflate(R.layout.item_voice_message, container, false)
             val holder = VoiceHolder(itemView)
             itemView.tag = holder
             container.addView(itemView)
@@ -221,9 +233,7 @@ class AttachmentsViewBinder(
         holder.mWaveFormView.setCurrentActiveProgress(if (play) progress else 1.0f, anim)
         Utils.setTint(
             holder.mSpeed,
-            if (speed) CurrentTheme.getColorPrimary(mContext) else CurrentTheme.getColorOnSurface(
-                mContext
-            )
+            if (speed) mColorPrimary else mColorOnSurface
         )
         holder.mSpeed.visibility = if (play) View.VISIBLE else View.GONE
     }
@@ -330,11 +340,11 @@ class AttachmentsViewBinder(
             }
         }
         holder.mWaveFormView.setOnLongClickListener {
-            if (!hasReadWriteStoragePermission(mContext)) {
+            if (!hasReadWriteStoragePermission(holder.mWaveFormView.context)) {
                 mAttachmentsActionCallback?.onRequestWritePermissions()
                 return@setOnLongClickListener true
             }
-            doDownloadVoice(mContext, voice)
+            doDownloadVoice(holder.mWaveFormView.context, voice)
             true
         }
         holder.mWaveFormView.setListener(object : WaveFormView.WaveFormViewListener {
@@ -367,13 +377,14 @@ class AttachmentsViewBinder(
         }
         stickersContainer.visibility = View.VISIBLE
         if (stickersContainer.isEmpty()) {
-            val localView = ThorVGLottieView(mContext)
+            val localView = ThorVGLottieView(stickersContainer.context)
             stickersContainer.addView(localView)
         }
         val imageView = stickersContainer.getChildAt(0) as? ThorVGLottieView? ?: return
         val sticker = stickers[0]
-        val prefferedStickerSize = Utils.dpToPx(PREFFERED_STICKER_SIZE.toFloat(), mContext)
-            .toInt()
+        val prefferedStickerSize =
+            Utils.dpToPx(PREFFERED_STICKER_SIZE.toFloat(), stickersContainer.context)
+                .toInt()
         val image = sticker.getImage(256, isNightSticker)
         val horisontal = image.height.orZero() < image.width.orZero()
         val proporsion = image.width.orZero().toDouble() / image.height.toDouble()
@@ -630,7 +641,9 @@ class AttachmentsViewBinder(
         root.visibility = View.VISIBLE
         val i = docs.size - root.childCount
         (0 until i).forEach { _ ->
-            root.addView(LayoutInflater.from(mContext).inflate(R.layout.item_document, root, false))
+            root.addView(
+                LayoutInflater.from(root.context).inflate(R.layout.item_document, root, false)
+            )
         }
         if (root.childCount > docs.size) {
             root.removeViews(docs.size, root.childCount - docs.size)
@@ -646,10 +659,11 @@ class AttachmentsViewBinder(
             val ivPhoto_Post = itemView.findViewById<ImageView>(R.id.item_post_avatar_image)
             val ivType = itemView.findViewById<ImageView>(R.id.item_document_type)
             val tvShowMore = itemView.findViewById<TextView>(R.id.item_post_show_more)
-            val title = doc.getTitle(mContext)
-            val details = doc.getSecondaryText(mContext)
+            val title = doc.getTitle(itemView.context)
+            val details = doc.getSecondaryText(itemView.context)
             val imageUrl = doc.imageUrl
-            val ext = if (doc.getExt(mContext) == null) "" else doc.getExt(mContext) + ", "
+            val ext =
+                if (doc.getExt(itemView.context) == null) "" else doc.getExt(itemView.context) + ", "
             val subtitle =
                 Utils.firstNonEmptyString(ext, " ") + Utils.firstNonEmptyString(details, " ")
             if (title.isNullOrEmpty()) {
@@ -722,7 +736,7 @@ class AttachmentsViewBinder(
                 .setVgPosts(attachmentsRoot.findViewById(R.id.posts_attachments))
                 .setVoiceMessageRoot(attachmentsRoot.findViewById(R.id.voice_message_attachments))
             attachmentsRoot.visibility = View.GONE
-            itemView.setOnClickListener { openDocLink(doc) }
+            itemView.setOnClickListener { openDocLink(itemView.context, doc) }
             ivPhoto_Post.visibility = View.GONE
             when (doc.type) {
                 AttachmentsTypes.DOC -> if (imageUrl != null) {
@@ -965,7 +979,9 @@ class AttachmentsViewBinder(
         root.visibility = View.VISIBLE
         val i = bigLinks.size - root.childCount
         (0 until i).forEach { _ ->
-            root.addView(LayoutInflater.from(mContext).inflate(R.layout.item_big_link, root, false))
+            root.addView(
+                LayoutInflater.from(root.context).inflate(R.layout.item_big_link, root, false)
+            )
         }
         if (root.childCount > bigLinks.size) {
             root.removeViews(bigLinks.size, root.childCount - bigLinks.size)
@@ -1041,7 +1057,9 @@ class AttachmentsViewBinder(
         root.visibility = View.VISIBLE
         val i = articles.size - root.childCount
         (0 until i).forEach { _ ->
-            root.addView(LayoutInflater.from(mContext).inflate(R.layout.item_article, root, false))
+            root.addView(
+                LayoutInflater.from(root.context).inflate(R.layout.item_article, root, false)
+            )
         }
         if (root.childCount > articles.size) {
             root.removeViews(articles.size, root.childCount - articles.size)
@@ -1113,7 +1131,7 @@ class AttachmentsViewBinder(
         }
     }
 
-    private fun openDocLink(link: DocLink) {
+    private fun openDocLink(context: Context, link: DocLink) {
         when (link.type) {
             AttachmentsTypes.DOC -> mAttachmentsActionCallback?.onDocPreviewOpen(
                 link.attachment as Document
@@ -1149,18 +1167,18 @@ class AttachmentsViewBinder(
             AttachmentsTypes.ARTIST -> mAttachmentsActionCallback?.onArtistOpen(link.attachment as AudioArtist)
             AttachmentsTypes.NOT_SUPPORTED -> {
                 val clipboard =
-                    mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                 val clip =
                     ClipData.newPlainText("response", (link.attachment as NotSupported).body)
                 clipboard?.setPrimaryClip(clip)
-                CustomToast.createCustomToast(mContext, null)?.showToast(R.string.copied)
+                CustomToast.createCustomToast(context, null)?.showToast(R.string.copied)
             }
 
             AttachmentsTypes.GEO -> {
                 val geo = link.attachment as Geo
-                if (geo.latitude.nonNullNoEmpty() && geo.longitude.nonNullNoEmpty() && mContext is Activity) {
+                if (geo.latitude.nonNullNoEmpty() && geo.longitude.nonNullNoEmpty() && context is Activity) {
                     LinkHelper.openUrl(
-                        mContext,
+                        context,
                         Settings.get().accounts().current,
                         "https://www.google.com/maps?q=${geo.latitude},${geo.longitude}"
                     )

@@ -28,7 +28,9 @@ import kotlinx.serialization.json.internal.toBooleanStrictOrNull
  * The whole hierarchy is [serializable][Serializable] only by [Json] format.
  */
 @Serializable(JsonElementSerializer::class)
-sealed class JsonElement
+sealed class JsonElement {
+    internal abstract fun appendTo(builder: StringBuilder)
+}
 
 /**
  * Class representing JSON primitive value.
@@ -52,6 +54,10 @@ sealed class JsonPrimitive : JsonElement() {
     abstract val content: String
 
     override fun toString(): String = content
+
+    override fun appendTo(builder: StringBuilder) {
+        builder.append(content)
+    }
 }
 
 /** Creates a [JsonPrimitive] from the given boolean. */
@@ -157,9 +163,21 @@ internal class JsonLiteral internal constructor(
         if (coerceToInlineType != null) require(coerceToInlineType.isInline)
     }
 
-    override fun toString(): String =
-        if (isString) buildString { printQuoted(content) }
-        else content
+    override fun toString(): String {
+        return if (isString) {
+            buildString(content.length + 2) { printQuoted(content) }
+        } else {
+            content
+        }
+    }
+
+    override fun appendTo(builder: StringBuilder) {
+        if (isString) {
+            builder.printQuoted(content)
+        } else {
+            builder.append(content)
+        }
+    }
 
     // Compare by `content` and `isString`, because body can be kotlin.Long=42 or kotlin.String="42"
     override fun equals(other: Any?): Boolean {
@@ -200,19 +218,19 @@ class JsonObject(
 ) : JsonElement(), Map<String, JsonElement> by content {
     override fun equals(other: Any?): Boolean = content == other
     override fun hashCode(): Int = content.hashCode()
-    override fun toString(): String {
-        return content.entries.joinToString(
-            separator = ",",
-            prefix = "{",
-            postfix = "}",
-            transform = { (k, v) ->
-                buildString {
-                    printQuoted(k)
-                    append(':')
-                    append(v)
-                }
-            }
-        )
+    override fun toString(): String = buildString(content.size * 6) { appendTo(this) }
+
+    override fun appendTo(builder: StringBuilder) {
+        builder.append('{')
+        var first = true
+        for ((key, value) in content) {
+            if (!first) builder.append(',')
+            first = false
+            builder.printQuoted(key)
+            builder.append(':')
+            value.appendTo(builder)
+        }
+        builder.append('}')
     }
 }
 
@@ -228,8 +246,18 @@ class JsonArray(private val content: List<JsonElement>) : JsonElement(),
     List<JsonElement> by content {
     override fun equals(other: Any?): Boolean = content == other
     override fun hashCode(): Int = content.hashCode()
-    override fun toString(): String =
-        content.joinToString(prefix = "[", postfix = "]", separator = ",")
+    override fun toString(): String = buildString((content.size + 1) * 2) { appendTo(this) }
+
+    override fun appendTo(builder: StringBuilder) {
+        builder.append('[')
+        var first = true
+        for (element in content) {
+            if (!first) builder.append(',')
+            first = false
+            element.appendTo(builder)
+        }
+        builder.append(']')
+    }
 }
 
 /**

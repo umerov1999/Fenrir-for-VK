@@ -45,7 +45,7 @@ class TagOwnerFragment : BaseMvpFragment<TagOwnerPresenter, ITagOwnerView>(), IT
         val recyclerView: RecyclerView = root.findViewById(R.id.recycler_view)
         recyclerView.layoutManager =
             LinearLayoutManager(requireActivity(), RecyclerView.VERTICAL, false)
-        mAdapter = TagOwnerAdapter(emptyList(), requireActivity())
+        mAdapter = TagOwnerAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
 

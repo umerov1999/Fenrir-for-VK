@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.friends.birthday
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,7 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.util.ViewUtils.getOnlineIcon
 
-class BirthDayAdapter(private val mContext: Context, private var mData: List<BirthDay>) :
+class BirthDayAdapter(private var mData: List<BirthDay>) :
     RecyclerView.Adapter<BirthDayAdapter.BirthDayHolder>() {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val transformationWithStory: Transformation =
@@ -27,7 +26,7 @@ class BirthDayAdapter(private val mContext: Context, private var mData: List<Bir
     private var mClickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BirthDayHolder {
         return BirthDayHolder(
-            LayoutInflater.from(mContext).inflate(R.layout.item_birth_day, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_birth_day, parent, false)
         )
     }
 
@@ -40,8 +39,8 @@ class BirthDayAdapter(private val mContext: Context, private var mData: List<Bir
         val user = bth.user
         holder.name.text = user.fullName
         holder.subtitle.text = user.bdate
-        holder.subtitle.setTextColor(if (user.isOnline) CurrentTheme.getColorPrimary(mContext) else STATUS_COLOR_OFFLINE)
-        holder.name.setTextColor(Utils.getVerifiedColor(mContext, user.isVerified))
+        holder.subtitle.setTextColor(if (user.isOnline) CurrentTheme.getColorPrimary(holder.subtitle.context) else STATUS_COLOR_OFFLINE)
+        holder.name.setTextColor(Utils.getVerifiedColor(holder.name.context, user.isVerified))
         holder.ivVerified.visibility = if (user.isVerified) View.VISIBLE else View.GONE
         holder.blacklisted.visibility = if (user.blacklisted) View.VISIBLE else View.GONE
         holder.online.visibility = if (user.isOnline) View.VISIBLE else View.GONE
@@ -63,13 +62,13 @@ class BirthDayAdapter(private val mContext: Context, private var mData: List<Bir
         holder.itemView.setOnClickListener {
             mClickListener?.onUserClick(user)
         }
-        addSelectionProfileSupport(mContext, holder.avatarRoot, user)
+        addSelectionProfileSupport(holder.avatarRoot.context, holder.avatarRoot, user)
         if (needShowMonth(position)) {
             holder.month.visibility = View.VISIBLE
             val opMonth = bth.month - 1
             if (opMonth in 0..11) {
                 holder.month.text =
-                    mContext.resources.getTextArray(R.array.array_month_items)[opMonth]
+                    holder.month.context.resources.getTextArray(R.array.array_month_items)[opMonth]
             } else {
                 holder.month.text = String.format(Utils.appLocale, "%d", bth.month)
             }
@@ -95,7 +94,7 @@ class BirthDayAdapter(private val mContext: Context, private var mData: List<Bir
         fun onUserClick(user: User)
     }
 
-    inner class BirthDayHolder(itemView: View) :
+    class BirthDayHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.item_people_name)
         val month: TextView = itemView.findViewById(R.id.header_month)
@@ -107,7 +106,7 @@ class BirthDayAdapter(private val mContext: Context, private var mData: List<Bir
         val avatarRoot: ViewGroup = itemView.findViewById(R.id.avatar_root)
 
         init {
-            Utils.setColorFilter(online, CurrentTheme.getColorPrimary(mContext))
+            Utils.setColorFilter(online, CurrentTheme.getColorPrimary(online.context))
         }
     }
 

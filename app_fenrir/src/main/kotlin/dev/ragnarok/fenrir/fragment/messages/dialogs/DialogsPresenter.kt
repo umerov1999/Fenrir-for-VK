@@ -388,23 +388,23 @@ class DialogsPresenter(
         }
         val index = indexOf(dialogs, peerId)
         val dialog = if (index == -1) Dialog().setPeerId(peerId) else dialogs[index]
-        if (update.readIn != null) {
-            dialog.setInReadCmId((update.readIn ?: return).cmId)
+        update.readIn?.let {
+            dialog.setInReadCmId(it.cmId)
         }
-        if (update.readOut != null) {
-            dialog.setOutReadCmId((update.readOut ?: return).cmId)
+        update.readOut?.let {
+            dialog.setOutReadCmId(it.cmId)
         }
-        if (update.unread != null) {
-            dialog.setUnreadCount((update.unread ?: return).count)
+        update.unread?.let {
+            dialog.setUnreadCount(it.count)
         }
         update.unreadReactions?.let {
             dialog.setUnreadReactions(it.cmIds)
         }
-        if (update.majorId != null) {
-            dialog.setMajorId(update.majorId?.majorId ?: return)
+        update.majorId?.let {
+            dialog.setMajorId(it.majorId)
         }
-        if (update.minorId != null) {
-            dialog.setMinorId(update.minorId?.minorId ?: return)
+        update.minorId?.let {
+            dialog.setMinorId(it.minorId)
         }
         if (message != null) {
             dialog.setLastCmId(message.cmId)

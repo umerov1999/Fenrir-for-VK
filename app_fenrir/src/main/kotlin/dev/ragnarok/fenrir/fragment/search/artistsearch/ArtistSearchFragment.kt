@@ -20,7 +20,7 @@ class ArtistSearchFragment :
 
     override fun postCreate(root: View) {}
     override fun createAdapter(data: MutableList<VKApiArtist>): ArtistSearchAdapter {
-        val ret = ArtistSearchAdapter(data, requireActivity())
+        val ret = ArtistSearchAdapter(data)
         ret.setClickListener(this)
         return ret
     }

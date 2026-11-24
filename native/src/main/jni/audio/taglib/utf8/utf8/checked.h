@@ -147,6 +147,44 @@ namespace utf8
         return result;
     }
 
+    template <typename word_iterator, typename output_iterator>
+    output_iterator replace_invalid16(word_iterator start, word_iterator end, output_iterator out, utfchar32_t replacement)
+    {
+        while (start != end) {
+            const word_iterator sequence_start = start;
+            utfchar32_t code_point_unused = 0;
+            const internal::utf_error err_code = utf8::internal::validate_next16(start, end, code_point_unused);
+            switch (err_code) {
+                case internal::UTF8_OK :
+                    for (word_iterator it = sequence_start; it != start; ++it)
+                        *out++ = *it;
+                    break;
+                case internal::NOT_ENOUGH_ROOM:
+                    out = utf8::append16(replacement, out);
+                    start = end;
+                    break;
+                case internal::INVALID_LEAD:
+                case internal::INCOMPLETE_SEQUENCE:
+                    out = utf8::append16(replacement, out);
+                    ++start;
+                    break;
+                default:
+                // can't reach here
+                    break;
+            }
+
+        }
+
+        return out;
+    }
+
+    template <typename word_iterator, typename output_iterator>
+    output_iterator replace_invalid16(word_iterator start, word_iterator end, output_iterator out)
+    {
+        static const utfchar32_t replacement_marker = static_cast<utfchar32_t>(utf8::internal::mask16(0xfffd));
+        return utf8::replace_invalid16(start, end, out, replacement_marker);
+    }
+
     template <typename octet_iterator>
     utfchar32_t next(octet_iterator& it, octet_iterator end)
     {
@@ -185,6 +223,12 @@ namespace utf8
         return utf8::next(it, end);
     }
 
+    template <typename word_iterator>
+    utfchar32_t peek_next16(word_iterator it, word_iterator end)
+    {
+        return utf8::next16(it, end);
+    }
+
     template <typename octet_iterator>
     utfchar32_t prior(octet_iterator& it, octet_iterator start)
     {
@@ -198,6 +242,20 @@ namespace utf8
             if (it == start)
                 throw invalid_utf8(*it); // error - no lead byte in the sequence
         return utf8::peek_next(it, end);
+    }
+
+    template <typename word_iterator>
+    utfchar32_t prior16(word_iterator& it, word_iterator start)
+    {
+        // can't do much if it == start
+        if (it == start)
+            throw not_enough_room();
+
+        word_iterator end = it;
+        while (utf8::internal::is_trail_surrogate(static_cast<utfchar32_t>(*(--it))))
+            if (it == start)
+                throw invalid_utf16(*it);
+        return utf8::peek_next16(it, end);
     }
 
     template <typename octet_iterator, typename distance_type>
@@ -215,6 +273,19 @@ namespace utf8
         }
     }
 
+    template <typename word_iterator, typename distance_type>
+    void advance16 (word_iterator& it, distance_type n, word_iterator end)
+    {
+        const distance_type zero(0);
+        if (n < zero) {
+            for (distance_type i = n; i < zero; ++i)
+                utf8::prior16(it, end);
+        } else {
+            for (distance_type i = zero; i < n; ++i)
+                utf8::next16(it, end);
+        }
+    }
+
     template <typename octet_iterator>
     typename std::iterator_traits<octet_iterator>::difference_type
     distance (octet_iterator first, octet_iterator last)
@@ -222,6 +293,16 @@ namespace utf8
         typename std::iterator_traits<octet_iterator>::difference_type dist;
         for (dist = 0; first < last; ++dist)
             utf8::next(first, last);
+        return dist;
+    }
+
+    template <typename word_iterator>
+    typename std::iterator_traits<word_iterator>::difference_type
+    distance16 (word_iterator first, word_iterator last)
+    {
+        typename std::iterator_traits<word_iterator>::difference_type dist;
+        for (dist = 0; first < last; ++dist)
+            utf8::next16(first, last);
         return dist;
     }
 
@@ -285,7 +366,7 @@ namespace utf8
         return result;
     }
 
-    // The iterator class
+    // The iterator classes
     template <typename octet_iterator>
     class iterator {
       octet_iterator it;
@@ -347,6 +428,66 @@ namespace utf8
       }
     }; // class iterator
 
+    template <typename word_iterator>
+    class iterator16 {
+      word_iterator it;
+      word_iterator range_start;
+      word_iterator range_end;
+      public:
+      typedef utfchar32_t value_type;
+      typedef utfchar32_t* pointer;
+      typedef utfchar32_t& reference;
+      typedef std::ptrdiff_t difference_type;
+      typedef std::bidirectional_iterator_tag iterator_category;
+      iterator16 () {}
+      explicit iterator16 (const word_iterator& word_it,
+                         const word_iterator& rangestart,
+                         const word_iterator& rangeend) :
+               it(word_it), range_start(rangestart), range_end(rangeend)
+      {
+          if (it < range_start || it > range_end)
+              throw std::out_of_range("Invalid utf-16 iterator position");
+      }
+      // the default "big three" are OK
+      word_iterator base () const { return it; }
+      utfchar32_t operator * () const
+      {
+          word_iterator temp = it;
+          return utf8::next16(temp, range_end);
+      }
+      bool operator == (const iterator16& rhs) const
+      {
+          if (range_start != rhs.range_start || range_end != rhs.range_end)
+              throw std::logic_error("Comparing utf-16 iterators defined with different ranges");
+          return (it == rhs.it);
+      }
+      bool operator != (const iterator16& rhs) const
+      {
+          return !(operator == (rhs));
+      }
+      iterator16& operator ++ ()
+      {
+          utf8::next16(it, range_end);
+          return *this;
+      }
+      iterator16 operator ++ (int)
+      {
+          iterator16 temp = *this;
+          utf8::next16(it, range_end);
+          return temp;
+      }
+      iterator16& operator -- ()
+      {
+          utf8::prior16(it, range_start);
+          return *this;
+      }
+      iterator16 operator -- (int)
+      {
+          iterator16 temp = *this;
+          utf8::prior16(it, range_start);
+          return temp;
+      }
+    }; // class iterator16
 } // namespace utf8
 
 #if UTF_CPP_CPLUSPLUS >= 202002L // C++ 20 or later

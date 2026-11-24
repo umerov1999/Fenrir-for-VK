@@ -59,7 +59,7 @@ class NarrativesFragment : BaseMvpFragment<NarrativesPresenter, INarrativesView>
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = NarrativesAdapter(emptyList(), requireActivity())
+        mAdapter = NarrativesAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()

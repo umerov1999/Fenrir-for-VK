@@ -6,6 +6,7 @@ import dev.ragnarok.filegallery.fragment.base.RxSupportPresenter
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.util.FindAt
+import dev.ragnarok.filegallery.util.Utils.parseLocalServerURL
 import dev.ragnarok.filegallery.util.coroutines.CancelableJob
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
@@ -16,13 +17,16 @@ class VideosLocalServerPresenter :
     private val videos: MutableList<Video> = ArrayList()
     private val fInteractor: ILocalServerApi = networkInterfaces.localServerApi()
     private var actualDataDisposable = CancelableJob()
-    private var Foffset = 0
+    private var fOffset = 0
     private var actualDataReceived = false
     private var endOfContent = false
     private var actualDataLoading = false
-    private var search_at: FindAt
+    private var searchAt: FindAt
     private var reverse = false
     private var doLoadTabs = false
+
+    private var tmpDownloadVideo: Video? = null
+    private var tmpDownloadPos = -1
     override fun onGuiCreated(viewHost: IVideosLocalServerView) {
         super.onGuiCreated(viewHost)
         viewHost.displayList(videos)
@@ -43,22 +47,17 @@ class VideosLocalServerPresenter :
                         offset,
                         it
                     )
-                }) { onActualDataGetError(it) })
+                }) { t -> onActualDataGetError(t) })
     }
 
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
-        view?.let {
-            showError(
-                it,
-                t
-            )
-        }
+        showError(view, t)
         resolveRefreshingView()
     }
 
     private fun onActualDataReceived(offset: Int, data: List<Video>) {
-        Foffset = offset + GET_COUNT
+        fOffset = offset + GET_COUNT
         actualDataLoading = false
         endOfContent = data.isEmpty()
         actualDataReceived = true
@@ -89,7 +88,7 @@ class VideosLocalServerPresenter :
     }
 
     private fun resolveRefreshingView() {
-        view?.displayLoading(
+        resumedView?.displayLoading(
             actualDataLoading
         )
     }
@@ -101,10 +100,10 @@ class VideosLocalServerPresenter :
 
     fun fireScrollToEnd(): Boolean {
         if (!endOfContent && videos.nonNullNoEmpty() && actualDataReceived && !actualDataLoading) {
-            if (search_at.isSearchMode()) {
+            if (searchAt.isSearchMode()) {
                 search(false)
             } else {
-                loadActualData(Foffset)
+                loadActualData(fOffset)
             }
             return false
         }
@@ -116,27 +115,27 @@ class VideosLocalServerPresenter :
         resolveRefreshingView()
         appendJob(
             fInteractor.searchVideos(
-                search_at.getQuery(),
-                search_at.getOffset(),
+                searchAt.getQuery(),
+                searchAt.getOffset(),
                 SEARCH_COUNT,
                 reverse
             )
                 .fromIOToMain({
                     onSearched(
                         FindAt(
-                            search_at.getQuery() ?: return@fromIOToMain,
-                            search_at.getOffset() + SEARCH_COUNT,
+                            searchAt.getQuery(),
+                            searchAt.getOffset() + SEARCH_COUNT,
                             it.size < SEARCH_COUNT
                         ), it
                     )
-                }) { onActualDataGetError(it) })
+                }) { t -> onActualDataGetError(t) })
     }
 
-    private fun onSearched(search_at: FindAt, data: List<Video>) {
+    private fun onSearched(searchAt: FindAt, data: List<Video>) {
         actualDataLoading = false
         actualDataReceived = true
-        endOfContent = search_at.isEnded()
-        if (this.search_at.getOffset() == 0) {
+        endOfContent = searchAt.isEnded()
+        if (this.searchAt.getOffset() == 0) {
             videos.clear()
             videos.addAll(data)
             view?.notifyListChanged()
@@ -150,25 +149,24 @@ class VideosLocalServerPresenter :
                 )
             }
         }
-        this.search_at = search_at
+        this.searchAt = searchAt
         resolveRefreshingView()
     }
 
-    private fun search(sleep_search: Boolean) {
+    private fun search(sleepSearch: Boolean) {
         if (actualDataLoading) return
-        if (!sleep_search) {
+        if (!sleepSearch) {
             doSearch()
             return
         }
         actualDataDisposable.cancel()
-        actualDataDisposable.set(
-            delayTaskFlow(WEB_SEARCH_DELAY.toLong())
-                .toMain { doSearch() })
+        actualDataDisposable += delayTaskFlow(WEB_SEARCH_DELAY.toLong())
+            .toMain { doSearch() }
     }
 
     fun fireSearchRequestChanged(q: String?) {
         val query = q?.trim()
-        if (!search_at.do_compare(query)) {
+        if (!searchAt.do_compare(query)) {
             actualDataLoading = false
             if (query.isNullOrEmpty()) {
                 actualDataDisposable.cancel()
@@ -179,16 +177,140 @@ class VideosLocalServerPresenter :
         }
     }
 
-    fun fireRefresh(sleep_search: Boolean) {
+    fun fireRefresh(sleepSearch: Boolean) {
         if (actualDataLoading) {
             return
         }
-        if (search_at.isSearchMode()) {
-            search_at.reset(false)
-            search(sleep_search)
+        if (searchAt.isSearchMode()) {
+            searchAt.reset(false)
+            search(sleepSearch)
         } else {
             loadActualData(0)
         }
+    }
+
+    fun firePrepareDownload(position: Int, video: Video) {
+        tmpDownloadPos = position
+        tmpDownloadVideo = video
+        view?.onDownloadVideoNextStage()
+    }
+
+    fun continueDownload() {
+        val position = tmpDownloadPos
+        val video = tmpDownloadVideo
+        if (position < 0 || position > videos.size - 1 || video == null) {
+            return
+        }
+        view?.onStartVideoDownload(position, video)
+        tmpDownloadPos = -1
+        tmpDownloadVideo = null
+    }
+
+    fun fireOpenVideoMenu(
+        position: Int,
+        video: Video
+    ) {
+        if (position < videos.size && position >= 0) {
+            view?.doVideoMenu(position, video)
+        }
+    }
+
+    fun fireUpdateTime(video: Video) {
+        val hash = parseLocalServerURL(video.link)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.updateTime(hash).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showSuccess()
+                    fireRefresh(false)
+                }, {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun firePrepareEditFileName(video: Video) {
+        val hash = parseLocalServerURL(video.link)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.getFileName(hash).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.displayEditFileNameDialog(hash, it)
+                }, {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun firEditFileName(hash: String, newFileName: String) {
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.updateFileName(hash, newFileName).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+                    view?.showSuccess()
+                    fireRefresh(false)
+                }, {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun fireDeleteVideo(position: Int, video: Video) {
+        if (position >= videos.size || position < 0) {
+            return
+        }
+        val hash = parseLocalServerURL(video.link)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.deleteMedia(hash).fromIOToMain(
+                {
+                    videos.removeAt(position)
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showSuccess()
+                    view?.notifyItemRemoved(position)
+                }, {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
     }
 
     companion object {
@@ -198,6 +320,6 @@ class VideosLocalServerPresenter :
     }
 
     init {
-        search_at = FindAt()
+        searchAt = FindAt()
     }
 }

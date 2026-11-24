@@ -61,7 +61,7 @@ import dev.ragnarok.fenrir.model.PeerUpdate
 import dev.ragnarok.fenrir.model.Reaction
 import dev.ragnarok.fenrir.model.SaveMessageBuilder
 import dev.ragnarok.fenrir.model.Sticker
-import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInConversation
 import dev.ragnarok.fenrir.model.UserUpdate
 import dev.ragnarok.fenrir.module.encoder.AudioRecorderNative
 import dev.ragnarok.fenrir.nonNullNoEmpty
@@ -366,9 +366,9 @@ class ChatPresenter(
         resolveOptionMenu()
     }
 
-    private fun onTypingMessageOrUploading(typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog) {
-        if (peerId == typingMessageOrUploadingInDialog.peerId) {
-            displayUserTextingInToolbar(typingMessageOrUploadingInDialog)
+    private fun onTypingMessageOrUploading(typingMessageOrUploadingInConversation: TypingMessageOrUploadingInConversation) {
+        if (peerId == typingMessageOrUploadingInConversation.peerId) {
+            displayUserTextingInToolbar(typingMessageOrUploadingInConversation)
         }
     }
 
@@ -1446,25 +1446,29 @@ class ChatPresenter(
         return !isGroupChat && Peer.toUserId(peerId) == userId
     }
 
-    private fun displayUserTextingInToolbar(typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog) {
+    private fun displayUserTextingInToolbar(typingMessageOrUploadingInConversation: TypingMessageOrUploadingInConversation) {
         if (!Settings.get().ui().isDisplay_writing)
             return
 
-        view?.displayTypingMessageOrUploading(typingMessageOrUploadingInDialog)
+        view?.displayTypingMessageOrUploading(typingMessageOrUploadingInConversation)
         toolbarSubtitleHandler.restoreToolbarWithDelay()
     }
 
     fun resolveTypingMessageOrUploading(
         context: Context,
-        typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog
+        typingMessageOrUploadingInConversation: TypingMessageOrUploadingInConversation
     ) {
         appendJob(
-            OwnerInfo.getRx(context, accountId, typingMessageOrUploadingInDialog.getFrom_ids()[0])
+            OwnerInfo.getRx(
+                context,
+                accountId,
+                typingMessageOrUploadingInConversation.getFromIds()[0]
+            )
                 .fromIOToMain {
                     view?.displayTypingMessageOrUploading(
                         it.owner,
-                        typingMessageOrUploadingInDialog.getFrom_ids().size,
-                        typingMessageOrUploadingInDialog.action
+                        typingMessageOrUploadingInConversation.getFromIds().size,
+                        typingMessageOrUploadingInConversation.action
                     )
                 }
         )

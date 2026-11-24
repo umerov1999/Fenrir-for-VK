@@ -299,7 +299,7 @@ abstract class PlaceSupportMvpFragment<P : PlaceSupportPresenter<V>, V> : BaseMv
     override fun playAudioList(accountId: Long, position: Int, apiAudio: ArrayList<Audio>) {
         startForPlayList(requireActivity(), apiAudio, position)
         if (!Settings.get().main().isShow_mini_player) PlaceFactory.getPlayerPlace(
-            Settings.get().accounts().current
+            accountId
         ).tryOpenWith(requireActivity())
     }
 

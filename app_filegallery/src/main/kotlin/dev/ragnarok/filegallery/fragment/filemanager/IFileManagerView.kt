@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.annotation.StringRes
 import dev.ragnarok.filegallery.fragment.base.core.IErrorView
 import dev.ragnarok.filegallery.fragment.base.core.IMvpView
+import dev.ragnarok.filegallery.media.music.PlayerStatus
 import dev.ragnarok.filegallery.model.Audio
 import dev.ragnarok.filegallery.model.FileItem
 import dev.ragnarok.filegallery.model.Video
@@ -34,4 +35,6 @@ interface IFileManagerView : IMvpView, IErrorView {
     fun notifyUploadItemChanged(position: Int)
     fun notifyUploadItemRemoved(position: Int)
     fun notifyUploadProgressChanged(position: Int, progress: Int, smoothly: Boolean)
+    fun onServiceBindEvent(@PlayerStatus status: Int)
+    fun onShowBitrate(bitrate: Int, size: Long)
 }

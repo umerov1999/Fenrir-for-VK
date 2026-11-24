@@ -13,7 +13,7 @@ class VKApiLongpollUpdates {
 
     var addMessageUpdates: MutableList<AddMessageUpdate>? = null
 
-    var typingMessageOrUploadingInDialogUpdates: MutableList<TypingMessageOrUploadingInDialogUpdate>? =
+    var typingMessageOrUploadingInConversationUpdates: MutableList<TypingMessageOrUploadingInConversationUpdate>? =
         null
     var messageFlagsResetUpdates: MutableList<MessageFlagsResetUpdate>? = null
     var messageFlagsSetUpdates: MutableList<MessageFlagsSetUpdate>? = null
@@ -23,9 +23,11 @@ class VKApiLongpollUpdates {
     var messageReactionChangedUpdates: MutableList<ReactionMessageChangeUpdate>? = null
     var pinConversationUpdates: MutableList<PinConversationUpdate>? = null
     var minorIdConversationUpdates: MutableList<MinorIdUpdate>? = null
+    var reactionsUnreadInConversationUpdates: MutableList<ReactionsUnreadInConversationUpdate>? =
+        null
 
     fun isOnlyAddMessages(): Boolean {
-        return typingMessageOrUploadingInDialogUpdates.isNullOrEmpty() &&
+        return typingMessageOrUploadingInConversationUpdates.isNullOrEmpty() &&
                 messageFlagsResetUpdates.isNullOrEmpty() &&
                 messageFlagsSetUpdates.isNullOrEmpty() &&
                 inputMessagesSetReadUpdates.isNullOrEmpty() &&
@@ -33,7 +35,8 @@ class VKApiLongpollUpdates {
                 badgeCountChangeUpdates.isNullOrEmpty() &&
                 messageReactionChangedUpdates.isNullOrEmpty() &&
                 pinConversationUpdates.isNullOrEmpty() &&
-                minorIdConversationUpdates.isNullOrEmpty()
+                minorIdConversationUpdates.isNullOrEmpty() &&
+                reactionsUnreadInConversationUpdates.isNullOrEmpty()
     }
 
     //public VkApiLongpollUpdates(int account_id) {
@@ -56,14 +59,14 @@ class VKApiLongpollUpdates {
                     update as ReactionMessageChangeUpdate
                 )
 
-            AbsLongpollEvent.ACTION_USER_TYPING_TEXT_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_DIALOG,
-            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_DIALOG -> typingMessageOrUploadingInDialogUpdates =
+            AbsLongpollEvent.ACTION_USER_TYPING_TEXT_IN_CONVERSATION,
+            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_CONVERSATION,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_CONVERSATION,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_CONVERSATION,
+            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_CONVERSATION -> typingMessageOrUploadingInConversationUpdates =
                 addAndReturn(
-                    typingMessageOrUploadingInDialogUpdates,
-                    update as TypingMessageOrUploadingInDialogUpdate
+                    typingMessageOrUploadingInConversationUpdates,
+                    update as TypingMessageOrUploadingInConversationUpdate
                 )
 
             AbsLongpollEvent.ACTION_SET_INPUT_MESSAGES_AS_READ -> inputMessagesSetReadUpdates =
@@ -83,12 +86,18 @@ class VKApiLongpollUpdates {
 
             AbsLongpollEvent.ACTION_CHANGE_MINOR_ID -> minorIdConversationUpdates =
                 addAndReturn(minorIdConversationUpdates, update as MinorIdUpdate)
+
+            AbsLongpollEvent.ACTION_UPDATE_UNREAD_REACTIONS_IN_CONVERSATION -> reactionsUnreadInConversationUpdates =
+                addAndReturn(
+                    reactionsUnreadInConversationUpdates,
+                    update as ReactionsUnreadInConversationUpdate
+                )
         }
     }
 
     val updatesCount: Int
         get() = safeCountOfMultiple(
-            typingMessageOrUploadingInDialogUpdates,
+            typingMessageOrUploadingInConversationUpdates,
             addMessageUpdates,
             messageFlagsResetUpdates,
             messageFlagsSetUpdates,
@@ -97,7 +106,8 @@ class VKApiLongpollUpdates {
             badgeCountChangeUpdates,
             messageReactionChangedUpdates,
             pinConversationUpdates,
-            minorIdConversationUpdates
+            minorIdConversationUpdates,
+            reactionsUnreadInConversationUpdates
         )
     val isEmpty: Boolean
         get() = updatesCount == 0

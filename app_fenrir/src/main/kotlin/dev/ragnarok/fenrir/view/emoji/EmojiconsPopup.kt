@@ -316,7 +316,7 @@ class EmojiconsPopup(private var rootView: View?, private val mContext: Activity
                     val recyclerView: RecyclerView =
                         holder.itemView.findViewById(R.id.grid_stickers)
                     PicassoPauseOnScrollListener.addListener(recyclerView)
-                    val myStickersAdapter = MyStickersAdapter(holder.itemView.context)
+                    val myStickersAdapter = MyStickersAdapter()
                     myStickersAdapter.setMyStickerClickedListener(object :
                         OnMyStickerClickedListener {
                         override fun onMyStickerClick(file: LocalSticker) {

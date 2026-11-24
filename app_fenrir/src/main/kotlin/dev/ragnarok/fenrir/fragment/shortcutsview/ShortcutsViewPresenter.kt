@@ -9,7 +9,6 @@ import dev.ragnarok.fenrir.domain.Repository
 import dev.ragnarok.fenrir.fragment.base.RxSupportPresenter
 import dev.ragnarok.fenrir.model.ShortcutStored
 import dev.ragnarok.fenrir.nonNullNoEmpty
-import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ShortcutUtils
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
@@ -55,7 +54,7 @@ class ShortcutsViewPresenter(savedInstanceState: Bundle?) :
                 val id = matcher.groupValues.getOrNull(1)?.toLong() ?: return false
                 appendJob(
                     Repository.owners.getBaseOwnerInfo(
-                        Settings.get().accounts().current,
+                        id,
                         id,
                         FetchMode.NET
                     )
@@ -94,7 +93,7 @@ class ShortcutsViewPresenter(savedInstanceState: Bundle?) :
                 val account_id = matcher.groupValues.getOrNull(2)?.toLong() ?: return false
                 appendJob(
                     Repository.owners.getBaseOwnerInfo(
-                        Settings.get().accounts().current,
+                        account_id,
                         id,
                         FetchMode.NET
                     )

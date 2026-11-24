@@ -35,9 +35,16 @@ import dev.ragnarok.fenrir.db.column.UsersDetailsColumns
 import dev.ragnarok.fenrir.db.column.VideoAlbumsColumns
 import dev.ragnarok.fenrir.db.column.VideosColumns
 import dev.ragnarok.fenrir.module.FenrirNative
+import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.util.Utils
 
-class DBHelper private constructor(context: Context, aid: Long) :
-    SQLiteOpenHelper(context, getDatabaseFileName(aid), null, Constants.DATABASE_FENRIR_VERSION) {
+class DBHelper private constructor(context: Context, private val accountId: Long) :
+    SQLiteOpenHelper(
+        context,
+        getDatabaseFileName(accountId),
+        null,
+        Constants.DATABASE_FENRIR_VERSION
+    ) {
     /*
     override fun onOpen(db: SQLiteDatabase) {
         super.onOpen(db)
@@ -66,6 +73,12 @@ class DBHelper private constructor(context: Context, aid: Long) :
     private fun doRecreateBase(db: SQLiteDatabase) {
         dropAllTables(db)
         onCreate(db)
+
+        Settings.get().main().del_last_reaction_assets_sync(accountId)
+        Utils.clearReactionAssets(accountId)
+        Settings.get().main().del_last_sticker_sets_sync(accountId)
+        Settings.get().main().del_stickers_version_hash(accountId)
+        Settings.get().main().del_last_sticker_sets_custom_sync(accountId)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {

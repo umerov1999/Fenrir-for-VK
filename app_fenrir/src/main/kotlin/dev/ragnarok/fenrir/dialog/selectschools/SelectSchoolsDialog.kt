@@ -54,7 +54,7 @@ class SelectSchoolsDialog : AccountDependencyDialogFragment(), SchoolsAdapter.Li
             mData = ArrayList()
             firstRun = true
         }
-        mAdapter = SchoolsAdapter(requireActivity(), mData ?: emptyList())
+        mAdapter = SchoolsAdapter(mData ?: emptyList())
         mAdapter?.setListener(this)
         mRecyclerView.adapter = mAdapter
         if (firstRun) {

@@ -287,14 +287,14 @@ class VideoPreviewFragment : BaseMvpFragment<VideoPreviewPresenter, IVideoPrevie
         }
         if (video.date != 0L && mUploadDate != null) {
             mUploadDate?.visibility = View.VISIBLE
-            mUploadDate?.text = requireActivity().getString(
+            mUploadDate?.text = getString(
                 R.string.uploaded_video,
                 getDateFromUnixTime(requireActivity(), video.date)
             )
         }
         if (video.addingDate != 0L && mAddedDate != null) {
             mAddedDate?.visibility = View.VISIBLE
-            mAddedDate?.text = requireActivity().getString(
+            mAddedDate?.text = getString(
                 R.string.added_video,
                 getDateFromUnixTime(requireActivity(), video.addingDate)
             )

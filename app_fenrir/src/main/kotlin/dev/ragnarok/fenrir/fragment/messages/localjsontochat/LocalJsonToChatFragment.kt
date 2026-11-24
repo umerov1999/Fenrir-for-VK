@@ -35,7 +35,6 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.picasso.transforms.RoundTransformation
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
@@ -108,7 +107,7 @@ class LocalJsonToChatFragment :
         PicassoPauseOnScrollListener.addListener(recyclerView)
         mLoadingProgressBar = root.findViewById(R.id.loading_progress_bar)
         mAdapter = MessagesAdapter(
-            Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             requireActivity(),
             mutableListOf(),
             LastReadId(0, 0),

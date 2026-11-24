@@ -15,6 +15,7 @@ import android.os.storage.StorageVolume
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.MimeTypeMap
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,10 +33,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.StubAnimatorListener
 import dev.ragnarok.filegallery.activity.EnterPinActivity
+import dev.ragnarok.filegallery.filePathToUrl
 import dev.ragnarok.filegallery.fragment.base.BaseMvpFragment
 import dev.ragnarok.filegallery.fragment.filemanager.FileManagerAdapter.ClickListener
 import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerBottomSheet
@@ -49,6 +52,7 @@ import dev.ragnarok.filegallery.listener.PicassoPauseOnScrollListener
 import dev.ragnarok.filegallery.listener.UpdatableNavigation
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController
 import dev.ragnarok.filegallery.media.music.MusicPlaybackService
+import dev.ragnarok.filegallery.media.music.PlayerStatus
 import dev.ragnarok.filegallery.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
 import dev.ragnarok.filegallery.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.filegallery.model.Audio
@@ -56,6 +60,7 @@ import dev.ragnarok.filegallery.model.FileItem
 import dev.ragnarok.filegallery.model.FileType
 import dev.ragnarok.filegallery.model.SectionItem
 import dev.ragnarok.filegallery.model.Video
+import dev.ragnarok.filegallery.model.menu.options.FileManagerOption
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.place.PlaceFactory
 import dev.ragnarok.filegallery.place.PlaceFactory.getPhotoLocalPlace
@@ -63,10 +68,13 @@ import dev.ragnarok.filegallery.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.filegallery.settings.CurrentTheme
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.upload.Upload
+import dev.ragnarok.filegallery.util.FileUtil
+import dev.ragnarok.filegallery.util.Utils
 import dev.ragnarok.filegallery.util.ViewUtils
 import dev.ragnarok.filegallery.util.coroutines.CancelableJob
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.toMain
+import dev.ragnarok.filegallery.util.toast.CustomSnackbars
 import dev.ragnarok.filegallery.view.MySearchView
 import dev.ragnarok.filegallery.view.natives.animation.ThorVGLottieView
 import java.io.File
@@ -251,7 +259,7 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
                 )
             }
             menus.show(
-                requireActivity().supportFragmentManager,
+                childFragmentManager,
                 "select_storage"
             ) { _, option ->
                 option.title.nonNullNoEmpty {
@@ -363,11 +371,7 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
         }
     }
 
-    override fun onFixDir(item: FileItem) {
-        item.file_path?.let { presenter?.fireFixDirTime(it) }
-    }
-
-    override fun onUpdateTimeFile(item: FileItem) {
+    private fun onUpdateTimeFile(item: FileItem) {
         val tmp = File(item.file_path ?: return)
         if (tmp.setLastModified(System.currentTimeMillis())) {
             showMessage(R.string.success)
@@ -378,10 +382,10 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
         }
     }
 
-    override fun onDirTag(item: FileItem) {
+    private fun onDirTag(item: FileItem) {
         if (item.isHasTag) {
             MaterialAlertDialogBuilder(requireActivity()).setTitle(R.string.attention)
-                .setMessage(requireActivity().getString(R.string.do_tag_remove, item.file_name))
+                .setMessage(getString(R.string.do_tag_remove, item.file_name))
                 .setPositiveButton(R.string.button_yes) { _, _ ->
                     presenter?.fireRemoveDirTag(item)
                 }
@@ -426,13 +430,13 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
         )
     }
 
-    override fun onDelete(item: FileItem) {
+    private fun onDelete(item: FileItem) {
         if (Settings.get().main().isDeleteDisabled) {
             showMessage(R.string.delete_disabled)
             return
         }
         MaterialAlertDialogBuilder(requireActivity()).setTitle(R.string.attention)
-            .setMessage(requireActivity().getString(R.string.do_remove, item.file_name))
+            .setMessage(getString(R.string.do_remove, item.file_name))
             .setPositiveButton(R.string.button_yes) { _, _ ->
                 if (Settings.get().security().isUsePinForEntrance && Settings.get().security()
                         .hasPinHash
@@ -446,7 +450,7 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
             .show()
     }
 
-    override fun onRemotePlay(audio: FileItem) {
+    private fun onRemotePlay(audio: FileItem) {
         audio.file_path?.let {
             presenter?.fireFileForRemotePlaySelected(
                 it
@@ -611,5 +615,349 @@ class FileManagerFragment : BaseMvpFragment<FileManagerPresenter, IFileManagerVi
 
     override fun notifyUploadProgressChanged(position: Int, progress: Int, smoothly: Boolean) {
         mUploadAdapter?.changeUploadProgress(position, progress, smoothly)
+    }
+
+    override fun onShowBitrate(bitrate: Int, size: Long) {
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+            ?.themedSnack(
+                getString(
+                    R.string.bitrate,
+                    bitrate,
+                    Utils.BytesToSize(size)
+                )
+            )
+            ?.show()
+    }
+
+    override fun onOpenAudioMenu(position: Int, item: FileItem) {
+        val t = Audio()
+        t.setId(item.fileNameHash)
+        t.setOwnerId(item.filePathHash)
+        t.setUrl(item.file_path?.filePathToUrl())
+        t.setThumb_image(item.file_path?.filePathToUrl("thumb_file"))
+        t.setDuration(item.size.toInt())
+
+        var trackName: String = item.file_name?.replace(".mp3", "") ?: ""
+        val artist: String
+        val arr = trackName.split(Regex(" - ")).toTypedArray()
+        if (arr.size > 1) {
+            artist = arr[0]
+            trackName = trackName.replace("$artist - ", "")
+        } else {
+            artist = item.parent_name ?: ""
+        }
+        t.setIsLocal()
+        t.setArtist(artist)
+        t.setTitle(trackName)
+        val menus = ModalBottomSheetDialogFragment.Builder()
+        menus.add(
+            OptionRequest(
+                FileManagerOption.play_item_audio,
+                getString(R.string.play),
+                R.drawable.play,
+                true
+            )
+        )
+        if (MusicPlaybackController.canPlayAfterCurrent()) {
+            menus.add(
+                OptionRequest(
+                    FileManagerOption.play_item_after_current_audio,
+                    getString(R.string.play_audio_after_current),
+                    R.drawable.play_next,
+                    false
+                )
+            )
+        }
+        menus.add(
+            OptionRequest(
+                FileManagerOption.bitrate_item_audio,
+                getString(R.string.get_bitrate),
+                R.drawable.high_quality,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.open_with_item,
+                getString(R.string.open_with),
+                R.drawable.ic_external,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.share_item,
+                getString(R.string.share),
+                R.drawable.ic_share,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.update_file_time_item,
+                getString(R.string.update_time),
+                R.drawable.ic_recent,
+                false
+            )
+        )
+        if (Settings.get().main().localServer.enabled) {
+            menus.add(
+                OptionRequest(
+                    FileManagerOption.play_via_local_server,
+                    getString(R.string.play_remote),
+                    R.drawable.remote_cloud,
+                    false
+                )
+            )
+        }
+        menus.add(
+            OptionRequest(
+                FileManagerOption.add_dir_tag_item,
+                if (item.isHasTag) getString(R.string.remove_dir_tag) else getString(
+                    R.string.add_dir_tag
+                ),
+                R.drawable.star,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.delete_item,
+                getString(R.string.delete),
+                R.drawable.ic_outline_delete,
+                false
+            )
+        )
+        menus.header(
+            item.file_name,
+            R.drawable.song,
+            t.thumb_image
+        )
+        menus.columns(2)
+        menus.show(
+            childFragmentManager,
+            "audio_options", { _, option ->
+                notifyItemChanged(position)
+                when (option.id) {
+                    FileManagerOption.play_via_local_server -> {
+                        onRemotePlay(item)
+                    }
+
+                    FileManagerOption.add_dir_tag_item -> {
+                        onDirTag(item)
+                    }
+
+                    FileManagerOption.delete_item -> {
+                        onDelete(item)
+                    }
+
+                    FileManagerOption.play_item_audio -> {
+                        onClick(position, item)
+                    }
+
+                    FileManagerOption.play_item_after_current_audio -> MusicPlaybackController.playAfterCurrent(
+                        t
+                    )
+
+                    FileManagerOption.bitrate_item_audio -> presenter?.fireGetLocalBitrate(t)
+                    FileManagerOption.open_with_item -> {
+                        val intentOpen = Intent(Intent.ACTION_VIEW)
+                        intentOpen.setDataAndType(
+                            FileUtil.getExportedUriForFile(
+                                requireActivity(),
+                                File(item.file_path ?: return@show)
+                            ), MimeTypeMap.getSingleton()
+                                .getMimeTypeFromExtension(File(item.file_path).extension)
+                        )
+                        intentOpen.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        startActivity(intentOpen)
+                    }
+
+                    FileManagerOption.share_item -> {
+                        val intentSend = Intent(Intent.ACTION_SEND)
+                        intentSend.type = MimeTypeMap.getSingleton()
+                            .getMimeTypeFromExtension(
+                                File(
+                                    item.file_path ?: return@show
+                                ).extension
+                            )
+                        intentSend.putExtra(
+                            Intent.EXTRA_STREAM, FileUtil.getExportedUriForFile(
+                                requireActivity(),
+                                File(item.file_path)
+                            )
+                        )
+                        intentSend.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        startActivity(intentSend)
+                    }
+
+                    FileManagerOption.update_file_time_item -> {
+                        onUpdateTimeFile(item)
+                    }
+
+                    else -> {}
+                }
+            }, {
+                notifyItemChanged(position)
+            })
+    }
+
+    override fun onOpenFileMenu(position: Int, item: FileItem) {
+        val menus = ModalBottomSheetDialogFragment.Builder()
+        menus.add(
+            OptionRequest(
+                FileManagerOption.open_with_item,
+                getString(R.string.open_with),
+                R.drawable.ic_external,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.share_item,
+                getString(R.string.share),
+                R.drawable.ic_share,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.update_file_time_item,
+                getString(R.string.update_time),
+                R.drawable.ic_recent,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.add_dir_tag_item,
+                if (item.isHasTag) getString(R.string.remove_dir_tag) else getString(
+                    R.string.add_dir_tag
+                ),
+                R.drawable.star,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.delete_item,
+                getString(R.string.delete),
+                R.drawable.ic_outline_delete,
+                false
+            )
+        )
+        menus.header(
+            item.file_name,
+            R.drawable.file,
+            "thumb_file://" + item.file_path
+        )
+        menus.columns(2)
+        menus.show(
+            childFragmentManager,
+            "file_options", { _, option ->
+                notifyItemChanged(position)
+                when (option.id) {
+                    FileManagerOption.add_dir_tag_item -> {
+                        onDirTag(item)
+                    }
+
+                    FileManagerOption.delete_item -> {
+                        onDelete(item)
+                    }
+
+                    FileManagerOption.open_with_item -> {
+                        val intentOpen = Intent(Intent.ACTION_VIEW)
+                        intentOpen.setDataAndType(
+                            FileUtil.getExportedUriForFile(
+                                requireActivity(),
+                                File(item.file_path ?: return@show)
+                            ), MimeTypeMap.getSingleton()
+                                .getMimeTypeFromExtension(File(item.file_path).extension)
+                        )
+                        intentOpen.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        startActivity(intentOpen)
+                    }
+
+                    FileManagerOption.share_item -> {
+                        val intentSend = Intent(Intent.ACTION_SEND)
+                        intentSend.type = MimeTypeMap.getSingleton()
+                            .getMimeTypeFromExtension(File(item.file_path ?: return@show).extension)
+                        intentSend.putExtra(
+                            Intent.EXTRA_STREAM, FileUtil.getExportedUriForFile(
+                                requireActivity(),
+                                File(item.file_path)
+                            )
+                        )
+                        intentSend.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        startActivity(intentSend)
+                    }
+
+                    FileManagerOption.update_file_time_item -> {
+                        onUpdateTimeFile(item)
+                    }
+
+                    else -> {}
+                }
+            }, {
+                notifyItemChanged(position)
+            })
+    }
+
+    override fun onOpenFolderMenu(position: Int, item: FileItem) {
+        val menus = ModalBottomSheetDialogFragment.Builder()
+        menus.add(
+            OptionRequest(
+                FileManagerOption.delete_item,
+                getString(R.string.delete),
+                R.drawable.ic_outline_delete,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.fix_dir_time_item,
+                getString(R.string.fix_dir_time),
+                R.drawable.ic_recent,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                FileManagerOption.add_dir_tag_item,
+                if (item.isHasTag) getString(R.string.remove_dir_tag) else getString(
+                    R.string.add_dir_tag
+                ),
+                R.drawable.star,
+                false
+            )
+        )
+        menus.columns(1)
+        menus.show(
+            childFragmentManager,
+            "folder_options", { _, option ->
+                notifyItemChanged(position)
+                when (option.id) {
+                    FileManagerOption.fix_dir_time_item -> {
+                        item.file_path?.let { presenter?.fireFixDirTime(it) }
+                    }
+
+                    FileManagerOption.add_dir_tag_item -> {
+                        onDirTag(item)
+                    }
+
+                    FileManagerOption.delete_item -> {
+                        onDelete(item)
+                    }
+
+                    else -> {}
+                }
+            }, {
+                notifyItemChanged(position)
+            })
+    }
+
+    override fun onServiceBindEvent(@PlayerStatus status: Int) {
+        mAdapter?.onServiceBindEvent(status)
     }
 }

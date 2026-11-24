@@ -15,7 +15,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.OnStickerClickedListener
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
-class StickersAdapter(private val context: Context, private val stickers: StickerSet) :
+class StickersAdapter(context: Context, private val stickers: StickerSet) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val isNightSticker: Boolean =
         Settings.get().ui().isStickers_by_theme && Settings.get().ui().isDarkModeEnabled(
@@ -42,13 +42,13 @@ class StickersAdapter(private val context: Context, private val stickers: Sticke
         return when (viewType) {
             TYPE_IMAGE -> StickerHolder(
                 LayoutInflater.from(
-                    context
+                    parent.context
                 ).inflate(R.layout.sticker_grid_item, parent, false)
             )
 
             TYPE_ANIMATED -> StickerAnimatedHolder(
                 LayoutInflater.from(
-                    context
+                    parent.context
                 ).inflate(R.layout.sticker_grid_item_animated, parent, false)
             )
 

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.photos.localphotos
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,14 +13,14 @@ import dev.ragnarok.fenrir.picasso.Content_Local
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.buildUriForPicasso
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 
-class LocalPhotosAdapter(private val context: Context, private val data: List<LocalPhoto>) :
+class LocalPhotosAdapter(private val data: List<LocalPhoto>) :
     RecyclerView.Adapter<LocalPhotosAdapter.ViewHolder>() {
     private val holders: MutableSet<ViewHolder> = HashSet()
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val holder = ViewHolder(
             LayoutInflater.from(
-                context
+                parent.context
             )
                 .inflate(R.layout.photo_item, parent, false)
         )

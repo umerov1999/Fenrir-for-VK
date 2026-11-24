@@ -23,7 +23,7 @@ import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
 class AudioPlaylistsAdapter(
     private var data: List<AudioPlaylist>,
-    private val context: Context,
+    context: Context,
     private val isSelect: Boolean
 ) : RecyclerView.Adapter<AudioPlaylistsAdapter.Holder>() {
     private val isDark: Boolean = Settings.get().ui().isDarkModeEnabled(context)
@@ -31,7 +31,7 @@ class AudioPlaylistsAdapter(
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
-            LayoutInflater.from(context).inflate(R.layout.item_audio_playlist, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_audio_playlist, parent, false)
         )
     }
 
@@ -45,7 +45,7 @@ class AudioPlaylistsAdapter(
             Constants.PICASSO_TAG
         ) else holder.thumb.setImageResource(if (isDark) R.drawable.generic_audio_nowplaying_dark else R.drawable.generic_audio_nowplaying_light)
         holder.count.text =
-            playlist.count.toString() + " " + context.getString(R.string.audios_pattern_count)
+            playlist.count.toString() + " " + holder.count.context.getString(R.string.audios_pattern_count)
         holder.title.text = playlist.title
         if (playlist.getDescriptionOrSubtitle().isNullOrEmpty()) holder.description.visibility =
             View.GONE else {
@@ -64,7 +64,8 @@ class AudioPlaylistsAdapter(
             holder.genre.visibility = View.VISIBLE
             holder.genre.text = playlist.genre
         }
-        holder.update.text = AppTextUtils.getDateFromUnixTime(context, playlist.update_time)
+        holder.update.text =
+            AppTextUtils.getDateFromUnixTime(holder.update.context, playlist.update_time)
         holder.playlistContainer.setOnClickListener {
             clickListener?.onAlbumClick(holder.bindingAdapterPosition, playlist)
         }

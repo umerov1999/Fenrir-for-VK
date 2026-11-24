@@ -1,6 +1,6 @@
 package dev.ragnarok.fenrir.fragment.feedback
 
-import android.app.Activity
+import android.content.Context
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -10,6 +10,7 @@ import android.text.style.StyleSpan
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import com.squareup.picasso3.Transformation
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
@@ -42,10 +43,12 @@ import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
 class FeedbackViewBinder(
-    private val context: Activity,
+    context: Context,
     private val attachmentsActionCallback: OnAttachmentsActionCallback
 ) {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
+
+    @ColorInt
     private val linkColor: Int = CurrentTheme.getColorPrimary(context)
     private val attachmentsViewBinder: AttachmentsViewBinder =
         AttachmentsViewBinder(context, attachmentsActionCallback)
@@ -80,9 +83,10 @@ class FeedbackViewBinder(
             )
         )
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
-        action = action + SPACE + context.getString(R.string.mentioned_in_comment_photo_video)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.mentioned_in_comment_photo_video)
         val actionLink = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.video_dative)
+        action = action + SPACE + holder.cOwnerTime.context.getString(R.string.video_dative)
         actionLink.end(action.length)
         val actionSpannable = SpannableStringBuilder(action)
         showAsLink(actionSpannable, actionLink)
@@ -149,9 +153,10 @@ class FeedbackViewBinder(
             )
         )
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
-        action = action + SPACE + context.getString(R.string.mentioned_in_comment_photo_video)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.mentioned_in_comment_photo_video)
         val actionLink = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.photo_dative)
+        action = action + SPACE + holder.cOwnerTime.context.getString(R.string.photo_dative)
         actionLink.end(action.length)
         val actionSpannable = SpannableStringBuilder(action)
         showAsLink(actionSpannable, actionLink)
@@ -198,11 +203,11 @@ class FeedbackViewBinder(
             )
         )
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
-        action = action + SPACE + context.getString(R.string.in_comments_for_post)
+        action = action + SPACE + holder.cOwnerTime.context.getString(R.string.in_comments_for_post)
         val actionLink = Link.startOf(action.length)
         val postText = getPostTextCopyIncluded(post)
         action = if (postText.isNullOrEmpty()) {
-            action + SPACE + context.getString(
+            action + SPACE + holder.cOwnerTime.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(post.date)
             )
@@ -260,7 +265,9 @@ class FeedbackViewBinder(
             )
         )
         val timeWithActionText =
-            AppTextUtils.getDateFromUnixTime(notification.date) + SPACE + context.getString(R.string.mentioned_in_post)
+            AppTextUtils.getDateFromUnixTime(notification.date) + SPACE + holder.cOwnerTime.context.getString(
+                R.string.mentioned_in_post
+            )
         holder.cOwnerTime.text = timeWithActionText
         holder.cChangable.visibility = View.GONE
         with()
@@ -294,7 +301,8 @@ class FeedbackViewBinder(
     ) {
         val feedback = notification.post
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
-        action = action + SPACE + context.getString(R.string.postings_you_the_news)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.postings_you_the_news)
         holder.cOwnerName.text = feedback?.authorName
         holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
@@ -343,7 +351,7 @@ class FeedbackViewBinder(
     ) {
         val feedback = notification.post
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
-        action = action + SPACE + context.getString(R.string.on_your_wall)
+        action = action + SPACE + holder.cOwnerTime.context.getString(R.string.on_your_wall)
         holder.cOwnerName.text = feedback?.authorName
         holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
@@ -388,13 +396,15 @@ class FeedbackViewBinder(
     ) {
         val feedback = notification.comment
         var action = feedback?.date?.let { AppTextUtils.getDateFromUnixTime(it) }
-        action = action + SPACE + context.getString(R.string.comment_your_video_without_video)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.comment_your_video_without_video)
         val parentLink = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.video_accusative)
+        action = action + SPACE + holder.cOwnerTime.context.getString(R.string.video_accusative)
         parentLink.end(action.length)
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, parentLink)
-        val ownername = feedback?.fullAuthorName + SPACE + context.getString(R.string.commented)
+        val ownername =
+            feedback?.fullAuthorName + SPACE + holder.cOwnerTime.context.getString(R.string.commented)
         holder.cOwnerName.text = ownername
         holder.cOwnerText.precompute(
             OwnerLinkSpanFactory.withSpans(
@@ -435,9 +445,10 @@ class FeedbackViewBinder(
     ) {
         val feedback = notification.comment
         var action = feedback?.date?.let { AppTextUtils.getDateFromUnixTime(it) }
-        action = action + SPACE + context.getString(R.string.comment_your_photo_without_photo)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.comment_your_photo_without_photo)
         val parentLink = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.photo_accusative)
+        action = action + SPACE + holder.cOwnerTime.context.getString(R.string.photo_accusative)
         parentLink.end(action.length)
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, parentLink)
@@ -483,12 +494,12 @@ class FeedbackViewBinder(
         val feedback = notification.comment
         val feedBackText = OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(feedback?.text)
         var action = feedback?.date?.let { AppTextUtils.getDateFromUnixTime(it) }
-        action = action + SPACE + context.getString(R.string.for_your_post)
+        action = action + SPACE + holder.cOwnerTime.context.getString(R.string.for_your_post)
         val parentLink = Link.startOf(action.length)
         val parentText =
             OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(getPostTextCopyIncluded(post))
         action = if (parentText.isNullOrEmpty()) {
-            action + SPACE + context.getString(
+            action + SPACE + holder.cOwnerTime.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(post.date)
             )
@@ -542,9 +553,10 @@ class FeedbackViewBinder(
         val feedback = notification.feedbackComment
         val feedBackText = OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(feedback?.text)
         var action = AppTextUtils.getDateFromUnixTime(feedback?.date.orZero())
-        action = action + SPACE + context.getString(R.string.in_reply_to_your_comment)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.in_reply_to_your_comment)
         val parentText: CharSequence = if (parent?.text.isNullOrEmpty()) {
-            context.getString(
+            holder.cOwnerTime.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(parent?.date.orZero())
             )
@@ -593,9 +605,10 @@ class FeedbackViewBinder(
         setupAttachmentViewWithPhoto(notification.commentsOf as Photo, holder.ivRightAttachment)
         val feedBackText = OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(feedback?.text)
         var action = AppTextUtils.getDateFromUnixTime(feedback?.date.orZero())
-        action = action + SPACE + context.getString(R.string.in_reply_to_your_comment)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.in_reply_to_your_comment)
         val parentText: CharSequence = if (parent?.text.isNullOrEmpty()) {
-            context.getString(
+            holder.cOwnerTime.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(parent?.date.orZero())
             )
@@ -660,7 +673,8 @@ class FeedbackViewBinder(
             null
         )
         var action = AppTextUtils.getDateFromUnixTime(feedback?.date.orZero())
-        action = action + SPACE + context.getString(R.string.in_reply_to_your_message_in_topic)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.in_reply_to_your_message_in_topic)
         val parentLink = Link.startOf(action.length)
         action = action + SPACE + topic.title
         parentLink.end(action.length)
@@ -693,9 +707,10 @@ class FeedbackViewBinder(
         val feedback = notification.feedbackComment
         val feedBackText = OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(feedback?.text)
         var action = AppTextUtils.getDateFromUnixTime(notification.date)
-        action = action + SPACE + context.getString(R.string.in_reply_to_your_comment)
+        action =
+            action + SPACE + holder.cOwnerTime.context.getString(R.string.in_reply_to_your_comment)
         val parentText: CharSequence = if (parent?.text.isNullOrEmpty()) {
-            context.getString(
+            holder.cOwnerTime.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(parent?.date.orZero())
             )
@@ -742,8 +757,9 @@ class FeedbackViewBinder(
     fun configFollowFeedback(notification: UsersFeedback, holder: UsersHolder) {
         val users = notification.owners
         val user = users?.get(0)
-        var action = genFullUsersString(users.orEmpty())
-        action = action + SPACE + context.getString(R.string.subscribed_to_your_updates)
+        var action = genFullUsersString(holder.uName.context, users.orEmpty())
+        action =
+            action + SPACE + holder.uName.context.getString(R.string.subscribed_to_your_updates)
         val spannable = SpannableStringBuilder(action)
         holder.uName.setText(spannable, TextView.BufferType.SPANNABLE)
         showFirstUserAvatarOnImageView(notification.owners, holder.uAvatar)
@@ -789,8 +805,8 @@ class FeedbackViewBinder(
     fun configFriendAcceptedFeedback(notification: UsersFeedback, holder: UsersHolder) {
         val owners = notification.owners
         val user = owners?.get(0)
-        var action = genFullUsersString(owners.orEmpty())
-        action = action + SPACE + context.getString(R.string.accepted_friend_request)
+        var action = genFullUsersString(holder.uName.context, owners.orEmpty())
+        action = action + SPACE + holder.uName.context.getString(R.string.accepted_friend_request)
         val spannable = SpannableStringBuilder(action)
         holder.uName.setText(spannable, TextView.BufferType.SPANNABLE)
         showFirstUserAvatarOnImageView(owners, holder.uAvatar)
@@ -811,12 +827,15 @@ class FeedbackViewBinder(
         val post = notification.liked as Post
         val owners = notification.owners
         val user = owners?.get(0)
-        var action = genFullUsersString(owners.orEmpty())
-        action = action + SPACE + context.getString(R.string.liked_your_post)
+        var action = genFullUsersString(holder.uName.context, owners.orEmpty())
+        action = action + SPACE + holder.uInfo.context.getString(R.string.liked_your_post)
         val info: CharSequence
         val postTitle = getPostTextCopyIncluded(post)
         info = if (postTitle.isNullOrEmpty()) {
-            context.getString(R.string.from_date, AppTextUtils.getDateFromUnixTime(post.date))
+            holder.uInfo.context.getString(
+                R.string.from_date,
+                AppTextUtils.getDateFromUnixTime(post.date)
+            )
         } else {
             OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(postTitle)?.let { reduce(it) } ?: ""
         }
@@ -848,10 +867,11 @@ class FeedbackViewBinder(
     fun configLikeVideoFeedback(notification: LikeFeedback, holder: UsersHolder) {
         val users = notification.owners
         val user = users?.get(0)
-        var action = users?.let { genFullUsersString(it) }
-        action = action + SPACE + context.getString(R.string.liked_your_video_without_video)
+        var action = users?.let { genFullUsersString(holder.uName.context, it) }
+        action =
+            action + SPACE + holder.uName.context.getString(R.string.liked_your_video_without_video)
         val photoLink = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.video_accusative)
+        action = action + SPACE + holder.uName.context.getString(R.string.video_accusative)
         photoLink.end(action.length)
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, photoLink)
@@ -874,10 +894,11 @@ class FeedbackViewBinder(
     fun configCopyPhotoFeedback(notification: CopyFeedback, holder: UsersHolder) {
         val users = notification.owners
         val user = users?.get(0)
-        var action = genFullUsersString(users.orEmpty())
-        action = action + SPACE + context.getString(R.string.copy_your_photo_without_photo)
+        var action = genFullUsersString(holder.uName.context, users.orEmpty())
+        action =
+            action + SPACE + holder.uName.context.getString(R.string.copy_your_photo_without_photo)
         val link = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.photo_ablative)
+        action = action + SPACE + holder.uName.context.getString(R.string.photo_ablative)
         link.end(action.length)
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, link)
@@ -899,10 +920,11 @@ class FeedbackViewBinder(
     fun configCopyVideoFeedback(notification: CopyFeedback, holder: UsersHolder) {
         val users = notification.owners
         val user = users?.get(0)
-        var action = genFullUsersString(users.orEmpty())
-        action = action + SPACE + context.getString(R.string.copy_your_video_without_video)
+        var action = genFullUsersString(holder.uName.context, users.orEmpty())
+        action =
+            action + SPACE + holder.uName.context.getString(R.string.copy_your_video_without_video)
         val link = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.video_ablative)
+        action = action + SPACE + holder.uName.context.getString(R.string.video_ablative)
         link.end(action.length)
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, link)
@@ -924,12 +946,15 @@ class FeedbackViewBinder(
     fun configCopyPostFeedback(notification: CopyFeedback, holder: UsersHolder) {
         val post = notification.what as Post
         val users = notification.owners
-        var action = genFullUsersString(users.orEmpty())
-        action = action + SPACE + context.getString(R.string.shared_post)
+        var action = genFullUsersString(holder.uName.context, users.orEmpty())
+        action = action + SPACE + holder.uName.context.getString(R.string.shared_post)
         val link = Link.startOf(0)
         val postText = getPostTextCopyIncluded(post)
         val info: CharSequence = if (postText.isNullOrEmpty()) {
-            context.getString(R.string.from_date, AppTextUtils.getDateFromUnixTime(post.date))
+            holder.uName.context.getString(
+                R.string.from_date,
+                AppTextUtils.getDateFromUnixTime(post.date)
+            )
         } else {
             OwnerLinkSpanFactory.getTextWithCollapseOwnerLinks(postText)?.let { reduce(it) } ?: ""
         }
@@ -963,10 +988,11 @@ class FeedbackViewBinder(
     fun configLikePhotoFeedback(notification: LikeFeedback, holder: UsersHolder) {
         val owners = notification.owners
         val firstUser = owners?.get(0)
-        var action = genFullUsersString(owners.orEmpty())
-        action = action + SPACE + context.getString(R.string.liked_your_photo_without_photo)
+        var action = genFullUsersString(holder.uName.context, owners.orEmpty())
+        action =
+            action + SPACE + holder.uName.context.getString(R.string.liked_your_photo_without_photo)
         val photoLink = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.photo_accusative)
+        action = action + SPACE + holder.uName.context.getString(R.string.photo_accusative)
         photoLink.end(action.length)
         val spannable = SpannableStringBuilder(action)
         showAsLink(spannable, photoLink)
@@ -986,7 +1012,7 @@ class FeedbackViewBinder(
      * @param users массив пользователей, которые "ответили"
      * @return строка
      */
-    private fun genFullUsersString(users: List<Owner>): String {
+    private fun genFullUsersString(context: Context, users: List<Owner>): String {
         val owner = users[0]
         var action = owner.fullName ?: "null"
         if (users.size > 1) {
@@ -1009,14 +1035,14 @@ class FeedbackViewBinder(
         var action = user?.fullName
         if (users?.size.orZero() > 1) {
             action =
-                action + SPACE + context.getString(
+                action + SPACE + holder.uName.context.getString(
                     R.string.and_users_count_more,
                     users?.size.orZero() - 1
                 )
         }
-        action = action + SPACE + context.getString(R.string.liked_comment)
+        action = action + SPACE + holder.uName.context.getString(R.string.liked_comment)
         val commentText: CharSequence = if (comment?.text.isNullOrEmpty()) {
-            context.getString(
+            holder.uName.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(comment?.date.orZero())
             )
@@ -1026,9 +1052,9 @@ class FeedbackViewBinder(
         }
         val commentLink = Link.startOf(0)
         commentLink.end(commentText.length)
-        action = action + SPACE + context.getString(R.string.keyword_for)
+        action = action + SPACE + holder.uName.context.getString(R.string.keyword_for)
         val photoLink = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.photo_dative)
+        action = action + SPACE + holder.uName.context.getString(R.string.photo_dative)
         photoLink.end(action.length)
         val spannable = SpannableStringBuilder(action)
         val commentSpan = SpannableStringBuilder(commentText)
@@ -1057,14 +1083,14 @@ class FeedbackViewBinder(
         var action = user?.fullName
         if (users?.size.orZero() > 1) {
             action =
-                action + SPACE + context.getString(
+                action + SPACE + holder.uName.context.getString(
                     R.string.and_users_count_more,
                     users?.size.orZero() - 1
                 )
         }
-        action = action + SPACE + context.getString(R.string.liked_comment)
+        action = action + SPACE + holder.uName.context.getString(R.string.liked_comment)
         val commentText: CharSequence = if (comment?.text.isNullOrEmpty()) {
-            context.getString(
+            holder.uName.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(comment?.date.orZero())
             )
@@ -1074,9 +1100,9 @@ class FeedbackViewBinder(
         }
         val commentLink = Link.startOf(0)
         commentLink.end(commentText.length)
-        action = action + SPACE + context.getString(R.string.keyword_for)
+        action = action + SPACE + holder.uName.context.getString(R.string.keyword_for)
         val photoLink = Link.startOf(action.length)
-        action = action + SPACE + context.getString(R.string.video_dative)
+        action = action + SPACE + holder.uName.context.getString(R.string.video_dative)
         photoLink.end(action.length)
         val spannable = SpannableStringBuilder(action)
         val spannable1 = SpannableStringBuilder(commentText)
@@ -1107,14 +1133,14 @@ class FeedbackViewBinder(
         var action = user?.fullName
         if (users?.size.orZero() > 1) {
             action =
-                action + SPACE + context.getString(
+                action + SPACE + holder.uName.context.getString(
                     R.string.and_users_count_more,
                     users?.size.orZero() - 1
                 )
         }
-        action = action + SPACE + context.getString(R.string.liked_comment)
+        action = action + SPACE + holder.uName.context.getString(R.string.liked_comment)
         val commentText: CharSequence = if (comment?.text.isNullOrEmpty()) {
-            context.getString(
+            holder.uName.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(comment?.date.orZero())
             )
@@ -1124,7 +1150,7 @@ class FeedbackViewBinder(
         }
         val commentLink = Link.startOf(0)
         commentLink.end(commentText.length)
-        action = action + SPACE + context.getString(R.string.in_topic)
+        action = action + SPACE + holder.uName.context.getString(R.string.in_topic)
         val photoLink = Link.startOf(action.length)
         action = action + SPACE + topic.title
         photoLink.end(action.length)
@@ -1170,14 +1196,14 @@ class FeedbackViewBinder(
         var action = user?.fullName
         if (users?.size.orZero() > 1) {
             action =
-                action + SPACE + context.getString(
+                action + SPACE + holder.uName.context.getString(
                     R.string.and_users_count_more,
                     users?.size.orZero() - 1
                 )
         }
-        action = action + SPACE + context.getString(R.string.liked_comment)
+        action = action + SPACE + holder.uName.context.getString(R.string.liked_comment)
         val commentText: String = if (comment?.text.isNullOrEmpty()) {
-            context.getString(
+            holder.uName.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(comment?.date.orZero())
             )
@@ -1188,10 +1214,10 @@ class FeedbackViewBinder(
         val commentLink = Link.startOf(0)
         commentLink.end(commentText.length)
         var info = commentText
-        info = info + SPACE + context.getString(R.string.for_post)
+        info = info + SPACE + holder.uName.context.getString(R.string.for_post)
         val postLink = Link.startOf(info.length)
         info = if (post.text.isNullOrEmpty()) {
-            info + SPACE + context.getString(
+            info + SPACE + holder.uName.context.getString(
                 R.string.from_date,
                 AppTextUtils.getDateFromUnixTime(post.date)
             )

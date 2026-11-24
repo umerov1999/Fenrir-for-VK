@@ -2,13 +2,23 @@ package dev.ragnarok.filegallery.fragment.localserver.audioslocalserver
 
 import dev.ragnarok.filegallery.fragment.base.core.IErrorView
 import dev.ragnarok.filegallery.fragment.base.core.IMvpView
+import dev.ragnarok.filegallery.media.music.PlayerStatus
 import dev.ragnarok.filegallery.model.Audio
 
 interface IAudiosLocalServerView : IMvpView, IErrorView {
     fun displayList(audios: List<Audio>)
     fun notifyListChanged()
     fun notifyItemChanged(index: Int)
+    fun notifyItemRemoved(index: Int)
     fun notifyDataAdded(position: Int, count: Int)
     fun displayLoading(loading: Boolean)
     fun displayOptionsDialog(isReverse: Boolean, isDiscography: Boolean)
+
+    fun onOpenMenu(position: Int, audio: Audio)
+    fun onDownloadAudioNextStage()
+    fun onStartAudioDownload(position: Int, audio: Audio)
+    fun onShowBitrate(bitrate: Int, size: Int)
+    fun onServiceBindEvent(@PlayerStatus status: Int)
+    fun showSuccess()
+    fun displayEditFileNameDialog(hash: String, fileName: String)
 }

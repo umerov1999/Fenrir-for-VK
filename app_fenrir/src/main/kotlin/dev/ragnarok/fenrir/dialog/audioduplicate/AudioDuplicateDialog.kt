@@ -3,6 +3,7 @@ package dev.ragnarok.fenrir.dialog.audioduplicate
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.graphics.drawable.Animatable
 import android.os.Build
 import android.os.Bundle
 import android.provider.BaseColumns
@@ -46,12 +47,12 @@ import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
 class AudioDuplicateDialog :
     BaseMvpDialogFragment<AudioDuplicatePresenter, IAudioDuplicateView>(), IAudioDuplicateView {
-    private var newAudio: AudioHolder? = null
-    private var oldAudio: AudioHolder? = null
+    private var newAudioHolder: AudioHolder? = null
+    private var oldAudioHolder: AudioHolder? = null
     private var newBitrate: TextView? = null
     private var oldBitrate: TextView? = null
     private var bBitrate: MaterialButton? = null
-    private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon
+    private val isAudioRoundIcon: Boolean = Settings.get().main().isAudio_round_icon
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = View.inflate(requireActivity(), R.layout.dialog_audio_duplicate, null)
         val dialog: Dialog = MaterialAlertDialogBuilder(requireActivity())
@@ -70,8 +71,8 @@ class AudioDuplicateDialog :
             }
             .setNeutralButton(R.string.button_cancel, null)
             .create()
-        newAudio = AudioHolder(view.findViewById(R.id.item_new_audio))
-        oldAudio = AudioHolder(view.findViewById(R.id.item_old_audio))
+        newAudioHolder = AudioHolder(view.findViewById(R.id.item_new_audio))
+        oldAudioHolder = AudioHolder(view.findViewById(R.id.item_old_audio))
         newBitrate = view.findViewById(R.id.item_new_bitrate)
         oldBitrate = view.findViewById(R.id.item_old_bitrate)
         bBitrate = view.findViewById(R.id.item_get_bitrate)
@@ -87,25 +88,27 @@ class AudioDuplicateDialog :
 
     private fun updateAudioStatus(holder: AudioHolder, audio: Audio) {
         if (audio != currentAudio) {
-            holder.visual.setImageResource(audio.songIcon)
-            holder.play_cover.clearColorFilter()
+            if (holder.visual.drawable is Animatable || holder.visual.drawable == null) {
+                holder.visual.setImageResource(audio.songIcon)
+                holder.playCover.clearColorFilter()
+            }
             return
         }
         when (playerStatus()) {
             1 -> {
                 Utils.doWavesLottie(holder.visual, true)
-                holder.play_cover.setColorFilter("#44000000".toColor())
+                holder.playCover.setColorFilter("#44000000".toColor())
             }
 
             2 -> {
                 Utils.doWavesLottie(holder.visual, false)
-                holder.play_cover.setColorFilter("#44000000".toColor())
+                holder.playCover.setColorFilter("#44000000".toColor())
             }
         }
     }
 
     private val transformCover: Transformation by lazy {
-        if (isAudio_round_icon) RoundTransformation() else PolyTransformation()
+        if (isAudioRoundIcon) RoundTransformation() else PolyTransformation()
     }
 
     @get:DrawableRes
@@ -138,10 +141,10 @@ class AudioDuplicateDialog :
                 )
                 .transform(transformCover)
                 .tag(Constants.PICASSO_TAG)
-                .into(holder.play_cover)
+                .into(holder.playCover)
         } else {
-            with().cancelRequest(holder.play_cover)
-            holder.play_cover.setImageResource(audioCoverSimple)
+            with().cancelRequest(holder.playCover)
+            holder.playCover.setImageResource(audioCoverSimple)
         }
         holder.play.setOnClickListener {
             if (isNowPlayingOrPreparingOrPaused(audio)) {
@@ -156,10 +159,10 @@ class AudioDuplicateDialog :
         }
     }
 
-    override fun displayData(new_audio: Audio, old_audio: Audio) {
-        if (newAudio != null && oldAudio != null) {
-            bind(newAudio ?: return, new_audio)
-            bind(oldAudio ?: return, old_audio)
+    override fun displayData(newAudio: Audio, oldAudio: Audio) {
+        if (newAudioHolder != null && oldAudioHolder != null) {
+            bind(newAudioHolder ?: return, newAudio)
+            bind(oldAudioHolder ?: return, oldAudio)
         }
     }
 
@@ -208,7 +211,7 @@ class AudioDuplicateDialog :
         val artist: TextView = itemView.findViewById(R.id.dialog_title)
         val title: TextView = itemView.findViewById(R.id.dialog_message)
         val play: View = itemView.findViewById(R.id.item_audio_play)
-        val play_cover: ImageView = itemView.findViewById(R.id.item_audio_play_cover)
+        val playCover: ImageView = itemView.findViewById(R.id.item_audio_play_cover)
         val selectionView: MaterialCardView = itemView.findViewById(R.id.item_audio_selection)
         val visual: ThorVGLottieView = itemView.findViewById(R.id.item_audio_visual)
         val time: TextView = itemView.findViewById(R.id.item_audio_time)

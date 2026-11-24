@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
+import androidx.core.database.sqlite.transaction
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.db.column.AudiosColumns
@@ -25,6 +26,40 @@ class TempDataHelper(context: Context) :
         null,
         Constants.DATABASE_TEMPORARY_VERSION
     ) {
+
+    /*
+    private fun insertColumn(
+        db: SQLiteDatabase,
+        tableName: String,
+        column: String,
+        type: String,
+        defaultValue: String
+    ) {
+        db.execSQL("ALTER TABLE $tableName ADD $column $type DEFAULT $defaultValue;")
+    }
+
+    private fun dropColumn(db: SQLiteDatabase, tableName: String, column: String) {
+        db.execSQL("ALTER TABLE $tableName DROP COLUMN $column;")
+    }
+     */
+
+    private fun doRecreateBase(db: SQLiteDatabase) {
+        dropAllTables(db)
+        onCreate(db)
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion != Constants.DATABASE_TEMPORARY_VERSION) {
+            doRecreateBase(db)
+        }
+    }
+
+    override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion != Constants.DATABASE_TEMPORARY_VERSION) {
+            doRecreateBase(db)
+        }
+    }
+
     override fun onCreate(db: SQLiteDatabase) {
         createTmpDataTable(db)
         createSearchRequestTable(db)
@@ -36,6 +71,21 @@ class TempDataHelper(context: Context) :
         createStickersKeywordsTable(db)
         createReactionAssetsTable(db)
         createFeedOwnersTable(db)
+    }
+
+    private fun dropAllTables(db: SQLiteDatabase) {
+        db.transaction {
+            execSQL("DROP TABLE IF EXISTS " + TempDataColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + SearchRequestColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + LogsColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + ShortcutsColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + AudiosColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + StickerSetsColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + StickerSetsCustomColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + StickersKeywordsColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + ReactionsColumns.TABLENAME)
+            execSQL("DROP TABLE IF EXISTS " + FeedOwnersColumns.TABLENAME)
+        }
     }
 
     private fun createReactionAssetsTable(db: SQLiteDatabase) {
@@ -172,32 +222,6 @@ class TempDataHelper(context: Context) :
     fun clearLogs() {
         val db = writableDatabase
         db.execSQL("DELETE FROM " + LogsColumns.TABLENAME)
-    }
-
-    private fun purge(db: SQLiteDatabase) {
-        db.execSQL("DROP TABLE IF EXISTS " + TempDataColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + SearchRequestColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + LogsColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + ShortcutsColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + AudiosColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + StickerSetsColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + StickerSetsCustomColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + StickersKeywordsColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + ReactionsColumns.TABLENAME)
-        db.execSQL("DROP TABLE IF EXISTS " + FeedOwnersColumns.TABLENAME)
-        onCreate(db)
-    }
-
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        if (oldVersion != Constants.DATABASE_TEMPORARY_VERSION) {
-            purge(db)
-        }
-    }
-
-    override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        if (oldVersion != Constants.DATABASE_TEMPORARY_VERSION) {
-            purge(db)
-        }
     }
 
     companion object {

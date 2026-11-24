@@ -98,7 +98,7 @@ class LocalVideosFragment : BaseMvpFragment<LocalVideosPresenter, ILocalVideosVi
     }
 
     override fun displayData(data: List<LocalVideo>) {
-        mAdapter = LocalVideosAdapter(requireActivity(), data)
+        mAdapter = LocalVideosAdapter(data)
         mAdapter?.setClickListener(this)
         mRecyclerView?.adapter = mAdapter
     }

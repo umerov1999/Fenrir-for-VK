@@ -6,6 +6,8 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.ChunkedDecoder
@@ -13,7 +15,9 @@ import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.findPolymorphicSerializer
 import kotlinx.serialization.internal.AbstractPolymorphicSerializer
+import kotlinx.serialization.internal.missingFieldExceptionWithNewMessage
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonElement
@@ -61,7 +65,7 @@ internal open class StreamingJsonDecoder(
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return withExceptionHandling(path = lexer.path::getPath, input = lexer::source) {
+        try {
             /*
              * This is an optimized path over decodeSerializableValuePolymorphic(deserializer):
              * dSVP reads the very next JSON tree into a memory as JsonElement and then runs TreeJsonDecoder over it
@@ -86,18 +90,27 @@ internal open class StreamingJsonDecoder(
                 return decodeSerializableValuePolymorphic(deserializer as DeserializationStrategy<T>) { lexer.path.getPath() }
 
             @Suppress("UNCHECKED_CAST")
-            val actualSerializer = deserializer.findPolymorphicSerializerOrNull(
-                this,
-                type
-            ) as? DeserializationStrategy<T>
-
-            if (actualSerializer == null) {
-                val (message, hint) = subtypeNotRegisteredMessageJson(type, deserializer.baseClass)
-                lexer.fail(message, hint = hint)
-            }
+            val actualSerializer = try {
+                deserializer.findPolymorphicSerializer(this, type)
+            } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
+                // Split multiline message from private core function:
+                // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
+                val message = it.message?.substringBefore('\n')?.removeSuffix(".")
+                val hint = it.message?.substringAfter('\n', missingDelimiterValue = "")
+                lexer.fail(message ?: "message [null]", hint = hint)
+            } as DeserializationStrategy<T>
 
             discriminatorHolder = DiscriminatorHolder(discriminator)
-            actualSerializer.deserialize(this)
+            return actualSerializer.deserialize(this)
+
+        } catch (e: MissingFieldException) {
+            // Add "at path" if and only if we've just caught an exception and it hasn't been augmented yet
+            if (e.message?.contains("at path") == true) throw e
+            // NB: we could've use some additional flag marker or augment the stacktrace, but it seemed to be as too much of a burden
+            throw missingFieldExceptionWithNewMessage(
+                e,
+                e.message + " at path: " + lexer.path.getPath()
+            )
         }
     }
 

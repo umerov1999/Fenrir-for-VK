@@ -257,7 +257,7 @@ static bool WillFit(int numInputBits, const Version& version, ErrorCorrectionLev
 	int numBytes = version.totalCodewords();
 	// getNumECBytes = 130
 	auto& ecBlocks = version.ecBlocksForLevel(ecLevel);
-	int numEcBytes = ecBlocks.totalCodewords();
+	int numEcBytes = ecBlocks.numECCodewords();
 	// getNumDataBytes = 196 - 130 = 66
 	int numDataBytes = numBytes - numEcBytes;
 	int totalInputBytes = (numInputBits + 7) / 8;
@@ -283,7 +283,7 @@ void TerminateBits(int numDataBytes, BitArray& bits)
 {
 	int capacity = numDataBytes * 8;
 	if (bits.size() > capacity) {
-		throw std::invalid_argument("data bits cannot fit in the QR Code" + std::to_string(bits.size()) + " > "
+		throw std::invalid_argument("Data bits cannot fit in the QR Code" + std::to_string(bits.size()) + " > "
 									+ std::to_string(capacity));
 	}
 	for (int i = 0; i < 4 && bits.size() < capacity; ++i) {
@@ -538,7 +538,7 @@ EncodeResult Encode(const std::wstring& content, ErrorCorrectionLevel ecLevel, C
 	headerAndDataBits.appendBitArray(dataBits);
 
 	auto& ecBlocks = version->ecBlocksForLevel(ecLevel);
-	int numDataBytes = version->totalCodewords() - ecBlocks.totalCodewords();
+	int numDataBytes = version->totalCodewords() - ecBlocks.numECCodewords();
 
 	// Terminate the bits properly.
 	TerminateBits(numDataBytes, headerAndDataBits);

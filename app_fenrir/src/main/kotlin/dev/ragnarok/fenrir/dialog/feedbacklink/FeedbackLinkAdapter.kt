@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.dialog.feedbacklink
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +26,6 @@ import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.LinkHelperTextView
 
 class FeedbackLinkAdapter(
-    private val mContext: Context,
     private val mData: List<AbsModel>,
     private val mActionListener: ActionListener
 ) : RecyclerView.Adapter<FeedbackLinkAdapter.ViewHolder>() {
@@ -141,7 +139,7 @@ class FeedbackLinkAdapter(
 
         init {
             val ivForward = root.findViewById<ImageView>(R.id.item_feedback_link_forward)
-            Utils.setColorFilter(ivForward, CurrentTheme.getColorPrimary(mContext))
+            Utils.setColorFilter(ivForward, CurrentTheme.getColorPrimary(ivForward.context))
             root.setOnClickListener {
                 val item = mData[bindingAdapterPosition]
                 when (item.getModelType()) {

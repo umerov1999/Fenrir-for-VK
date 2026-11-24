@@ -66,7 +66,7 @@ class PrivacyViewDialog : AccountDependencyDialogFragment(), PrivacyAdapter.Acti
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val root = View.inflate(requireActivity(), R.layout.fragment_privacy_view, null)
         val columns = resources.getInteger(R.integer.privacy_entry_column_count)
-        mAdapter = mPrivacy?.let { PrivacyAdapter(requireActivity(), it) }
+        mAdapter = mPrivacy?.let { PrivacyAdapter(it) }
         mAdapter?.setActionListener(this)
         val recyclerView: RecyclerView = root.findViewById(R.id.recycleView)
         recyclerView.layoutManager =

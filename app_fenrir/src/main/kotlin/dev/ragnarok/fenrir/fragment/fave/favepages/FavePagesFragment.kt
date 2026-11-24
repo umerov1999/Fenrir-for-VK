@@ -65,7 +65,7 @@ class FavePagesFragment : BaseMvpFragment<FavePagesPresenter, IFavePagesView>(),
             presenter?.fireRefresh()
         }
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = FavePagesAdapter(emptyList(), requireActivity())
+        mAdapter = FavePagesAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyText()

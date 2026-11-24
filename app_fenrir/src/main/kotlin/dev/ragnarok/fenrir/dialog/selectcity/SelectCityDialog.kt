@@ -53,7 +53,7 @@ class SelectCityDialog : AccountDependencyDialogFragment(), CitiesAdapter.Listen
             mData = ArrayList()
             firstRun = true
         }
-        mAdapter = CitiesAdapter(requireActivity(), mData ?: emptyList())
+        mAdapter = CitiesAdapter(mData ?: emptyList())
         mAdapter?.setListener(this)
         mRecyclerView.adapter = mAdapter
         if (firstRun) {

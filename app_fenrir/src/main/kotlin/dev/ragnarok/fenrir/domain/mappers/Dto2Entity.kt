@@ -530,6 +530,12 @@ object Dto2Entity {
     fun mapCommunityDetails(dto: VKApiCommunity): CommunityDetailsEntity {
         val details = CommunityDetailsEntity()
             .setCanMessage(dto.can_message)
+            .setCanUploadVideo(dto.can_upload_video)
+            .setCanPost(dto.can_post)
+            .setCanSeeAllPost(dto.can_see_all_posts)
+            .setCanUploadDoc(dto.can_upload_doc)
+            .setCanUploadStory(dto.can_upload_story)
+            .setCanCreateTopic(dto.can_create_topic)
             .setStatus(dto.status)
             .setStatusAudio(dto.status_audio?.let { mapAudio(it) })
             .setFavorite(dto.is_favorite)

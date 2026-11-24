@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.attachments.absattachmentsedit
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -39,7 +38,6 @@ import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.view.CircleRoadProgress
 
 class AttchmentsEditorAdapter(
-    private val context: Context,
     items: MutableList<AttachmentEntry>,
     private val callback: Callback
 ) : RecyclerBindableAdapter<AttachmentEntry, AttchmentsEditorAdapter.ViewHolder>(items) {
@@ -49,8 +47,8 @@ class AttchmentsEditorAdapter(
         sharedHolders.put(attachment.id, viewHolder)
         configView(attachment, viewHolder)
         viewHolder.vRemove.setOnClickListener {
-            val dataposition = getItemRawPosition(viewHolder.bindingAdapterPosition)
-            callback.onRemoveClick(dataposition, attachment)
+            val dataPosition = getItemRawPosition(viewHolder.bindingAdapterPosition)
+            callback.onRemoveClick(dataPosition, attachment)
         }
     }
 
@@ -307,7 +305,7 @@ class AttchmentsEditorAdapter(
             with().cancelRequest(holder.photoImageView)
             holder.photoImageView.setImageResource(
                 if (Settings.get().ui().isDarkModeEnabled(
-                        context
+                        holder.photoImageView.context
                     )
                 ) R.drawable.generic_audio_nowplaying_dark else R.drawable.generic_audio_nowplaying_light
             )
@@ -327,7 +325,8 @@ class AttchmentsEditorAdapter(
         with()
             .load(R.drawable.background_gray)
             .into(holder.photoImageView)
-        holder.tvTitle.text = context.getString(R.string.poll) + " " + poll.question.orEmpty()
+        holder.tvTitle.text =
+            holder.tvTitle.context.getString(R.string.poll) + " " + poll.question.orEmpty()
         holder.photoImageView.setOnClickListener(null)
     }
 
@@ -365,14 +364,14 @@ class AttchmentsEditorAdapter(
         with()
             .load(R.drawable.background_gray)
             .into(holder.photoImageView)
-        holder.tvTitle.text = context.getString(R.string.title_messages)
+        holder.tvTitle.text = holder.tvTitle.context.getString(R.string.title_messages)
     }
 
     private fun bindWallReplies(holder: ViewHolder) {
         with()
             .load(R.drawable.background_gray)
             .into(holder.photoImageView)
-        holder.tvTitle.text = context.getString(R.string.comments)
+        holder.tvTitle.text = holder.tvTitle.context.getString(R.string.comments)
     }
 
     private fun configView(item: AttachmentEntry, holder: ViewHolder) {

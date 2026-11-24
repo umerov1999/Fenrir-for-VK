@@ -5,17 +5,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
 
-class SectionsAdapter(private val data: List<AbsSection>, private val mContext: Context) :
+class SectionsAdapter(private val data: List<AbsSection>, context: Context) :
     RecyclerView.Adapter<SectionsAdapter.Holder>() {
+    @ColorInt
+    private val mColorPrimary: Int = CurrentTheme.getColorPrimary(context)
+
+    @ColorInt
+    private val mColorOnSurface: Int = CurrentTheme.getColorOnSurface(context)
+
+    @ColorInt
+    private val mMessageBackgroundSquare = CurrentTheme.getMessageBackgroundSquare(context)
     private var listener: Listener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
-            LayoutInflater.from(mContext).inflate(R.layout.emoji_section_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.emoji_section_item, parent, false)
         )
     }
 
@@ -27,14 +36,14 @@ class SectionsAdapter(private val data: List<AbsSection>, private val mContext: 
                 with()
                     .cancelRequest(holder.icon)
                 holder.icon.setImageDrawable(emojiSection.drawable)
-                holder.icon.drawable.setTint(CurrentTheme.getColorOnSurface(mContext))
+                holder.icon.drawable.setTint(mColorOnSurface)
             }
 
             AbsSection.TYPE_STICKER -> {
                 val stickerSection = section as StickerSection
                 if (stickerSection.stickerSet.title != null && stickerSection.stickerSet.title == "recent") {
                     holder.icon.setImageResource(R.drawable.pin)
-                    holder.icon.drawable.setTint(CurrentTheme.getColorPrimary(mContext))
+                    holder.icon.drawable.setTint(mColorPrimary)
                 } else {
                     with()
                         .load(stickerSection.stickerSet.getImageUrl(102))
@@ -48,12 +57,12 @@ class SectionsAdapter(private val data: List<AbsSection>, private val mContext: 
                 with()
                     .cancelRequest(holder.icon)
                 holder.icon.setImageResource(R.drawable.image)
-                holder.icon.drawable.setTint(CurrentTheme.getColorOnSurface(mContext))
+                holder.icon.drawable.setTint(mColorOnSurface)
             }
         }
         if (section.active) {
             holder.root.setBackgroundResource(R.drawable.circle_back_white)
-            holder.root.background.setTint(CurrentTheme.getMessageBackgroundSquare(mContext))
+            holder.root.background.setTint(mMessageBackgroundSquare)
         } else {
             holder.root.background = null
         }

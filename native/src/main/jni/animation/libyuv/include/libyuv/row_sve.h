@@ -2335,20 +2335,31 @@ static inline void ARGBToUVMatrixRow_SVE_SC(const uint8_t* src_argb,
                                             uint8_t* dst_u,
                                             uint8_t* dst_v,
                                             int width,
-                                            const int8_t* uvconstants)
+                                            const struct ArgbConstants* c)
     STREAMING_COMPATIBLE {
   const uint8_t* src_argb_1 = src_argb + src_stride_argb;
+  const int odd = width & 1;
+  const int even_width = width & ~1;
+  const uint8_t* odd_src0 = src_argb + (ptrdiff_t)even_width * 4;
+  const uint8_t* odd_src1 = src_argb_1 + (ptrdiff_t)even_width * 4;
+  uint8_t* odd_dst_u = dst_u + (even_width >> 1);
+  uint8_t* odd_dst_v = dst_v + (even_width >> 1);
+  uint32_t u_coeff;
+  uint32_t v_coeff;
+  uint16_t add_uv;
+  __builtin_memcpy(&u_coeff, &c->kRGBToU, sizeof(u_coeff));
+  __builtin_memcpy(&v_coeff, &c->kRGBToV, sizeof(v_coeff));
+  __builtin_memcpy(&add_uv, &c->kAddUV, sizeof(add_uv));
   uint64_t vl;
   asm("cntd %x0" : "=r"(vl));
 
-  // Width is a multiple of two here, so halve it.
   width >>= 1;
 
   asm volatile(
       "ptrue    p0.b                                 \n"
-      "ld1rw    {z24.s}, p0/z, [%[uvconstants]]      \n"
-      "ld1rw    {z25.s}, p0/z, [%[uvconstants], #4]  \n"
-      "mov      z26.h, #0x8000                       \n"  // 128.0 (0x8000)
+      "dup      z24.s, %w[u_coeff]                   \n"
+      "dup      z25.s, %w[v_coeff]                   \n"
+      "dup      z26.h, %w[add_uv]                    \n"
 
       // Generate some TBL indices to undo the interleaving from ADDP.
       "index    z0.s, #0, #1                         \n"
@@ -2381,18 +2392,49 @@ static inline void ARGBToUVMatrixRow_SVE_SC(const uint8_t* src_argb,
       "b.gt     3b                                   \n"
 
       "99:                                           \n"
-      : [src0] "+r"(src_argb),           // %[src0]
-        [src1] "+r"(src_argb_1),         // %[src1]
-        [dst_u] "+r"(dst_u),             // %[dst_u]
-        [dst_v] "+r"(dst_v),             // %[dst_v]
-        [width] "+r"(width)              // %[width]
-      : [uvconstants] "r"(uvconstants),  // %[uvconstants]
-        [vl] "r"(vl),                    // %[vl]
-        [vl2] "r"(vl * 2),               // %[vl2]
-        [vl3] "r"(vl * 3)                // %[vl3]
-      : "cc", "memory", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "z16",
+      : [src0] "+r"(src_argb),            // %[src0]
+        [src1] "+r"(src_argb_1),          // %[src1]
+        [dst_u] "+r"(dst_u),              // %[dst_u]
+        [dst_v] "+r"(dst_v),              // %[dst_v]
+        [width] "+r"(width)               // %[width]
+      : [u_coeff] "r"(u_coeff),           // %[u_coeff]
+        [v_coeff] "r"(v_coeff),           // %[v_coeff]
+        [add_uv] "r"((uint32_t)add_uv),   // %[add_uv]
+        [vl] "r"(vl),                     // %[vl]
+        [vl2] "r"(vl * 2),                // %[vl2]
+        [vl3] "r"(vl * 3)                 // %[vl3]
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "z16",
         "z17", "z18", "z19", "z20", "z21", "z22", "z23", "z24", "z25", "z26",
         "z27", "p0", "p1", "p2", "p3", "p4", "p5");
+
+  if (odd) {
+    asm volatile(
+        "ptrue    p0.b                                 \n"
+        "ptrue    p1.s, vl1                            \n"
+        "dup      z24.s, %w[u_coeff]                   \n"
+        "dup      z25.s, %w[v_coeff]                   \n"
+        "dup      z26.h, %w[add_uv]                    \n"
+        "ld1w     {z0.s}, p1/z, [%[src0]]              \n"
+        "ld1w     {z4.s}, p1/z, [%[src1]]              \n"
+        "urhadd   z0.b, p0/m, z0.b, z4.b               \n"
+        "mov      z16.b, #0                            \n"
+        "mov      z20.b, #0                            \n"
+        "usdot    z16.s, z0.b, z24.b                   \n"
+        "usdot    z20.s, z0.b, z25.b                   \n"
+        "subhnb   z16.b, z26.h, z16.h                  \n"
+        "subhnb   z20.b, z26.h, z20.h                  \n"
+        "st1b     {z16.s}, p1, [%[dst_u]]              \n"
+        "st1b     {z20.s}, p1, [%[dst_v]]              \n"
+        :
+        : [src0] "r"(odd_src0),
+          [src1] "r"(odd_src1),
+          [dst_u] "r"(odd_dst_u),
+          [dst_v] "r"(odd_dst_v),
+          [u_coeff] "r"(u_coeff),
+          [v_coeff] "r"(v_coeff),
+          [add_uv] "r"((uint32_t)add_uv)
+        : "memory", "z0", "z4", "z16", "z20", "z24", "z25", "z26", "p0", "p1");
+  }
 }
 
 #define ARGBTOYMATRIX_SVE                              \
@@ -2423,13 +2465,16 @@ static inline void ARGBToYMatrixRow_SVE_SC(const uint8_t* src_argb,
                                            int width,
                                            const struct ArgbConstants* c)
     STREAMING_COMPATIBLE {
+  uint32_t y_coeff;
+  uint16_t add_y;
+  __builtin_memcpy(&y_coeff, &c->kRGBToY, sizeof(y_coeff));
+  __builtin_memcpy(&add_y, &c->kAddY, sizeof(add_y));
   uint64_t vl;
   asm("cntw %x0" : "=r"(vl));
 
   asm volatile(
-      "ptrue    p0.b                                 \n"
-      "ld1rw    {z24.s}, p0/z, [%[c]]                \n"
-      "ld1rh    {z25.h}, p0/z, [%[c], #48]           \n"
+      "dup      z24.s, %w[y_coeff]                   \n"
+      "dup      z25.h, %w[add_y]                     \n"
 
       "subs     %w[width], %w[width], %w[vl], lsl #2 \n"
       "b.lt     2f                                   \n"
@@ -2457,15 +2502,16 @@ static inline void ARGBToYMatrixRow_SVE_SC(const uint8_t* src_argb,
       "b.gt     3b                                   \n"
 
       "99:                                           \n"
-      : [src] "+r"(src_argb),  // %[src]
-        [dst_y] "+r"(dst_y),   // %[dst_y]
-        [width] "+r"(width)    // %[width]
-      : [c] "r"(c),            // %[c]
-        [vl] "r"(vl),          // %[vl]
-        [vl2] "r"(vl * 2),     // %[vl2]
-        [vl3] "r"(vl * 3)      // %[vl3]
-      : "cc", "memory", "z0", "z1", "z2", "z3", "z16", "z17", "z18", "z19",
-        "z20", "z24", "z25", "p0", "p1", "p2", "p3", "p4", "p5");
+      : [src] "+r"(src_argb),           // %[src]
+        [dst_y] "+r"(dst_y),            // %[dst_y]
+        [width] "+r"(width)             // %[width]
+      : [y_coeff] "r"(y_coeff),         // %[y_coeff]
+        [add_y] "r"((uint32_t)add_y),   // %[add_y]
+        [vl] "r"(vl),                   // %[vl]
+        [vl2] "r"(vl * 2),              // %[vl2]
+        [vl3] "r"(vl * 3)               // %[vl3]
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z16", "z17", "z18", "z19",
+        "z20", "z24", "z25", "p1", "p2", "p3", "p4", "p5");
 }
 
 #define SSIM4X4_SVE                                               \
@@ -3699,6 +3745,15 @@ static inline void HalfMergeUVRow_SVE_SC(const uint8_t* src_u,
                                          int width) STREAMING_COMPATIBLE {
   const uint8_t* src_u1 = src_u + src_stride_u;
   const uint8_t* src_v1 = src_v + src_stride_v;
+  int even_width = width & ~1;
+  if (width & 1) {
+    dst_uv[even_width] = (src_u[even_width] + src_u1[even_width] + 1) >> 1;
+    dst_uv[even_width + 1] = (src_v[even_width] + src_v1[even_width] + 1) >> 1;
+  }
+  width = even_width;
+  if (width == 0) {
+    return;
+  }
   int vl;
   asm volatile(
       "cntb     %x[vl]                                  \n"
@@ -3757,6 +3812,62 @@ static inline void HalfMergeUVRow_SVE_SC(const uint8_t* src_u,
         [vl] "=&r"(vl)          // %[vl]
       :
       : "memory", "cc", "z1", "z2", "z3", "z4", "z5", "z6", "p0");
+}
+
+static inline void HalfUVRow_SVE_SC(const uint8_t* src_u,
+                                    ptrdiff_t src_stride_u,
+                                    const uint8_t* src_v,
+                                    ptrdiff_t src_stride_v,
+                                    uint8_t* dst_uv,
+                                    int width) STREAMING_COMPATIBLE {
+  const uint8_t* src_u1 = src_u + src_stride_u;
+  const uint8_t* src_v1 = src_v + src_stride_v;
+  int vl;
+  asm volatile(
+      "cntb     %x[vl]                                  \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "ptrue    p0.b                                    \n"
+      "1:                                               \n"
+      "ld1b     {z0.b}, p0/z, [%[src_u]]                \n"
+      "ld1b     {z2.b}, p0/z, [%[src_u1]]               \n"
+      "ld1b     {z1.b}, p0/z, [%[src_v]]                \n"
+      "ld1b     {z3.b}, p0/z, [%[src_v1]]               \n"
+      "incb     %[src_u]                                \n"
+      "incb     %[src_u1]                               \n"
+      "incb     %[src_v]                                \n"
+      "incb     %[src_v1]                               \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "urhadd   z0.b, p0/m, z0.b, z2.b                  \n"
+      "urhadd   z1.b, p0/m, z1.b, z3.b                  \n"
+      "st2b     {z0.b, z1.b}, p0, [%[dst_uv]]           \n"
+      "incb     %[dst_uv], all, mul #2                  \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.eq     99f                                     \n"
+
+      "whilelt  p0.b, wzr, %w[width]                    \n"
+      "ld1b     {z0.b}, p0/z, [%[src_u]]                \n"
+      "ld1b     {z2.b}, p0/z, [%[src_u1]]               \n"
+      "ld1b     {z1.b}, p0/z, [%[src_v]]                \n"
+      "ld1b     {z3.b}, p0/z, [%[src_v1]]               \n"
+      "urhadd   z0.b, p0/m, z0.b, z2.b                  \n"
+      "urhadd   z1.b, p0/m, z1.b, z3.b                  \n"
+      "st2b     {z0.b, z1.b}, p0, [%[dst_uv]]           \n"
+
+      "99:                                              \n"
+      : [src_u] "+r"(src_u),    // %[src_u]
+        [src_u1] "+r"(src_u1),  // %[src_u1]
+        [src_v] "+r"(src_v),    // %[src_v]
+        [src_v1] "+r"(src_v1),  // %[src_v1]
+        [dst_uv] "+r"(dst_uv),  // %[dst_uv]
+        [width] "+r"(width),    // %[width]
+        [vl] "=&r"(vl)          // %[vl]
+      :
+      : "memory", "cc", "z0", "z1", "z2", "z3", "p0");
 }
 
 static inline void HalfRow_SVE_SC(const uint8_t* src_ptr,
@@ -4072,6 +4183,7 @@ static inline void YUY2ToUVRow_SVE_SC(const uint8_t* src_yuy2,
                                       int width) STREAMING_COMPATIBLE {
   const uint8_t* src_yuy2_1 = src_yuy2 + src_stride_yuy2;
   int vl;
+  int vl2;
   int vl_half;
   int width_half;
   if (src_stride_yuy2 == 0) {
@@ -4079,13 +4191,41 @@ static inline void YUY2ToUVRow_SVE_SC(const uint8_t* src_yuy2,
   }
   asm volatile(
       "cntb     %x[vl]                                  \n"
-      "lsr      %w[vl_half], %w[vl], #1                 \n"
-      "subs     %w[width], %w[width], %w[vl]            \n"
+      "lsl      %w[vl2], %w[vl], #1                     \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
       "b.lt     2f                                      \n"
 
       "ptrue    p0.b                                    \n"
-      "whilelt  p1.b, wzr, %w[vl_half]                  \n"
       "1:                                               \n"
+      "ld2b     {z0.b, z1.b}, p0/z, [%[src_yuy2]]       \n"
+      "ld2b     {z2.b, z3.b}, p0/z, [%[src_yuy2], #2, mul vl] \n"
+      "ld2b     {z4.b, z5.b}, p0/z, [%[src_yuy2_1]]     \n"
+      "ld2b     {z6.b, z7.b}, p0/z, [%[src_yuy2_1], #2, mul vl] \n"
+      "incb     %[src_yuy2], all, mul #4                \n"
+      "incb     %[src_yuy2_1], all, mul #4              \n"
+      "urhadd   z1.b, p0/m, z1.b, z5.b                  \n"
+      "urhadd   z3.b, p0/m, z3.b, z7.b                  \n"
+      "uzp1     z0.b, z1.b, z3.b                        \n"
+      "uzp2     z2.b, z1.b, z3.b                        \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
+      "st1b     {z0.b}, p0, [%[dst_u]]                  \n"
+      "st1b     {z2.b}, p0, [%[dst_v]]                  \n"
+      "incb     %[dst_u]                                \n"
+      "incb     %[dst_v]                                \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl2]           \n"
+      "b.eq     99f                                     \n"
+      "lsr      %w[vl_half], %w[vl], #1                 \n"
+
+      "3:                                               \n"
+      "add      %w[width_half], %w[width], #1           \n"
+      "lsr      %w[width_half], %w[width_half], #1      \n"
+      "cmp      %w[width_half], %w[vl_half]             \n"
+      "csel     %w[width_half], %w[vl_half], %w[width_half], gt \n"
+      "whilelt  p1.b, wzr, %w[width_half]               \n"
+      "zip1     p0.b, p1.b, p1.b                        \n"
       "ld2b     {z0.b, z1.b}, p0/z, [%[src_yuy2]]       \n"
       "ld2b     {z4.b, z5.b}, p0/z, [%[src_yuy2_1]]     \n"
       "incb     %[src_yuy2], all, mul #2                \n"
@@ -4093,28 +4233,13 @@ static inline void YUY2ToUVRow_SVE_SC(const uint8_t* src_yuy2,
       "urhadd   z1.b, p0/m, z1.b, z5.b                  \n"
       "uzp1     z0.b, z1.b, z1.b                        \n"
       "uzp2     z2.b, z1.b, z1.b                        \n"
-      "subs     %w[width], %w[width], %w[vl]            \n"
       "st1b     {z0.b}, p1, [%[dst_u]]                  \n"
       "st1b     {z2.b}, p1, [%[dst_v]]                  \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.le     99f                                     \n"
       "add      %[dst_u], %[dst_u], %x[vl_half]         \n"
       "add      %[dst_v], %[dst_v], %x[vl_half]         \n"
-      "b.ge     1b                                      \n"
-
-      "2:                                               \n"
-      "adds     %w[width], %w[width], %w[vl]            \n"
-      "b.eq     99f                                     \n"
-
-      "add      %w[width_half], %w[width], #1           \n"
-      "lsr      %w[width_half], %w[width_half], #1      \n"
-      "whilelt  p1.b, wzr, %w[width_half]               \n"
-      "zip1     p0.b, p1.b, p1.b                        \n"
-      "ld2b     {z0.b, z1.b}, p0/z, [%[src_yuy2]]       \n"
-      "ld2b     {z4.b, z5.b}, p0/z, [%[src_yuy2_1]]     \n"
-      "urhadd   z1.b, p0/m, z1.b, z5.b                  \n"
-      "uzp1     z0.b, z1.b, z1.b                        \n"
-      "uzp2     z2.b, z1.b, z1.b                        \n"
-      "st1b     {z0.b}, p1, [%[dst_u]]                  \n"
-      "st1b     {z2.b}, p1, [%[dst_v]]                  \n"
+      "b        3b                                      \n"
 
       "99:                                              \n"
       : [src_yuy2] "+r"(src_yuy2),      // %[src_yuy2]
@@ -4123,10 +4248,12 @@ static inline void YUY2ToUVRow_SVE_SC(const uint8_t* src_yuy2,
         [dst_v] "+r"(dst_v),            // %[dst_v]
         [width] "+r"(width),            // %[width]
         [vl] "=&r"(vl),                 // %[vl]
+        [vl2] "=&r"(vl2),               // %[vl2]
         [vl_half] "=&r"(vl_half),       // %[vl_half]
         [width_half] "=&r"(width_half)  // %[width_half]
       :
-      : "memory", "cc", "z0", "z1", "z2", "z4", "z5", "p0", "p1");
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "p0",
+        "p1");
 }
 
 static inline void UYVYToUVRow_SVE_SC(const uint8_t* src_uyvy,
@@ -4136,6 +4263,7 @@ static inline void UYVYToUVRow_SVE_SC(const uint8_t* src_uyvy,
                                       int width) STREAMING_COMPATIBLE {
   const uint8_t* src_uyvy_1 = src_uyvy + src_stride_uyvy;
   int vl;
+  int vl2;
   int vl_half;
   int width_half;
   if (src_stride_uyvy == 0) {
@@ -4143,13 +4271,41 @@ static inline void UYVYToUVRow_SVE_SC(const uint8_t* src_uyvy,
   }
   asm volatile(
       "cntb     %x[vl]                                  \n"
-      "lsr      %w[vl_half], %w[vl], #1                 \n"
-      "subs     %w[width], %w[width], %w[vl]            \n"
+      "lsl      %w[vl2], %w[vl], #1                     \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
       "b.lt     2f                                      \n"
 
       "ptrue    p0.b                                    \n"
-      "whilelt  p1.b, wzr, %w[vl_half]                  \n"
       "1:                                               \n"
+      "ld2b     {z0.b, z1.b}, p0/z, [%[src_uyvy]]       \n"
+      "ld2b     {z2.b, z3.b}, p0/z, [%[src_uyvy], #2, mul vl] \n"
+      "ld2b     {z4.b, z5.b}, p0/z, [%[src_uyvy_1]]     \n"
+      "ld2b     {z6.b, z7.b}, p0/z, [%[src_uyvy_1], #2, mul vl] \n"
+      "incb     %[src_uyvy], all, mul #4                \n"
+      "incb     %[src_uyvy_1], all, mul #4              \n"
+      "urhadd   z0.b, p0/m, z0.b, z4.b                  \n"
+      "urhadd   z2.b, p0/m, z2.b, z6.b                  \n"
+      "uzp1     z1.b, z0.b, z2.b                        \n"
+      "uzp2     z3.b, z0.b, z2.b                        \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
+      "st1b     {z1.b}, p0, [%[dst_u]]                  \n"
+      "st1b     {z3.b}, p0, [%[dst_v]]                  \n"
+      "incb     %[dst_u]                                \n"
+      "incb     %[dst_v]                                \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl2]           \n"
+      "b.eq     99f                                     \n"
+      "lsr      %w[vl_half], %w[vl], #1                 \n"
+
+      "3:                                               \n"
+      "add      %w[width_half], %w[width], #1           \n"
+      "lsr      %w[width_half], %w[width_half], #1      \n"
+      "cmp      %w[width_half], %w[vl_half]             \n"
+      "csel     %w[width_half], %w[vl_half], %w[width_half], gt \n"
+      "whilelt  p1.b, wzr, %w[width_half]               \n"
+      "zip1     p0.b, p1.b, p1.b                        \n"
       "ld2b     {z0.b, z1.b}, p0/z, [%[src_uyvy]]       \n"
       "ld2b     {z4.b, z5.b}, p0/z, [%[src_uyvy_1]]     \n"
       "incb     %[src_uyvy], all, mul #2                \n"
@@ -4157,28 +4313,13 @@ static inline void UYVYToUVRow_SVE_SC(const uint8_t* src_uyvy,
       "urhadd   z0.b, p0/m, z0.b, z4.b                  \n"
       "uzp1     z1.b, z0.b, z0.b                        \n"
       "uzp2     z2.b, z0.b, z0.b                        \n"
-      "subs     %w[width], %w[width], %w[vl]            \n"
       "st1b     {z1.b}, p1, [%[dst_u]]                  \n"
       "st1b     {z2.b}, p1, [%[dst_v]]                  \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.le     99f                                     \n"
       "add      %[dst_u], %[dst_u], %x[vl_half]         \n"
       "add      %[dst_v], %[dst_v], %x[vl_half]         \n"
-      "b.ge     1b                                      \n"
-
-      "2:                                               \n"
-      "adds     %w[width], %w[width], %w[vl]            \n"
-      "b.eq     99f                                     \n"
-
-      "add      %w[width_half], %w[width], #1           \n"
-      "lsr      %w[width_half], %w[width_half], #1      \n"
-      "whilelt  p1.b, wzr, %w[width_half]               \n"
-      "zip1     p0.b, p1.b, p1.b                        \n"
-      "ld2b     {z0.b, z1.b}, p0/z, [%[src_uyvy]]       \n"
-      "ld2b     {z4.b, z5.b}, p0/z, [%[src_uyvy_1]]     \n"
-      "urhadd   z0.b, p0/m, z0.b, z4.b                  \n"
-      "uzp1     z1.b, z0.b, z0.b                        \n"
-      "uzp2     z2.b, z0.b, z0.b                        \n"
-      "st1b     {z1.b}, p1, [%[dst_u]]                  \n"
-      "st1b     {z2.b}, p1, [%[dst_v]]                  \n"
+      "b        3b                                      \n"
 
       "99:                                              \n"
       : [src_uyvy] "+r"(src_uyvy),      // %[src_uyvy]
@@ -4187,10 +4328,837 @@ static inline void UYVYToUVRow_SVE_SC(const uint8_t* src_uyvy,
         [dst_v] "+r"(dst_v),            // %[dst_v]
         [width] "+r"(width),            // %[width]
         [vl] "=&r"(vl),                 // %[vl]
+        [vl2] "=&r"(vl2),               // %[vl2]
         [vl_half] "=&r"(vl_half),       // %[vl_half]
         [width_half] "=&r"(width_half)  // %[width_half]
       :
-      : "memory", "cc", "z0", "z1", "z2", "z4", "z5", "p0", "p1");
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "p0",
+        "p1");
+}
+
+static inline void HalfBoxRow_SVE_SC(const uint8_t* src_ptr,
+                                     ptrdiff_t src_stride,
+                                     uint8_t* dst_ptr,
+                                     int width) STREAMING_COMPATIBLE {
+  const uint8_t* src_ptr1 = src_ptr + src_stride;
+  int vl;
+  int vl_in;
+  asm volatile(
+      "cntb     %x[vl]                                  \n"
+      "ptrue    p0.b                                    \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "1:                                               \n"
+      "ld1b     {z0.b}, p0/z, [%[src0]]                 \n"
+      "ld1b     {z1.b}, p0/z, [%[src0], #1, mul vl]     \n"
+      "ld1b     {z2.b}, p0/z, [%[src1]]                 \n"
+      "ld1b     {z3.b}, p0/z, [%[src1], #1, mul vl]     \n"
+      "incb     %[src0], all, mul #2                    \n"
+      "incb     %[src1], all, mul #2                    \n"
+      "mov      z4.h, #0                                \n"
+      "mov      z5.h, #0                                \n"
+      "uadalp   z4.h, p0/m, z0.b                        \n"
+      "uadalp   z5.h, p0/m, z1.b                        \n"
+      "uadalp   z4.h, p0/m, z2.b                        \n"
+      "uadalp   z5.h, p0/m, z3.b                        \n"
+      "rshrnb   z4.b, z4.h, #2                          \n"
+      "rshrnb   z5.b, z5.h, #2                          \n"
+      "uzp1     z0.b, z4.b, z5.b                        \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "st1b     {z0.b}, p0, [%[dst]]                    \n"
+      "incb     %[dst]                                  \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.eq     99f                                     \n"
+
+      "lsl      %w[vl_in], %w[width], #1                \n"
+      "whilelt  p1.b, wzr, %w[vl_in]                    \n"
+      "whilelt  p2.b, %w[vl], %w[vl_in]                 \n"
+      "whilelt  p3.b, wzr, %w[width]                    \n"
+      "ld1b     {z0.b}, p1/z, [%[src0]]                 \n"
+      "ld1b     {z1.b}, p2/z, [%[src0], #1, mul vl]     \n"
+      "ld1b     {z2.b}, p1/z, [%[src1]]                 \n"
+      "ld1b     {z3.b}, p2/z, [%[src1], #1, mul vl]     \n"
+      "mov      z4.h, #0                                \n"
+      "mov      z5.h, #0                                \n"
+      "uadalp   z4.h, p0/m, z0.b                        \n"
+      "uadalp   z5.h, p0/m, z1.b                        \n"
+      "uadalp   z4.h, p0/m, z2.b                        \n"
+      "uadalp   z5.h, p0/m, z3.b                        \n"
+      "rshrnb   z4.b, z4.h, #2                          \n"
+      "rshrnb   z5.b, z5.h, #2                          \n"
+      "uzp1     z0.b, z4.b, z5.b                        \n"
+      "st1b     {z0.b}, p3, [%[dst]]                    \n"
+
+      "99:                                              \n"
+      : [src0] "+r"(src_ptr),   // %[src0]
+        [src1] "+r"(src_ptr1),  // %[src1]
+        [dst] "+r"(dst_ptr),    // %[dst]
+        [width] "+r"(width),    // %[width]
+        [vl] "=&r"(vl),         // %[vl]
+        [vl_in] "=&r"(vl_in)    // %[vl_in]
+      :
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "p0", "p1", "p2",
+        "p3");
+}
+
+static inline void HalfBoxRow_16_SVE_SC(const uint16_t* src_ptr,
+                                        ptrdiff_t src_stride,
+                                        uint16_t* dst_ptr,
+                                        int width) STREAMING_COMPATIBLE {
+  const uint16_t* src_ptr1 = src_ptr + src_stride;
+  int vl;
+  int vl_in;
+  asm volatile(
+      "cnth     %x[vl]                                  \n"
+      "ptrue    p0.b                                    \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "1:                                               \n"
+      "ld1h     {z0.h}, p0/z, [%[src0]]                 \n"
+      "ld1h     {z1.h}, p0/z, [%[src0], #1, mul vl]     \n"
+      "ld1h     {z2.h}, p0/z, [%[src1]]                 \n"
+      "ld1h     {z3.h}, p0/z, [%[src1], #1, mul vl]     \n"
+      "incb     %[src0], all, mul #2                    \n"
+      "incb     %[src1], all, mul #2                    \n"
+      "mov      z4.s, #0                                \n"
+      "mov      z5.s, #0                                \n"
+      "uadalp   z4.s, p0/m, z0.h                        \n"
+      "uadalp   z5.s, p0/m, z1.h                        \n"
+      "uadalp   z4.s, p0/m, z2.h                        \n"
+      "uadalp   z5.s, p0/m, z3.h                        \n"
+      "rshrnb   z4.h, z4.s, #2                          \n"
+      "rshrnb   z5.h, z5.s, #2                          \n"
+      "uzp1     z0.h, z4.h, z5.h                        \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "st1h     {z0.h}, p0, [%[dst]]                    \n"
+      "incb     %[dst]                                  \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.eq     99f                                     \n"
+
+      "lsl      %w[vl_in], %w[width], #1                \n"
+      "whilelt  p1.h, wzr, %w[vl_in]                    \n"
+      "whilelt  p2.h, %w[vl], %w[vl_in]                 \n"
+      "whilelt  p3.h, wzr, %w[width]                    \n"
+      "ld1h     {z0.h}, p1/z, [%[src0]]                 \n"
+      "ld1h     {z1.h}, p2/z, [%[src0], #1, mul vl]     \n"
+      "ld1h     {z2.h}, p1/z, [%[src1]]                 \n"
+      "ld1h     {z3.h}, p2/z, [%[src1], #1, mul vl]     \n"
+      "mov      z4.s, #0                                \n"
+      "mov      z5.s, #0                                \n"
+      "uadalp   z4.s, p0/m, z0.h                        \n"
+      "uadalp   z5.s, p0/m, z1.h                        \n"
+      "uadalp   z4.s, p0/m, z2.h                        \n"
+      "uadalp   z5.s, p0/m, z3.h                        \n"
+      "rshrnb   z4.h, z4.s, #2                          \n"
+      "rshrnb   z5.h, z5.s, #2                          \n"
+      "uzp1     z0.h, z4.h, z5.h                        \n"
+      "st1h     {z0.h}, p3, [%[dst]]                    \n"
+
+      "99:                                              \n"
+      : [src0] "+r"(src_ptr),   // %[src0]
+        [src1] "+r"(src_ptr1),  // %[src1]
+        [dst] "+r"(dst_ptr),    // %[dst]
+        [width] "+r"(width),    // %[width]
+        [vl] "=&r"(vl),         // %[vl]
+        [vl_in] "=&r"(vl_in)    // %[vl_in]
+      :
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "p0", "p1", "p2",
+        "p3");
+}
+
+static inline void HalfBoxUVRow_SVE_SC(const uint8_t* src_uv,
+                                       ptrdiff_t src_stride_uv,
+                                       uint8_t* dst_uv,
+                                       int width) STREAMING_COMPATIBLE {
+  const uint8_t* src_uv1 = src_uv + src_stride_uv;
+  int vl;
+  int vl_in;
+  asm volatile(
+      "cnth     %x[vl]                                  \n"
+      "ptrue    p0.b                                    \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "1:                                               \n"
+      "ld1h     {z0.h}, p0/z, [%[src0]]                 \n"
+      "ld1h     {z1.h}, p0/z, [%[src0], #1, mul vl]     \n"
+      "ld1h     {z2.h}, p0/z, [%[src1]]                 \n"
+      "ld1h     {z3.h}, p0/z, [%[src1], #1, mul vl]     \n"
+      "incb     %[src0], all, mul #2                    \n"
+      "incb     %[src1], all, mul #2                    \n"
+      "uaddlb   z4.h, z0.b, z2.b                        \n"
+      "uaddlt   z5.h, z0.b, z2.b                        \n"
+      "uaddlb   z6.h, z1.b, z3.b                        \n"
+      "uaddlt   z7.h, z1.b, z3.b                        \n"
+      "addp     z4.h, p0/m, z4.h, z5.h                  \n"
+      "addp     z6.h, p0/m, z6.h, z7.h                  \n"
+      "rshrnb   z4.b, z4.h, #2                          \n"
+      "rshrnb   z6.b, z6.h, #2                          \n"
+      "uzp1     z0.b, z4.b, z6.b                        \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "st1h     {z0.h}, p0, [%[dst]]                    \n"
+      "incb     %[dst]                                  \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.eq     99f                                     \n"
+
+      "lsl      %w[vl_in], %w[width], #1                \n"
+      "whilelt  p1.h, wzr, %w[vl_in]                    \n"
+      "whilelt  p2.h, %w[vl], %w[vl_in]                 \n"
+      "whilelt  p3.h, wzr, %w[width]                    \n"
+      "ld1h     {z0.h}, p1/z, [%[src0]]                 \n"
+      "ld1h     {z1.h}, p2/z, [%[src0], #1, mul vl]     \n"
+      "ld1h     {z2.h}, p1/z, [%[src1]]                 \n"
+      "ld1h     {z3.h}, p2/z, [%[src1], #1, mul vl]     \n"
+      "uaddlb   z4.h, z0.b, z2.b                        \n"
+      "uaddlt   z5.h, z0.b, z2.b                        \n"
+      "uaddlb   z6.h, z1.b, z3.b                        \n"
+      "uaddlt   z7.h, z1.b, z3.b                        \n"
+      "addp     z4.h, p0/m, z4.h, z5.h                  \n"
+      "addp     z6.h, p0/m, z6.h, z7.h                  \n"
+      "rshrnb   z4.b, z4.h, #2                          \n"
+      "rshrnb   z6.b, z6.h, #2                          \n"
+      "uzp1     z0.b, z4.b, z6.b                        \n"
+      "st1h     {z0.h}, p3, [%[dst]]                    \n"
+
+      "99:                                              \n"
+      : [src0] "+r"(src_uv),   // %[src0]
+        [src1] "+r"(src_uv1),  // %[src1]
+        [dst] "+r"(dst_uv),    // %[dst]
+        [width] "+r"(width),   // %[width]
+        [vl] "=&r"(vl),        // %[vl]
+        [vl_in] "=&r"(vl_in)   // %[vl_in]
+      :
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "p0",
+        "p1", "p2", "p3");
+}
+
+static inline void HalfBoxUVRow_16_SVE_SC(const uint16_t* src_uv,
+                                          ptrdiff_t src_stride_uv,
+                                          uint16_t* dst_uv,
+                                          int width) STREAMING_COMPATIBLE {
+  const uint16_t* src_uv1 = src_uv + src_stride_uv;
+  int vl;
+  int vl_in;
+  asm volatile(
+      "cntw     %x[vl]                                  \n"
+      "ptrue    p0.b                                    \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "1:                                               \n"
+      "ld1w     {z0.s}, p0/z, [%[src0]]                 \n"
+      "ld1w     {z1.s}, p0/z, [%[src0], #1, mul vl]     \n"
+      "ld1w     {z2.s}, p0/z, [%[src1]]                 \n"
+      "ld1w     {z3.s}, p0/z, [%[src1], #1, mul vl]     \n"
+      "incb     %[src0], all, mul #2                    \n"
+      "incb     %[src1], all, mul #2                    \n"
+      "uaddlb   z4.s, z0.h, z2.h                        \n"
+      "uaddlt   z5.s, z0.h, z2.h                        \n"
+      "uaddlb   z6.s, z1.h, z3.h                        \n"
+      "uaddlt   z7.s, z1.h, z3.h                        \n"
+      "addp     z4.s, p0/m, z4.s, z5.s                  \n"
+      "addp     z6.s, p0/m, z6.s, z7.s                  \n"
+      "rshrnb   z4.h, z4.s, #2                          \n"
+      "rshrnb   z6.h, z6.s, #2                          \n"
+      "uzp1     z0.h, z4.h, z6.h                        \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "st1w     {z0.s}, p0, [%[dst]]                    \n"
+      "incb     %[dst]                                  \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.eq     99f                                     \n"
+
+      "lsl      %w[vl_in], %w[width], #1                \n"
+      "whilelt  p1.s, wzr, %w[vl_in]                    \n"
+      "whilelt  p2.s, %w[vl], %w[vl_in]                 \n"
+      "whilelt  p3.s, wzr, %w[width]                    \n"
+      "ld1w     {z0.s}, p1/z, [%[src0]]                 \n"
+      "ld1w     {z1.s}, p2/z, [%[src0], #1, mul vl]     \n"
+      "ld1w     {z2.s}, p1/z, [%[src1]]                 \n"
+      "ld1w     {z3.s}, p2/z, [%[src1], #1, mul vl]     \n"
+      "uaddlb   z4.s, z0.h, z2.h                        \n"
+      "uaddlt   z5.s, z0.h, z2.h                        \n"
+      "uaddlb   z6.s, z1.h, z3.h                        \n"
+      "uaddlt   z7.s, z1.h, z3.h                        \n"
+      "addp     z4.s, p0/m, z4.s, z5.s                  \n"
+      "addp     z6.s, p0/m, z6.s, z7.s                  \n"
+      "rshrnb   z4.h, z4.s, #2                          \n"
+      "rshrnb   z6.h, z6.s, #2                          \n"
+      "uzp1     z0.h, z4.h, z6.h                        \n"
+      "st1w     {z0.s}, p3, [%[dst]]                    \n"
+
+      "99:                                              \n"
+      : [src0] "+r"(src_uv),   // %[src0]
+        [src1] "+r"(src_uv1),  // %[src1]
+        [dst] "+r"(dst_uv),    // %[dst]
+        [width] "+r"(width),   // %[width]
+        [vl] "=&r"(vl),        // %[vl]
+        [vl_in] "=&r"(vl_in)   // %[vl_in]
+      :
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "p0",
+        "p1", "p2", "p3");
+}
+
+static inline void HalfWidthRow_16To8_SVE_SC(const uint16_t* src_uv,
+                                             ptrdiff_t src_uv_stride,
+                                             uint8_t* dst_uv,
+                                             int scale,
+                                             int width) STREAMING_COMPATIBLE {
+  const uint16_t* src_uv1 = src_uv + src_uv_stride;
+  const int shift = 23 - __builtin_clz((int32_t)scale);
+  int vl_b;
+  int vl_h;
+  int vl_in;
+  asm volatile(
+      "cntb     %x[vl_b]                                \n"
+      "ptrue    p0.b                                    \n"
+      "dup      z31.h, %w[shift]                        \n"
+      "subs     %w[width], %w[width], %w[vl_b]          \n"
+      "b.lt     2f                                      \n"
+
+      "1:                                               \n"
+      "ld1h     {z0.h}, p0/z, [%[src0]]                 \n"
+      "ld1h     {z1.h}, p0/z, [%[src0], #1, mul vl]     \n"
+      "ld1h     {z2.h}, p0/z, [%[src0], #2, mul vl]     \n"
+      "ld1h     {z3.h}, p0/z, [%[src0], #3, mul vl]     \n"
+      "ld1h     {z4.h}, p0/z, [%[src1]]                 \n"
+      "ld1h     {z5.h}, p0/z, [%[src1], #1, mul vl]     \n"
+      "ld1h     {z6.h}, p0/z, [%[src1], #2, mul vl]     \n"
+      "ld1h     {z7.h}, p0/z, [%[src1], #3, mul vl]     \n"
+      "incb     %[src0], all, mul #4                    \n"
+      "incb     %[src1], all, mul #4                    \n"
+      "mov      z16.s, #0                               \n"
+      "mov      z17.s, #0                               \n"
+      "mov      z18.s, #0                               \n"
+      "mov      z19.s, #0                               \n"
+      "uadalp   z16.s, p0/m, z0.h                       \n"
+      "uadalp   z17.s, p0/m, z1.h                       \n"
+      "uadalp   z18.s, p0/m, z2.h                       \n"
+      "uadalp   z19.s, p0/m, z3.h                       \n"
+      "uadalp   z16.s, p0/m, z4.h                       \n"
+      "uadalp   z17.s, p0/m, z5.h                       \n"
+      "uadalp   z18.s, p0/m, z6.h                       \n"
+      "uadalp   z19.s, p0/m, z7.h                       \n"
+      "rshrnb   z16.h, z16.s, #2                        \n"
+      "rshrnb   z17.h, z17.s, #2                        \n"
+      "rshrnb   z18.h, z18.s, #2                        \n"
+      "rshrnb   z19.h, z19.s, #2                        \n"
+      "uzp1     z16.h, z16.h, z17.h                     \n"
+      "uzp1     z18.h, z18.h, z19.h                     \n"
+      "uqshl    z16.h, p0/m, z16.h, z31.h               \n"
+      "uqshl    z18.h, p0/m, z18.h, z31.h               \n"
+      "uzp2     z0.b, z16.b, z18.b                      \n"
+      "subs     %w[width], %w[width], %w[vl_b]          \n"
+      "st1b     {z0.b}, p0, [%[dst]]                    \n"
+      "incb     %[dst]                                  \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl_b]          \n"
+      "b.eq     99f                                     \n"
+
+      "cnth     %x[vl_h]                                \n"
+      "3:                                               \n"
+      "lsl      %w[vl_in], %w[width], #1                \n"
+      "whilelt  p1.h, wzr, %w[vl_in]                    \n"
+      "whilelt  p2.h, %w[vl_h], %w[vl_in]               \n"
+      "whilelt  p3.h, wzr, %w[width]                    \n"
+      "ld1h     {z0.h}, p1/z, [%[src0]]                 \n"
+      "ld1h     {z1.h}, p2/z, [%[src0], #1, mul vl]     \n"
+      "ld1h     {z2.h}, p1/z, [%[src1]]                 \n"
+      "ld1h     {z3.h}, p2/z, [%[src1], #1, mul vl]     \n"
+      "incb     %[src0], all, mul #2                    \n"
+      "incb     %[src1], all, mul #2                    \n"
+      "mov      z16.s, #0                               \n"
+      "mov      z17.s, #0                               \n"
+      "uadalp   z16.s, p0/m, z0.h                       \n"
+      "uadalp   z17.s, p0/m, z1.h                       \n"
+      "uadalp   z16.s, p0/m, z2.h                       \n"
+      "uadalp   z17.s, p0/m, z3.h                       \n"
+      "rshrnb   z16.h, z16.s, #2                        \n"
+      "rshrnb   z17.h, z17.s, #2                        \n"
+      "uzp1     z0.h, z16.h, z17.h                     \n"
+      "uqshl    z0.h, p0/m, z0.h, z31.h                 \n"
+      "shrnb    z0.b, z0.h, #8                          \n"
+      "st1b     {z0.h}, p3, [%[dst]]                    \n"
+      "inch     %[dst]                                  \n"
+      "subs     %w[width], %w[width], %w[vl_h]          \n"
+      "b.gt     3b                                      \n"
+
+      "99:                                              \n"
+      : [src0] "+r"(src_uv),   // %[src0]
+        [src1] "+r"(src_uv1),  // %[src1]
+        [dst] "+r"(dst_uv),    // %[dst]
+        [width] "+r"(width),   // %[width]
+        [vl_b] "=&r"(vl_b),    // %[vl_b]
+        [vl_h] "=&r"(vl_h),    // %[vl_h]
+        [vl_in] "=&r"(vl_in)   // %[vl_in]
+      : [shift] "r"(shift)     // %[shift]
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z4", "z5", "z6", "z7", "z16",
+        "z17", "z18", "z19", "z31", "p0", "p1", "p2", "p3");
+}
+
+static inline void ARGBShuffleRow_SVE_SC(const uint8_t* src_argb,
+                                         uint8_t* dst_argb,
+                                         const uint8_t* shuffler,
+                                         int width) STREAMING_COMPATIBLE {
+  uint64_t vl;
+  asm volatile(
+      "ptrue    p0.b                                    \n"
+      "ld1rqb   {z2.b}, p0/z, [%[shuffler]]             \n"
+      "index    z3.b, #0, #1                            \n"
+      "and      z3.b, z3.b, #0xf0                       \n"
+      "add      z2.b, z2.b, z3.b                        \n"
+      "cntw     %[vl], all, mul #2                      \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "1:                                               \n"
+      "ld1w     {z0.s}, p0/z, [%[src]]                  \n"
+      "ld1w     {z1.s}, p0/z, [%[src], #1, mul vl]      \n"
+      "incb     %[src], all, mul #2                     \n"
+      "tbl      z0.b, {z0.b}, z2.b                      \n"
+      "tbl      z1.b, {z1.b}, z2.b                      \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "st1w     {z0.s}, p0, [%[dst]]                    \n"
+      "st1w     {z1.s}, p0, [%[dst], #1, mul vl]        \n"
+      "incb     %[dst], all, mul #2                     \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.le     99f                                     \n"
+      "cntw     %[vl]                                   \n"
+      "whilelt  p0.s, wzr, %w[width]                    \n"
+      "whilelt  p1.s, %w[vl], %w[width]                 \n"
+
+      "ld1w     {z0.s}, p0/z, [%[src]]                  \n"
+      "ld1w     {z1.s}, p1/z, [%[src], #1, mul vl]      \n"
+      "tbl      z0.b, {z0.b}, z2.b                      \n"
+      "tbl      z1.b, {z1.b}, z2.b                      \n"
+      "st1w     {z0.s}, p0, [%[dst]]                    \n"
+      "st1w     {z1.s}, p1, [%[dst], #1, mul vl]        \n"
+
+      "99:                                              \n"
+      : [src] "+r"(src_argb),     // %[src]
+        [dst] "+r"(dst_argb),     // %[dst]
+        [width] "+r"(width),      // %[width]
+        [vl] "=&r"(vl)            // %[vl]
+      : [shuffler] "r"(shuffler)  // %[shuffler]
+      : "memory", "cc", "z0", "z1", "z2", "z3", "p0", "p1");
+}
+
+static inline void AR64ShuffleRow_SVE_SC(const uint8_t* src_ar64,
+                                         uint8_t* dst_ar64,
+                                         const uint8_t* shuffler,
+                                         int width) STREAMING_COMPATIBLE {
+  uint64_t vl;
+  asm volatile(
+      "ptrue    p0.b                                    \n"
+      "ld1rqb   {z2.b}, p0/z, [%[shuffler]]             \n"
+      "index    z3.b, #0, #1                            \n"
+      "and      z3.b, z3.b, #0xf0                       \n"
+      "add      z2.b, z2.b, z3.b                        \n"
+      "cntd     %[vl], all, mul #2                      \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "1:                                               \n"
+      "ld1d     {z0.d}, p0/z, [%[src]]                  \n"
+      "ld1d     {z1.d}, p0/z, [%[src], #1, mul vl]      \n"
+      "incb     %[src], all, mul #2                     \n"
+      "tbl      z0.b, {z0.b}, z2.b                      \n"
+      "tbl      z1.b, {z1.b}, z2.b                      \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "st1d     {z0.d}, p0, [%[dst]]                    \n"
+      "st1d     {z1.d}, p0, [%[dst], #1, mul vl]        \n"
+      "incb     %[dst], all, mul #2                     \n"
+      "b.ge     1b                                      \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.le     99f                                     \n"
+      "cntd     %[vl]                                   \n"
+      "whilelt  p0.d, wzr, %w[width]                    \n"
+      "whilelt  p1.d, %w[vl], %w[width]                 \n"
+
+      "ld1d     {z0.d}, p0/z, [%[src]]                  \n"
+      "ld1d     {z1.d}, p1/z, [%[src], #1, mul vl]      \n"
+      "tbl      z0.b, {z0.b}, z2.b                      \n"
+      "tbl      z1.b, {z1.b}, z2.b                      \n"
+      "st1d     {z0.d}, p0, [%[dst]]                    \n"
+      "st1d     {z1.d}, p1, [%[dst], #1, mul vl]        \n"
+
+      "99:                                              \n"
+      : [src] "+r"(src_ar64),     // %[src]
+        [dst] "+r"(dst_ar64),     // %[dst]
+        [width] "+r"(width),      // %[width]
+        [vl] "=&r"(vl)            // %[vl]
+      : [shuffler] "r"(shuffler)  // %[shuffler]
+      : "memory", "cc", "z0", "z1", "z2", "z3", "p0", "p1");
+}
+
+static inline void MergeARGB16To8Row_SVE_SC(const uint16_t* src_r,
+                                            const uint16_t* src_g,
+                                            const uint16_t* src_b,
+                                            const uint16_t* src_a,
+                                            uint8_t* dst_argb,
+                                            int depth,
+                                            int width) STREAMING_COMPATIBLE {
+  // Shift is 8 - depth, +8 so the result is in the top half of each lane.
+  int shift = 16 - depth;
+  int vl;
+  asm volatile(
+      "cnth    %x[vl]                                   \n"
+      "mov     z31.h, %w[shift]                         \n"
+      "subs    %w[width], %w[width], %w[vl]             \n"
+      "b.lt    2f                                       \n"
+
+      "ptrue   p0.h                                     \n"
+      "1:                                               \n"
+      "ld1h    {z0.h}, p0/z, [%[src_b]]                 \n"
+      "ld1h    {z1.h}, p0/z, [%[src_g]]                 \n"
+      "ld1h    {z2.h}, p0/z, [%[src_r]]                 \n"
+      "ld1h    {z3.h}, p0/z, [%[src_a]]                 \n"
+      "incb    %[src_b]                                 \n"
+      "incb    %[src_g]                                 \n"
+      "incb    %[src_r]                                 \n"
+      "incb    %[src_a]                                 \n"
+      "uqshl   z0.h, p0/m, z0.h, z31.h                  \n"
+      "uqshl   z1.h, p0/m, z1.h, z31.h                  \n"
+      "uqshl   z2.h, p0/m, z2.h, z31.h                  \n"
+      "uqshl   z3.h, p0/m, z3.h, z31.h                  \n"
+      "trn2    z0.b, z0.b, z1.b                         \n"
+      "trn2    z1.b, z2.b, z3.b                         \n"
+      "subs    %w[width], %w[width], %w[vl]             \n"
+      "st2h    {z0.h, z1.h}, p0, [%[dst_argb]]          \n"
+      "incb    %[dst_argb], all, mul #2                 \n"
+      "b.ge    1b                                       \n"
+
+      "2:                                               \n"
+      "adds    %w[width], %w[width], %w[vl]             \n"
+      "b.eq    99f                                      \n"
+
+      "whilelt p0.h, wzr, %w[width]                     \n"
+      "ld1h    {z0.h}, p0/z, [%[src_b]]                 \n"
+      "ld1h    {z1.h}, p0/z, [%[src_g]]                 \n"
+      "ld1h    {z2.h}, p0/z, [%[src_r]]                 \n"
+      "ld1h    {z3.h}, p0/z, [%[src_a]]                 \n"
+      "uqshl   z0.h, p0/m, z0.h, z31.h                  \n"
+      "uqshl   z1.h, p0/m, z1.h, z31.h                  \n"
+      "uqshl   z2.h, p0/m, z2.h, z31.h                  \n"
+      "uqshl   z3.h, p0/m, z3.h, z31.h                  \n"
+      "trn2    z0.b, z0.b, z1.b                         \n"
+      "trn2    z1.b, z2.b, z3.b                         \n"
+      "st2h    {z0.h, z1.h}, p0, [%[dst_argb]]          \n"
+
+      "99:                                              \n"
+      : [src_r] "+r"(src_r), [src_g] "+r"(src_g), [src_b] "+r"(src_b),
+        [src_a] "+r"(src_a), [dst_argb] "+r"(dst_argb), [width] "+r"(width),
+        [vl] "=&r"(vl)
+      : [shift] "r"(shift)
+      : "memory", "cc", "z0", "z1", "z2", "z3", "z31", "p0");
+}
+
+static inline void MirrorRow_SVE_SC(const uint8_t* src,
+                                    uint8_t* dst,
+                                    int width) STREAMING_COMPATIBLE {
+  int vl;
+  int vl2;
+  int w_m1;
+  src += width;
+  asm volatile(
+      "cntb     %x[vl]                                  \n"
+      "lsl      %w[vl2], %w[vl], #1                     \n"
+      "ptrue    p0.b                                    \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
+      "b.lt     2f                                      \n"
+
+      "sub      %[src], %[src], %x[vl2]                 \n"
+      "1:                                               \n"
+      "ld1b     {z0.b}, p0/z, [%[src], #0, mul vl]      \n"
+      "ld1b     {z1.b}, p0/z, [%[src], #1, mul vl]      \n"
+      "sub      %[src], %[src], %x[vl2]                 \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
+      "rev      z0.b, z0.b                              \n"
+      "rev      z1.b, z1.b                              \n"
+      "st1b     {z1.b}, p0, [%[dst], #0, mul vl]        \n"
+      "st1b     {z0.b}, p0, [%[dst], #1, mul vl]        \n"
+      "incb     %[dst], all, mul #2                     \n"
+      "b.ge     1b                                      \n"
+      "add      %[src], %[src], %x[vl2]                 \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl2]           \n"
+      "b.le     99f                                     \n"
+      "cmp      %w[width], %w[vl]                       \n"
+      "b.lt     3f                                      \n"
+      "sub      %[src], %[src], %x[vl]                  \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "ld1b     {z0.b}, p0/z, [%[src]]                  \n"
+      "rev      z0.b, z0.b                              \n"
+      "st1b     {z0.b}, p0, [%[dst]]                    \n"
+      "incb     %[dst]                                  \n"
+      "b.eq     99f                                     \n"
+
+      "3:                                               \n"
+      "sub      %[src], %[src], %w[width], sxtw         \n"
+      "whilelt  p0.b, wzr, %w[width]                    \n"
+      "sub      %w[w_m1], %w[width], #1                 \n"
+      "ld1b     {z0.b}, p0/z, [%[src]]                  \n"
+      "index    z1.b, %w[w_m1], #-1                     \n"
+      "tbl      z0.b, {z0.b}, z1.b                      \n"
+      "st1b     {z0.b}, p0, [%[dst]]                    \n"
+
+      "99:                                              \n"
+      : [src] "+r"(src),      // %[src]
+        [dst] "+r"(dst),      // %[dst]
+        [width] "+r"(width),  // %[width]
+        [vl] "=&r"(vl),       // %[vl]
+        [vl2] "=&r"(vl2),     // %[vl2]
+        [w_m1] "=&r"(w_m1)    // %[w_m1]
+      :
+      : "memory", "cc", "z0", "z1", "p0");
+}
+
+static inline void MirrorUVRow_SVE_SC(const uint8_t* src_uv,
+                                      uint8_t* dst_uv,
+                                      int width) STREAMING_COMPATIBLE {
+  int vl;
+  int vl2;
+  int w_m1;
+  src_uv += (ptrdiff_t)width * 2;
+  asm volatile(
+      "cnth     %x[vl]                                  \n"
+      "lsl      %w[vl2], %w[vl], #1                     \n"
+      "ptrue    p0.h                                    \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
+      "b.lt     2f                                      \n"
+
+      "sub      %[src_uv], %[src_uv], %x[vl2], lsl #1   \n"
+      "1:                                               \n"
+      "ld1h     {z0.h}, p0/z, [%[src_uv], #0, mul vl]   \n"
+      "ld1h     {z1.h}, p0/z, [%[src_uv], #1, mul vl]   \n"
+      "sub      %[src_uv], %[src_uv], %x[vl2], lsl #1   \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
+      "rev      z0.h, z0.h                              \n"
+      "rev      z1.h, z1.h                              \n"
+      "st1h     {z1.h}, p0, [%[dst_uv], #0, mul vl]     \n"
+      "st1h     {z0.h}, p0, [%[dst_uv], #1, mul vl]     \n"
+      "incb     %[dst_uv], all, mul #2                  \n"
+      "b.ge     1b                                      \n"
+      "add      %[src_uv], %[src_uv], %x[vl2], lsl #1   \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl2]           \n"
+      "b.le     99f                                     \n"
+      "cmp      %w[width], %w[vl]                       \n"
+      "b.lt     3f                                      \n"
+      "sub      %[src_uv], %[src_uv], %x[vl], lsl #1    \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "ld1h     {z0.h}, p0/z, [%[src_uv]]               \n"
+      "rev      z0.h, z0.h                              \n"
+      "st1h     {z0.h}, p0, [%[dst_uv]]                 \n"
+      "incb     %[dst_uv]                               \n"
+      "b.eq     99f                                     \n"
+
+      "3:                                               \n"
+      "sub      %[src_uv], %[src_uv], %w[width], sxtw #1 \n"
+      "whilelt  p0.h, wzr, %w[width]                    \n"
+      "sub      %w[w_m1], %w[width], #1                 \n"
+      "ld1h     {z0.h}, p0/z, [%[src_uv]]               \n"
+      "index    z1.h, %w[w_m1], #-1                     \n"
+      "tbl      z0.h, {z0.h}, z1.h                      \n"
+      "st1h     {z0.h}, p0, [%[dst_uv]]                 \n"
+
+      "99:                                              \n"
+      : [src_uv] "+r"(src_uv),  // %[src_uv]
+        [dst_uv] "+r"(dst_uv),  // %[dst_uv]
+        [width] "+r"(width),    // %[width]
+        [vl] "=&r"(vl),         // %[vl]
+        [vl2] "=&r"(vl2),       // %[vl2]
+        [w_m1] "=&r"(w_m1)      // %[w_m1]
+      :
+      : "memory", "cc", "z0", "z1", "p0");
+}
+
+static inline void MirrorSplitUVRow_SVE_SC(const uint8_t* src_uv,
+                                           uint8_t* dst_u,
+                                           uint8_t* dst_v,
+                                           int width) STREAMING_COMPATIBLE {
+  int vl;
+  int w_m1;
+  src_uv += (ptrdiff_t)width * 2;
+  asm volatile(
+      "cntb     %x[vl]                                  \n"
+      "ptrue    p0.b                                    \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "sub      %[src_uv], %[src_uv], %x[vl], lsl #1    \n"
+      "1:                                               \n"
+      "ld2b     {z0.b, z1.b}, p0/z, [%[src_uv]]         \n"
+      "sub      %[src_uv], %[src_uv], %x[vl], lsl #1    \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "rev      z0.b, z0.b                              \n"
+      "rev      z1.b, z1.b                              \n"
+      "st1b     {z0.b}, p0, [%[dst_u]]                  \n"
+      "st1b     {z1.b}, p0, [%[dst_v]]                  \n"
+      "incb     %[dst_u]                                \n"
+      "incb     %[dst_v]                                \n"
+      "b.ge     1b                                      \n"
+      "add      %[src_uv], %[src_uv], %x[vl], lsl #1    \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.le     99f                                     \n"
+
+      "sub      %[src_uv], %[src_uv], %w[width], sxtw #1 \n"
+      "whilelt  p0.b, wzr, %w[width]                    \n"
+      "sub      %w[w_m1], %w[width], #1                 \n"
+      "ld2b     {z0.b, z1.b}, p0/z, [%[src_uv]]         \n"
+      "index    z2.b, %w[w_m1], #-1                     \n"
+      "tbl      z0.b, {z0.b}, z2.b                      \n"
+      "tbl      z1.b, {z1.b}, z2.b                      \n"
+      "st1b     {z0.b}, p0, [%[dst_u]]                  \n"
+      "st1b     {z1.b}, p0, [%[dst_v]]                  \n"
+
+      "99:                                              \n"
+      : [src_uv] "+r"(src_uv),  // %[src_uv]
+        [dst_u] "+r"(dst_u),    // %[dst_u]
+        [dst_v] "+r"(dst_v),    // %[dst_v]
+        [width] "+r"(width),    // %[width]
+        [vl] "=&r"(vl),         // %[vl]
+        [w_m1] "=&r"(w_m1)      // %[w_m1]
+      :
+      : "memory", "cc", "z0", "z1", "z2", "p0");
+}
+
+static inline void ARGBMirrorRow_SVE_SC(const uint8_t* src_argb,
+                                        uint8_t* dst_argb,
+                                        int width) STREAMING_COMPATIBLE {
+  int vl;
+  int vl2;
+  int w_m1;
+  src_argb += (ptrdiff_t)width * 4;
+  asm volatile(
+      "cntw     %x[vl]                                  \n"
+      "lsl      %w[vl2], %w[vl], #1                     \n"
+      "ptrue    p0.s                                    \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
+      "b.lt     2f                                      \n"
+
+      "sub      %[src_argb], %[src_argb], %x[vl2], lsl #2 \n"
+      "1:                                               \n"
+      "ld1w     {z0.s}, p0/z, [%[src_argb], #0, mul vl] \n"
+      "ld1w     {z1.s}, p0/z, [%[src_argb], #1, mul vl] \n"
+      "sub      %[src_argb], %[src_argb], %x[vl2], lsl #2 \n"
+      "subs     %w[width], %w[width], %w[vl2]           \n"
+      "rev      z0.s, z0.s                              \n"
+      "rev      z1.s, z1.s                              \n"
+      "st1w     {z1.s}, p0, [%[dst_argb], #0, mul vl]   \n"
+      "st1w     {z0.s}, p0, [%[dst_argb], #1, mul vl]   \n"
+      "incb     %[dst_argb], all, mul #2                \n"
+      "b.ge     1b                                      \n"
+      "add      %[src_argb], %[src_argb], %x[vl2], lsl #2 \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl2]           \n"
+      "b.le     99f                                     \n"
+      "cmp      %w[width], %w[vl]                       \n"
+      "b.lt     3f                                      \n"
+      "sub      %[src_argb], %[src_argb], %x[vl], lsl #2 \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "ld1w     {z0.s}, p0/z, [%[src_argb]]             \n"
+      "rev      z0.s, z0.s                              \n"
+      "st1w     {z0.s}, p0, [%[dst_argb]]               \n"
+      "incb     %[dst_argb]                             \n"
+      "b.eq     99f                                     \n"
+
+      "3:                                               \n"
+      "sub      %[src_argb], %[src_argb], %w[width], sxtw #2 \n"
+      "whilelt  p0.s, wzr, %w[width]                    \n"
+      "sub      %w[w_m1], %w[width], #1                 \n"
+      "ld1w     {z0.s}, p0/z, [%[src_argb]]             \n"
+      "index    z1.s, %w[w_m1], #-1                     \n"
+      "tbl      z0.s, {z0.s}, z1.s                      \n"
+      "st1w     {z0.s}, p0, [%[dst_argb]]               \n"
+
+      "99:                                              \n"
+      : [src_argb] "+r"(src_argb),  // %[src_argb]
+        [dst_argb] "+r"(dst_argb),  // %[dst_argb]
+        [width] "+r"(width),        // %[width]
+        [vl] "=&r"(vl),             // %[vl]
+        [vl2] "=&r"(vl2),           // %[vl2]
+        [w_m1] "=&r"(w_m1)          // %[w_m1]
+      :
+      : "memory", "cc", "z0", "z1", "p0");
+}
+
+static inline void RGB24MirrorRow_SVE_SC(const uint8_t* src_rgb24,
+                                         uint8_t* dst_rgb24,
+                                         int width) STREAMING_COMPATIBLE {
+  int vl;
+  int vl3;
+  int w_m1;
+  src_rgb24 += (ptrdiff_t)width * 3;
+  asm volatile(
+      "cntb     %x[vl]                                  \n"
+      "add      %x[vl3], %x[vl], %x[vl], lsl #1         \n"
+      "ptrue    p0.b                                    \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "b.lt     2f                                      \n"
+
+      "sub      %[src_rgb24], %[src_rgb24], %x[vl3]     \n"
+      "1:                                               \n"
+      "ld3b     {z0.b, z1.b, z2.b}, p0/z, [%[src_rgb24]] \n"
+      "sub      %[src_rgb24], %[src_rgb24], %x[vl3]     \n"
+      "subs     %w[width], %w[width], %w[vl]            \n"
+      "rev      z0.b, z0.b                              \n"
+      "rev      z1.b, z1.b                              \n"
+      "rev      z2.b, z2.b                              \n"
+      "st3b     {z0.b, z1.b, z2.b}, p0, [%[dst_rgb24]]  \n"
+      "add      %[dst_rgb24], %[dst_rgb24], %x[vl3]     \n"
+      "b.ge     1b                                      \n"
+      "add      %[src_rgb24], %[src_rgb24], %x[vl3]     \n"
+
+      "2:                                               \n"
+      "adds     %w[width], %w[width], %w[vl]            \n"
+      "b.le     99f                                     \n"
+
+      "add      %w[vl3], %w[width], %w[width], lsl #1   \n"
+      "sub      %[src_rgb24], %[src_rgb24], %w[vl3], sxtw \n"
+      "whilelt  p0.b, wzr, %w[width]                    \n"
+      "sub      %w[w_m1], %w[width], #1                 \n"
+      "ld3b     {z0.b, z1.b, z2.b}, p0/z, [%[src_rgb24]] \n"
+      "index    z3.b, %w[w_m1], #-1                     \n"
+      "tbl      z0.b, {z0.b}, z3.b                      \n"
+      "tbl      z1.b, {z1.b}, z3.b                      \n"
+      "tbl      z2.b, {z2.b}, z3.b                      \n"
+      "st3b     {z0.b, z1.b, z2.b}, p0, [%[dst_rgb24]]  \n"
+
+      "99:                                              \n"
+      : [src_rgb24] "+r"(src_rgb24),  // %[src_rgb24]
+        [dst_rgb24] "+r"(dst_rgb24),  // %[dst_rgb24]
+        [width] "+r"(width),          // %[width]
+        [vl] "=&r"(vl),               // %[vl]
+        [vl3] "=&r"(vl3),             // %[vl3]
+        [w_m1] "=&r"(w_m1)            // %[w_m1]
+      :
+      : "memory", "cc", "z0", "z1", "z2", "z3", "p0");
 }
 
 #endif  // (!defined(LIBYUV_DISABLE_SVE) || (!defined(LIBYUV_DISABLE_SME) &&

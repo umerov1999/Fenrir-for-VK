@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.activity.selectprofiles
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,19 +15,19 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.Utils
 
-class SelectedProfilesAdapter(private val mContext: Context, private val mData: List<Owner>) :
+class SelectedProfilesAdapter(private val mData: List<Owner>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val mTransformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private var mActionListener: ActionListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             VIEW_TYPE_CHECK -> CheckViewHolder(
-                LayoutInflater.from(mContext)
+                LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_selection_check, parent, false)
             )
 
             VIEW_TYPE_USER -> ProfileViewHolder(
-                LayoutInflater.from(mContext)
+                LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_selected_user, parent, false)
             )
 
@@ -111,16 +110,16 @@ class SelectedProfilesAdapter(private val mContext: Context, private val mData: 
         val root: View = itemView.findViewById(R.id.root)
     }
 
-    private inner class ProfileViewHolder(itemView: View) :
+    private class ProfileViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val avatar: ImageView = itemView.findViewById(R.id.avatar)
         val name: TextView = itemView.findViewById(R.id.name)
         val buttonRemove: ImageView = itemView.findViewById(R.id.button_remove)
 
         init {
-            buttonRemove.drawable.setTint(CurrentTheme.getColorOnSurface(mContext))
             val root = itemView.findViewById<View>(R.id.root)
-            root.background.setTint(CurrentTheme.getMessageBackgroundSquare(mContext))
+            buttonRemove.drawable.setTint(CurrentTheme.getColorOnSurface(root.context))
+            root.background.setTint(CurrentTheme.getMessageBackgroundSquare(root.context))
             //root.getBackground().setAlpha(180);
         }
     }

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.feedback
 
-import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +26,7 @@ import dev.ragnarok.fenrir.view.OnlineView
 import java.util.Calendar
 
 class FeedbackAdapter(
-    context: Activity,
+    context: Context,
     items: MutableList<Feedback>,
     attachmentsActionCallback: OnAttachmentsActionCallback
 ) : RecyclerBindableAdapter<Feedback, FeedbackHolder>(items) {

@@ -1,33 +1,43 @@
 package dev.ragnarok.filegallery.fragment.localserver.audioslocalserver
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import dev.ragnarok.filegallery.Includes.networkInterfaces
 import dev.ragnarok.filegallery.api.interfaces.ILocalServerApi
 import dev.ragnarok.filegallery.fragment.base.RxSupportPresenter
+import dev.ragnarok.filegallery.media.music.MusicPlaybackController.observeServiceBinding
 import dev.ragnarok.filegallery.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.filegallery.model.Audio
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.place.PlaceFactory.getPlayerPlace
-import dev.ragnarok.filegallery.settings.Settings.get
+import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.util.FindAt
+import dev.ragnarok.filegallery.util.Utils.parseLocalServerURL
 import dev.ragnarok.filegallery.util.coroutines.CancelableJob
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
+import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.toMain
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class AudiosLocalServerPresenter :
     RxSupportPresenter<IAudiosLocalServerView>() {
     private val audios: MutableList<Audio> = ArrayList()
     private val fInteractor: ILocalServerApi = networkInterfaces.localServerApi()
-    private var actualDataDisposable = CancelableJob()
-    private var Foffset = 0
+    private var sleepDataJob = CancelableJob()
+    private var serviceStatusJob = CancelableJob()
+    private var fOffset = 0
     private var actualDataReceived = false
     private var endOfContent = false
     private var actualDataLoading = false
-    private var search_at: FindAt
+    private var searchAt: FindAt
     private var reverse = false
     private var discography = false
     private var doAudioLoadTabs = false
+
+    private var tmpDownloadAudio: Audio? = null
+    private var tmpDownloadPos = -1
     fun updateReverse(reverse: Boolean) {
         this.reverse = reverse
         fireRefresh(false)
@@ -35,8 +45,8 @@ class AudiosLocalServerPresenter :
 
     fun updateDiscography(discography: Boolean) {
         this.discography = discography
-        if (search_at.isSearchMode()) {
-            search_at.reset(true)
+        if (searchAt.isSearchMode()) {
+            searchAt.reset(true)
         }
         fireRefresh(false)
     }
@@ -72,17 +82,12 @@ class AudiosLocalServerPresenter :
 
     private fun onActualDataGetError(t: Throwable) {
         actualDataLoading = false
-        view?.let {
-            showError(
-                it,
-                t
-            )
-        }
+        showError(view, t)
         resolveRefreshingView()
     }
 
     private fun onActualDataReceived(offset: Int, data: List<Audio>) {
-        Foffset = offset + GET_COUNT
+        fOffset = offset + GET_COUNT
         actualDataLoading = false
         endOfContent = data.isEmpty()
         actualDataReceived = true
@@ -113,22 +118,23 @@ class AudiosLocalServerPresenter :
     }
 
     private fun resolveRefreshingView() {
-        view?.displayLoading(
+        resumedView?.displayLoading(
             actualDataLoading
         )
     }
 
     override fun onDestroyed() {
-        actualDataDisposable.cancel()
+        serviceStatusJob.cancel()
+        sleepDataJob.cancel()
         super.onDestroyed()
     }
 
     fun fireScrollToEnd(): Boolean {
         if (!endOfContent && audios.nonNullNoEmpty() && actualDataReceived && !actualDataLoading) {
-            if (search_at.isSearchMode()) {
+            if (searchAt.isSearchMode()) {
                 search(false)
             } else {
-                loadActualData(Foffset)
+                loadActualData(fOffset)
             }
             return false
         }
@@ -140,32 +146,32 @@ class AudiosLocalServerPresenter :
         resolveRefreshingView()
         appendJob(
             (if (discography) fInteractor.searchDiscography(
-                search_at.getQuery(),
-                search_at.getOffset(),
+                searchAt.getQuery(),
+                searchAt.getOffset(),
                 SEARCH_COUNT,
                 reverse
             ) else fInteractor.searchAudios(
-                search_at.getQuery(),
-                search_at.getOffset(),
+                searchAt.getQuery(),
+                searchAt.getOffset(),
                 SEARCH_COUNT,
                 reverse
             ))
                 .fromIOToMain({
                     onSearched(
                         FindAt(
-                            search_at.getQuery() ?: return@fromIOToMain,
-                            search_at.getOffset() + SEARCH_COUNT,
+                            searchAt.getQuery(),
+                            searchAt.getOffset() + SEARCH_COUNT,
                             it.size < SEARCH_COUNT
                         ), it
                     )
-                }) { onActualDataGetError(it) })
+                }) { t -> onActualDataGetError(t) })
     }
 
-    private fun onSearched(search_at: FindAt, data: List<Audio>) {
+    private fun onSearched(searchAt: FindAt, data: List<Audio>) {
         actualDataLoading = false
         actualDataReceived = true
-        endOfContent = search_at.isEnded()
-        if (this.search_at.getOffset() == 0) {
+        endOfContent = searchAt.isEnded()
+        if (this.searchAt.getOffset() == 0) {
             audios.clear()
             audios.addAll(data)
             view?.notifyListChanged()
@@ -179,28 +185,27 @@ class AudiosLocalServerPresenter :
                 )
             }
         }
-        this.search_at = search_at
+        this.searchAt = searchAt
         resolveRefreshingView()
     }
 
-    private fun search(sleep_search: Boolean) {
+    private fun search(sleepSearch: Boolean) {
         if (actualDataLoading) return
-        if (!sleep_search) {
+        if (!sleepSearch) {
             doSearch()
             return
         }
-        actualDataDisposable.cancel()
-        actualDataDisposable.set(
-            delayTaskFlow(WEB_SEARCH_DELAY.toLong())
-                .toMain { doSearch() })
+        sleepDataJob.cancel()
+        sleepDataJob += delayTaskFlow(WEB_SEARCH_DELAY.toLong())
+            .toMain { doSearch() }
     }
 
     fun fireSearchRequestChanged(q: String?) {
         val query = q?.trim()
-        if (!search_at.do_compare(query)) {
+        if (!searchAt.do_compare(query)) {
             actualDataLoading = false
             if (query.isNullOrEmpty()) {
-                actualDataDisposable.cancel()
+                sleepDataJob.cancel()
                 fireRefresh(false)
             } else {
                 fireRefresh(true)
@@ -209,7 +214,7 @@ class AudiosLocalServerPresenter :
     }
 
     fun getAudioPos(audio: Audio?): Int {
-        if (audios.nonNullNoEmpty() && audio != null) {
+        if (audios.isNotEmpty() && audio != null) {
             for ((pos, i) in audios.withIndex()) {
                 if (i.id == audio.id && i.ownerId == audio.ownerId) {
                     i.isAnimationNow = true
@@ -223,23 +228,180 @@ class AudiosLocalServerPresenter :
         return -1
     }
 
-    fun playAudio(context: Context, position: Int) {
+    fun firePlayAudio(context: Context, position: Int) {
         startForPlayList(context, ArrayList(audios), position)
-        if (!get().main().isShow_mini_player) getPlayerPlace().tryOpenWith(
+        if (!Settings.get().main().isShow_mini_player) getPlayerPlace().tryOpenWith(
             context
         )
     }
 
-    fun fireRefresh(sleep_search: Boolean) {
+    fun fireRefresh(sleepSearch: Boolean) {
         if (actualDataLoading) {
             return
         }
-        if (search_at.isSearchMode()) {
-            search_at.reset(false)
-            search(sleep_search)
+        if (searchAt.isSearchMode()) {
+            searchAt.reset(false)
+            search(sleepSearch)
         } else {
             loadActualData(0)
         }
+    }
+
+    fun fireOpenMenu(position: Int, audio: Audio) {
+        if (position < audios.size && position >= 0) {
+            view?.onOpenMenu(position, audio)
+        }
+    }
+
+    private fun doBitrate(url: String): Flow<Int> {
+        return flow {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(url, HashMap())
+            val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+            if (bitrate != null) {
+                emit((bitrate.toLong() / 1000).toInt())
+            } else {
+                throw Throwable("Can't receipt bitrate!")
+            }
+        }
+    }
+
+    fun fireGetBitrate(audio: Audio) {
+        val url = audio.url
+        if (url.isNullOrEmpty()) {
+            return
+        }
+        actualDataLoading = true
+        resolveRefreshingView()
+        appendJob(
+            doBitrate(url).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.onShowBitrate(it, audio.duration)
+                }
+            ) {
+                actualDataLoading = false
+                resolveRefreshingView()
+
+                view?.showThrowable(it)
+            })
+    }
+
+    fun firePrepareDownload(position: Int, audio: Audio) {
+        tmpDownloadPos = position
+        tmpDownloadAudio = audio
+        view?.onDownloadAudioNextStage()
+    }
+
+    fun continueDownload() {
+        val position = tmpDownloadPos
+        val audio = tmpDownloadAudio
+        if (position < 0 || position > audios.size - 1 || audio == null) {
+            return
+        }
+        view?.onStartAudioDownload(position, audio)
+        tmpDownloadPos = -1
+        tmpDownloadAudio = null
+    }
+
+    fun fireUpdateTime(audio: Audio) {
+        val hash = parseLocalServerURL(audio.url)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.updateTime(hash).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showSuccess()
+                    fireRefresh(false)
+                }, {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun firePrepareEditFileName(audio: Audio) {
+        val hash = parseLocalServerURL(audio.url)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.getFileName(hash).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.displayEditFileNameDialog(hash, it)
+                }, {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun firEditFileName(hash: String, newFileName: String) {
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.updateFileName(hash, newFileName).fromIOToMain(
+                {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+                    view?.showSuccess()
+                    fireRefresh(false)
+                }, {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun fireDeleteAudio(position: Int, audio: Audio) {
+        if (position >= audios.size || position < 0) {
+            return
+        }
+        val hash = parseLocalServerURL(audio.url)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        actualDataLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.deleteMedia(hash).fromIOToMain(
+                {
+                    audios.removeAt(position)
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showSuccess()
+                    view?.notifyItemRemoved(position)
+                }, {
+                    actualDataLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
     }
 
     companion object {
@@ -249,6 +411,10 @@ class AudiosLocalServerPresenter :
     }
 
     init {
-        search_at = FindAt()
+        searchAt = FindAt()
+        serviceStatusJob += observeServiceBinding()
+            .sharedFlowToMain {
+                view?.onServiceBindEvent(it)
+            }
     }
 }

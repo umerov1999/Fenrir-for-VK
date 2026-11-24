@@ -326,7 +326,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
             }
 
             override fun onStoryLongClick(item: Story, pos: Int): Boolean {
-                val isMy = item.ownerId == Settings.get().accounts().current
+                val isMy = item.ownerId == requireArguments().getLong(Extra.ACCOUNT_ID)
                 val items: Array<String> = if (isMy) {
                     arrayOf(
                         getString(R.string.delete),
@@ -360,7 +360,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
 
                         1 -> {
                             PlaceFactory.getStoriesViewPlace(
-                                Settings.get().accounts().current,
+                                requireArguments().getLong(Extra.ACCOUNT_ID),
                                 item.ownerId,
                                 item.id
                             ).tryOpenWith(requireActivity())
@@ -577,7 +577,7 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
                     val temp = clipBoard?.primaryClip?.getItemAt(0)?.text?.toString()?.trim()
                     LinkHelper.openUrl(
                         requireActivity(),
-                        presenter?.accountId ?: Settings.get().accounts().current,
+                        requireArguments().getLong(Extra.ACCOUNT_ID),
                         temp
                     )
                 }
@@ -705,8 +705,13 @@ abstract class AbsWallFragment<V : IWallView, P : AbsWallPresenter<V>> :
             .tryOpenWith(requireActivity())
     }
 
-    override fun openVideosLibrary(accountId: Long, ownerId: Long, owner: Owner?) {
-        getVideosPlace(accountId, ownerId, IVideosListView.ACTION_SHOW)
+    override fun openVideosLibrary(
+        accountId: Long,
+        ownerId: Long,
+        owner: Owner?,
+        canCommunityUpload: Boolean
+    ) {
+        getVideosPlace(accountId, ownerId, IVideosListView.ACTION_SHOW, canCommunityUpload)
             .withParcelableExtra(Extra.OWNER, owner)
             .tryOpenWith(requireActivity())
     }

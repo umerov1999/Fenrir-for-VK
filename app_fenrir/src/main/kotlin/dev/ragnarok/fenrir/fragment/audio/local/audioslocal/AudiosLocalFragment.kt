@@ -1,14 +1,17 @@
 package dev.ragnarok.fenrir.fragment.audio.local.audioslocal
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.audio.local.localaudioalbums.LocalAudioAlbumsFragment
@@ -16,21 +19,30 @@ import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.fragment.docs.DocsUploadAdapter
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.canPlayAfterCurrent
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController.currentAudio
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.playAfterCurrent
+import dev.ragnarok.fenrir.media.music.PlayerStatus
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Audio
+import dev.ragnarok.fenrir.model.menu.options.AudioLocalOption
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.upload.Upload
 import dev.ragnarok.fenrir.util.AppPerms.DoRequestPermissions
 import dev.ragnarok.fenrir.util.AppPerms.hasReadStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsResultAbs
+import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.MySearchView.OnAdditionalButtonClickListener
 
 class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalView>(),
     MySearchView.OnQueryTextListener, DocsUploadAdapter.ActionListener,
-    AudioLocalRecyclerAdapter.ClickListener, IAudiosLocalView {
+    AudiosLocalAdapter.ClickListener, IAudiosLocalView {
     private val requestReadPermission: DoRequestPermissions = requestPermissionsResultAbs(
         arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -47,7 +59,7 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
         }
     )
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
-    private var mAudioRecyclerAdapter: AudioLocalRecyclerAdapter? = null
+    private var mAudiosAdapter: AudiosLocalAdapter? = null
     private var mUploadAdapter: DocsUploadAdapter? = null
     private var mUploadRoot: View? = null
     override fun onCreateView(
@@ -86,16 +98,18 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
                 presenter?.fireScrollToEnd()
             }
         })
-        val Goto: FloatingActionButton = root.findViewById(R.id.goto_button)
-        Goto.setImageResource(R.drawable.audio_player)
-        Goto.setOnLongClickListener {
+        val goTo: FloatingActionButton = root.findViewById(R.id.goto_button)
+        goTo.setImageResource(R.drawable.audio_player)
+        goTo.setOnLongClickListener {
             val curr = currentAudio
             if (curr != null) {
-                getPlayerPlace(Settings.get().accounts().current).tryOpenWith(requireActivity())
+                getPlayerPlace(requireArguments().getLong(Extra.ACCOUNT_ID)).tryOpenWith(
+                    requireActivity()
+                )
             } else customToast?.showToastError(R.string.null_audio)
             false
         }
-        Goto.setOnClickListener {
+        goTo.setOnClickListener {
             val curr = currentAudio
             if (curr != null) {
                 val index =
@@ -105,9 +119,9 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
                 } else customToast?.showToast(R.string.audio_not_found)
             } else customToast?.showToastError(R.string.null_audio)
         }
-        mAudioRecyclerAdapter = AudioLocalRecyclerAdapter(requireActivity(), emptyList())
-        mAudioRecyclerAdapter?.setClickListener(this)
-        recyclerView.adapter = mAudioRecyclerAdapter
+        mAudiosAdapter = AudiosLocalAdapter(emptyList())
+        mAudiosAdapter?.setClickListener(this)
+        recyclerView.adapter = mAudiosAdapter
         return root
     }
 
@@ -117,11 +131,11 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
     )
 
     override fun displayList(audios: List<Audio>) {
-        mAudioRecyclerAdapter?.setItems(audios)
+        mAudiosAdapter?.setItems(audios)
     }
 
     override fun notifyListChanged() {
-        mAudioRecyclerAdapter?.notifyDataSetChanged()
+        mAudiosAdapter?.notifyDataSetChanged()
     }
 
     override fun displayRefreshing(refreshing: Boolean) {
@@ -140,12 +154,12 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
         LocalAudioAlbumsFragment.newInstance(
             selectedId,
             object : LocalAudioAlbumsFragment.Listener {
-                override fun onSelected(bucket_id: Int) {
+                override fun onSelected(bucketId: Int) {
                     if (Settings.get().main().isRememberLocalAudioAlbum) {
-                        Settings.get().main().currentLocalAudioAlbum = bucket_id
+                        Settings.get().main().currentLocalAudioAlbum = bucketId
                     }
                     presenter?.fireBucketSelected(
-                        bucket_id
+                        bucketId
                     )
                 }
 
@@ -163,11 +177,15 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
     }
 
     override fun notifyItemChanged(index: Int) {
-        mAudioRecyclerAdapter?.notifyItemChanged(index)
+        mAudiosAdapter?.notifyItemChanged(index)
     }
 
     override fun notifyItemRemoved(index: Int) {
-        mAudioRecyclerAdapter?.notifyItemRemoved(index)
+        mAudiosAdapter?.notifyItemRemoved(index)
+    }
+
+    override fun notifyItemMoved(fromPosition: Int, toPosition: Int) {
+        mAudiosAdapter?.notifyItemMoved(fromPosition, toPosition)
     }
 
     override fun notifyUploadItemsAdded(position: Int, count: Int) {
@@ -207,28 +225,201 @@ class AudiosLocalFragment : BaseMvpFragment<AudiosLocalPresenter, IAudiosLocalVi
     }
 
     override fun onClick(position: Int, audio: Audio) {
-        presenter?.playAudio(
+        presenter?.firePlayAudio(
             requireActivity(),
             position
         )
     }
 
-    override fun onDelete(position: Int) {
-        presenter?.fireDelete(
-            position
-        )
+    override fun openMenu(position: Int, audio: Audio) {
+        presenter?.fireOpenMenu(position, audio)
     }
 
-    override fun onUpload(position: Int, audio: Audio) {
-        presenter?.fireFileForUploadSelected(
-            audio.url
+    override fun onOpenMenu(accountId: Long, position: Int, audio: Audio) {
+        val menus = ModalBottomSheetDialogFragment.Builder()
+        menus.add(
+            OptionRequest(
+                AudioLocalOption.upload_item_audio,
+                getString(R.string.upload),
+                R.drawable.web,
+                true
+            )
         )
+        menus.add(
+            OptionRequest(
+                AudioLocalOption.play_item_audio,
+                getString(R.string.play),
+                R.drawable.play,
+                true
+            )
+        )
+        if (Settings.get().main().localServer.enabled) {
+            menus.add(
+                OptionRequest(
+                    AudioLocalOption.play_via_local_server,
+                    getString(R.string.play_remote),
+                    R.drawable.remote_cloud,
+                    false
+                )
+            )
+        }
+        if (canPlayAfterCurrent()) {
+            menus.add(
+                OptionRequest(
+                    AudioLocalOption.play_item_after_current_audio,
+                    getString(R.string.play_audio_after_current),
+                    R.drawable.play_next,
+                    false
+                )
+            )
+        }
+        menus.add(
+            OptionRequest(
+                AudioLocalOption.bitrate_item_audio,
+                getString(R.string.get_bitrate),
+                R.drawable.high_quality,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalOption.delete_item_audio,
+                getString(R.string.delete),
+                R.drawable.ic_outline_delete,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalOption.share_button,
+                getString(R.string.share),
+                R.drawable.ic_outline_share,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalOption.strip_metadata_item_audio,
+                getString(R.string.strip_metadata),
+                R.drawable.ic_outline_delete,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                AudioLocalOption.update_time_item_audio,
+                getString(R.string.update_time),
+                R.drawable.ic_recent,
+                false
+            )
+        )
+        menus.header(
+            Utils.firstNonEmptyString(audio.artist, " ") + " - " + audio.title,
+            R.drawable.song,
+            audio.thumb_image_little
+        )
+        menus.columns(2)
+        menus.show(
+            childFragmentManager,
+            "audio_options"
+        ) { _, option ->
+            when (option.id) {
+                AudioLocalOption.upload_item_audio -> {
+                    presenter?.fireFileForUploadSelected(
+                        audio.url
+                    )
+                }
+
+                AudioLocalOption.play_via_local_server -> {
+                    presenter?.fireFileForRemotePlaySelected(
+                        audio.url
+                    )
+                }
+
+                AudioLocalOption.play_item_audio -> {
+                    presenter?.firePlayAudio(requireActivity(), position)
+                }
+
+                AudioLocalOption.play_item_after_current_audio -> playAfterCurrent(
+                    audio
+                )
+
+                AudioLocalOption.bitrate_item_audio -> presenter?.fireGetLocalBitrate(
+                    requireActivity(),
+                    audio.url
+                )
+
+                AudioLocalOption.share_button -> {
+                    val intentSend = Intent(Intent.ACTION_SEND)
+                    intentSend.type = "audio/*"
+                    intentSend.putExtra(
+                        Intent.EXTRA_STREAM, audio.url?.toUri()
+                    )
+                    intentSend.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    startActivity(
+                        Intent.createChooser(
+                            intentSend,
+                            getString(R.string.share_using)
+                        )
+                    )
+                }
+
+                AudioLocalOption.strip_metadata_item_audio -> {
+                    presenter?.fireStripMetadata(requireActivity(), audio.url)
+                }
+
+                AudioLocalOption.delete_item_audio -> try {
+                    audio.url?.toUri()?.let { ur ->
+                        if (requireActivity().contentResolver
+                                .delete(ur, null, null) == 1
+                        ) {
+                            CustomSnackbars.createCustomSnackbars(view)
+                                ?.setDurationSnack(Snackbar.LENGTH_LONG)
+                                ?.coloredSnack(R.string.success, "#48BE2D".toColor(), false)
+                                ?.show()
+                            presenter?.fireDelete(
+                                position
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    customToast?.showToastThrowable(e)
+                }
+
+                AudioLocalOption.update_time_item_audio -> {
+                    presenter?.fireUpdateAudioTime(requireActivity(), audio, position)
+                }
+
+                else -> {}
+            }
+        }
     }
 
-    override fun onRemotePlay(position: Int, audio: Audio) {
-        presenter?.fireFileForRemotePlaySelected(
-            audio.url
-        )
+    override fun onShowBitrate(bitrate: Int, size: Long) {
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+            ?.themedSnack(
+                getString(
+                    R.string.bitrate,
+                    bitrate,
+                    Utils.BytesToSize(size)
+                )
+            )
+            ?.show()
+    }
+
+    override fun showSuccess() {
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+            ?.coloredSnack(
+                R.string.success,
+                "#48BE2D".toColor(), false
+            )
+            ?.show()
+    }
+
+    override fun onServiceBindEvent(@PlayerStatus status: Int) {
+        mAudiosAdapter?.onServiceBindEvent(status)
     }
 
     companion object {

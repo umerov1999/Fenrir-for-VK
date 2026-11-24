@@ -2,25 +2,28 @@ package dev.ragnarok.fenrir.fragment.audio.audios
 
 import android.content.Context
 import android.os.Bundle
-import android.view.View
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import dev.ragnarok.fenrir.Includes
 import dev.ragnarok.fenrir.R
+import dev.ragnarok.fenrir.api.model.AccessIdPair
 import dev.ragnarok.fenrir.domain.InteractorFactory
 import dev.ragnarok.fenrir.domain.interfaces.IAudioInteractor
 import dev.ragnarok.fenrir.fragment.base.AccountDependencyPresenter
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.observeServiceBinding
 import dev.ragnarok.fenrir.media.music.MusicPlaybackService.Companion.startForPlayList
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
-import dev.ragnarok.fenrir.swap
+import dev.ragnarok.fenrir.util.DownloadWorkUtils.CheckDirectory
 import dev.ragnarok.fenrir.util.DownloadWorkUtils.TrackIsDownloaded
+import dev.ragnarok.fenrir.util.DownloadWorkUtils.makeDownloadRequestAudio
 import dev.ragnarok.fenrir.util.FindAtWithContent
 import dev.ragnarok.fenrir.util.HelperSimple
 import dev.ragnarok.fenrir.util.HelperSimple.hasHelp
+import dev.ragnarok.fenrir.util.Mp3InfoHelper.getLength
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.Utils.safeCheck
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
@@ -28,35 +31,41 @@ import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.delayTaskFlow
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.hiddenIO
+import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.toMain
+import dev.ragnarok.fenrir.util.hls.M3U8
 import kotlinx.coroutines.flow.Flow
 
 class AudiosPresenter(
     accountId: Long,
     private val ownerId: Long,
-    albumId: Int?,
+    private val playlistId: Int?,
     private val accessKey: String?,
     private val iSSelectMode: Boolean,
     savedInstanceState: Bundle?
 ) : AccountDependencyPresenter<IAudiosView>(accountId, savedInstanceState) {
     private val audioInteractor: IAudioInteractor = InteractorFactory.audio
     private val audios: ArrayList<Audio> = ArrayList()
-    val playlistId: Int? = albumId
-    private val audioListDisposable = CompositeJob()
     private val searcher: FindAudio = FindAudio(compositeJob)
-    private var sleepDataDisposable = CancelableJob()
-    private var swapDisposable = CancelableJob()
+    private var sleepDataJob = CancelableJob()
+    private var serviceStatusJob = CancelableJob()
     private var actualReceived = false
-    private var Curr: MutableList<AudioPlaylist>? = null
+    private var currentPlaylist: MutableList<AudioPlaylist>? = null
     private var loadingNow = false
     private var endOfContent = false
     private var doAudioLoadTabs = false
     private var needDeadHelper: Boolean
+
+    private var tmpDownloadAudio: Audio? = null
+    private var tmpDownloadPos = -1
+    private var tmpMoveFromAudio: Audio? = null
+    private var tmpMoveFromPosition = -1
+    private var tmpMoveToPosition = -1
     private fun loadedPlaylist(t: AudioPlaylist) {
         val ret: MutableList<AudioPlaylist> = ArrayList(1)
         ret.add(t)
         view?.updatePlaylists(ret)
-        Curr = ret
+        currentPlaylist = ret
     }
 
     val isMyAudio: Boolean
@@ -105,13 +114,13 @@ class AudiosPresenter(
     private fun requestNext() {
         setLoadingNow(true)
         val offset = audios.size
-        requestList(offset, playlistId)
+        requestList(offset)
     }
 
-    private fun requestList(offset: Int, album_id: Int?) {
+    private fun requestList(offset: Int) {
         setLoadingNow(true)
-        audioListDisposable.add(
-            audioInteractor.get(accountId, album_id, ownerId, offset, GET_COUNT, accessKey)
+        appendJob(
+            audioInteractor.get(accountId, playlistId, ownerId, offset, GET_COUNT, accessKey)
                 .fromIOToMain({
                     onListReceived(
                         offset,
@@ -153,22 +162,16 @@ class AudiosPresenter(
         }
     }
 
-    fun playAudio(context: Context, position: Int) {
+    fun firePlayAudio(context: Context, position: Int) {
         startForPlayList(context, audios, position)
         if (!Settings.get().main().isShow_mini_player) getPlayerPlace(accountId).tryOpenWith(
             context
         )
     }
 
-    fun fireDelete(position: Int) {
-        audios.removeAt(position)
-        view?.notifyItemRemoved(position)
-    }
-
     override fun onDestroyed() {
-        audioListDisposable.cancel()
-        swapDisposable.cancel()
-        sleepDataDisposable.cancel()
+        sleepDataJob.cancel()
+        serviceStatusJob.cancel()
         super.onDestroyed()
     }
 
@@ -184,7 +187,7 @@ class AudiosPresenter(
         view?.notifyListChanged()
     }
 
-    fun getSelected(noDownloaded: Boolean): ArrayList<Audio> {
+    private fun getSelected(noDownloaded: Boolean): ArrayList<Audio> {
         val ret = ArrayList<Audio>()
         for (i in audios) {
             if (i.isSelected) {
@@ -200,6 +203,10 @@ class AudiosPresenter(
             }
         }
         return ret
+    }
+
+    fun fireSelectToSendAttachment() {
+        view?.onSelectToSendAttachment(getSelected(false))
     }
 
     fun getAudioPos(audio: Audio?): Int {
@@ -228,14 +235,14 @@ class AudiosPresenter(
 
     private fun sleep_search(q: String?) {
         if (loadingNow) return
-        sleepDataDisposable.cancel()
+        sleepDataJob.cancel()
         if (q.isNullOrEmpty()) {
             searcher.cancel()
         } else {
             if (!searcher.isSearchMode) {
                 searcher.insertCache(audios, audios.size)
             }
-            sleepDataDisposable += delayTaskFlow(WEB_SEARCH_DELAY.toLong())
+            sleepDataJob += delayTaskFlow(WEB_SEARCH_DELAY.toLong())
                 .toMain { searcher.do_search(q) }
         }
     }
@@ -249,7 +256,7 @@ class AudiosPresenter(
             searcher.reset()
         } else {
             if (playlistId != null && playlistId != 0) {
-                audioListDisposable.add(
+                appendJob(
                     audioInteractor.getPlaylistById(
                         accountId,
                         playlistId,
@@ -262,12 +269,12 @@ class AudiosPresenter(
                             )
                         })
             }
-            requestList(0, playlistId)
+            requestList(0)
         }
     }
 
     fun onDelete(album: AudioPlaylist) {
-        audioListDisposable.add(
+        appendJob(
             audioInteractor.deletePlaylist(
                 accountId,
                 album.id,
@@ -283,7 +290,7 @@ class AudiosPresenter(
     }
 
     fun onAdd(album: AudioPlaylist) {
-        audioListDisposable.add(
+        appendJob(
             audioInteractor.followPlaylist(
                 accountId,
                 album.id,
@@ -307,83 +314,315 @@ class AudiosPresenter(
         }
     }
 
-    fun fireEditTrack(context: Context, audio: Audio) {
-        val root = View.inflate(context, R.layout.entry_audio_info, null)
-        root.findViewById<TextInputEditText>(R.id.edit_artist).setText(audio.artist)
-        root.findViewById<TextInputEditText>(R.id.edit_title).setText(audio.title)
-        MaterialAlertDialogBuilder(context)
-            .setTitle(R.string.enter_audio_info)
-            .setCancelable(true)
-            .setView(root)
-            .setPositiveButton(R.string.button_ok) { _, _ ->
-                audioListDisposable.add(
-                    audioInteractor.edit(
-                        accountId,
-                        audio.ownerId,
-                        audio.id,
-                        root.findViewById<TextInputEditText>(R.id.edit_artist).text?.toString(),
-                        root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString()
-                    ).fromIOToMain({ fireRefresh() }) { t ->
-                        showError(t)
-                    })
-            }
-            .setNegativeButton(R.string.button_cancel, null)
-            .show()
-    }
+    fun fireEditTrack(position: Int, artist: String, title: String?, audio: Audio) {
+        loadingNow = true
+        resolveRefreshingView()
 
-    private fun tempSwap(fromPosition: Int, toPosition: Int) {
-        if (fromPosition < toPosition) {
-            for (i in fromPosition until toPosition) {
-                audios.swap(i, i + 1)
-            }
-        } else {
-            for (i in fromPosition downTo toPosition + 1) {
-                audios.swap(i, i - 1)
-            }
-        }
-        view?.notifyItemMoved(
-            fromPosition,
-            toPosition
-        )
+        appendJob(
+            audioInteractor.edit(
+                accountId,
+                audio.ownerId,
+                audio.id,
+                artist,
+                title
+            ).fromIOToMain({
+                loadingNow = false
+                resolveRefreshingView()
+                if (position < audios.size && position >= 0) {
+                    audios[position].setTitle(title).setArtist(artist)
+                    view?.notifyItemChanged(position)
+                }
+            }) {
+                loadingNow = false
+                resolveRefreshingView()
+
+                showError(it)
+            })
     }
 
     fun fireItemMoved(fromPosition: Int, toPosition: Int): Boolean {
-        if (audios.size < 2) {
+        if (audios.size < 2 || fromPosition < 0 || fromPosition >= audios.size || toPosition < 0 || toPosition >= audios.size) {
             return false
         }
-        val audio_from = audios[fromPosition]
-        if (fromPosition < toPosition) {
-            for (i in fromPosition until toPosition) {
-                audios.swap(i, i + 1)
-            }
-        } else {
-            for (i in fromPosition downTo toPosition + 1) {
-                audios.swap(i, i - 1)
-            }
-        }
+        tmpMoveToPosition = toPosition
+        val audioFrom = audios[fromPosition]
+        audios.removeAt(fromPosition)
+        audios.add(toPosition, audioFrom)
+
         view?.notifyItemMoved(
             fromPosition,
             toPosition
         )
-        var before: Int? = null
-        var after: Int? = null
-        if (toPosition == 0) {
-            before = audios[1].id
-        } else {
-            after = audios[toPosition - 1].id
-        }
-        swapDisposable.cancel()
-        swapDisposable += audioInteractor.reorder(accountId, ownerId, audio_from.id, before, after)
-            .fromIOToMain { tempSwap(toPosition, fromPosition) }
         return true
+    }
+
+    fun fireDoFinalMove() {
+        val finalMoveFromAudio = tmpMoveFromAudio
+        if (audios.size < 2 || finalMoveFromAudio == null || tmpMoveFromPosition == tmpMoveToPosition || tmpMoveFromPosition < 0 || tmpMoveFromPosition >= audios.size || tmpMoveToPosition < 0 || tmpMoveToPosition >= audios.size) {
+            tmpMoveFromPosition = -1
+            tmpMoveToPosition = -1
+            tmpMoveFromAudio = null
+            fireRefresh()
+            return
+        }
+        val before = if (tmpMoveToPosition == 0) audios.getOrNull(0 + 1) else null
+        val after = if (tmpMoveToPosition == 0) null else audios.getOrNull(tmpMoveToPosition - 1)
+        loadingNow = true
+        resolveRefreshingView()
+
+        appendJob(
+            audioInteractor.reorder(
+                accountId,
+                ownerId,
+                finalMoveFromAudio.id,
+                before?.id,
+                after?.id
+            )
+                .fromIOToMain({
+                    loadingNow = false
+                    resolveRefreshingView()
+                    tmpMoveToPosition = -1
+                    tmpMoveFromPosition = -1
+                    tmpMoveFromAudio = null
+
+                    view?.customToast?.showToastSuccessBottom(R.string.success)
+                }, {
+                    loadingNow = false
+                    resolveRefreshingView()
+                    view?.showThrowable(it)
+                    fireItemMoved(tmpMoveToPosition, tmpMoveFromPosition)
+                    tmpMoveToPosition = -1
+                    tmpMoveFromPosition = -1
+                    tmpMoveFromAudio = null
+                })
+        )
     }
 
     override fun onGuiCreated(viewHost: IAudiosView) {
         super.onGuiCreated(viewHost)
         viewHost.displayList(audios)
-        Curr?.let {
+        currentPlaylist?.let {
             viewHost.updatePlaylists(it)
         }
+    }
+
+    fun fireOpenMenu(position: Int, audio: Audio) {
+        if (position < audios.size && position >= 0) {
+            view?.onOpenMenu(accountId, position, audio, playlistId)
+        }
+    }
+
+    fun fireDelete(position: Int, audio: Audio) {
+        loadingNow = true
+        resolveRefreshingView()
+
+        appendJob(
+            if (playlistId == null || playlistId == 0) {
+                audioInteractor.delete(accountId, audio.id, audio.ownerId).fromIOToMain(
+                    {
+                        loadingNow = false
+                        resolveRefreshingView()
+
+                        if (position < audios.size && position >= 0) {
+                            audios.removeAt(position)
+                            view?.notifyItemRemoved(position)
+                        }
+
+                        view?.customToast?.showToastSuccessBottom(R.string.deleted)
+                    }) {
+                    loadingNow = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                }
+            } else {
+                audioInteractor.removeFromPlaylist(
+                    accountId, audio.ownerId, playlistId, listOf(
+                        AccessIdPair(
+                            audio.id, audio.ownerId, audio.accessKey
+                        )
+                    )
+                ).fromIOToMain(
+                    {
+                        loadingNow = false
+                        resolveRefreshingView()
+
+                        if (it != 0) {
+                            audios.removeAt(position)
+                            view?.notifyItemRemoved(position)
+                            view?.customToast?.showToastSuccessBottom(R.string.deleted)
+                        } else {
+                            view?.customToast?.showToastSuccessBottom(R.string.error)
+                        }
+                    }) {
+                    loadingNow = false
+                    resolveRefreshingView()
+                    view?.showThrowable(it)
+                }
+            })
+    }
+
+    fun fireAddTrack(audio: Audio) {
+        loadingNow = true
+        resolveRefreshingView()
+
+        appendJob(
+            audioInteractor.add(accountId, audio, null).fromIOToMain(
+                {
+                    loadingNow = false
+                    resolveRefreshingView()
+                    view?.customToast?.showToastSuccessBottom(R.string.added)
+                }) {
+                loadingNow = false
+                resolveRefreshingView()
+                view?.showThrowable(it)
+            })
+    }
+
+    fun fireGetBitrate(audio: Audio) {
+        loadingNow = true
+        resolveRefreshingView()
+
+        if (audio.needRefresh()) {
+            appendJob(
+                audioInteractor.getById(
+                    accountId,
+                    listOf(audio)
+                ).fromIOToMain({
+                    getBitrateTask(it[0])
+                }) {
+                    getBitrateTask(
+                        audio
+                    )
+                })
+        } else {
+            getBitrateTask(audio)
+        }
+    }
+
+    private fun getBitrateTask(audio: Audio) {
+        val pUrl = audio.url
+        if (pUrl.isNullOrEmpty()) {
+            loadingNow = false
+            resolveRefreshingView()
+            return
+        }
+        appendJob(
+            if (audio.isHLS) {
+                M3U8(pUrl).length.fromIOToMain(
+                    {
+                        loadingNow = false
+                        resolveRefreshingView()
+
+                        view?.onShowBitrate(audio.duration, it)
+                    }
+                ) {
+                    loadingNow = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                }
+            } else {
+                getLength(pUrl).fromIOToMain(
+                    {
+                        loadingNow = false
+                        resolveRefreshingView()
+
+                        view?.onShowBitrate(audio.duration, it)
+                    }
+                ) {
+                    loadingNow = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                }
+            })
+    }
+
+    fun fireGetLyrics(audio: Audio) {
+        loadingNow = true
+        resolveRefreshingView()
+
+        appendJob(
+            audioInteractor.getLyrics(accountId, audio)
+                .fromIOToMain({
+                    loadingNow = false
+                    resolveRefreshingView()
+
+                    view?.onAudioLyricsReceived(
+                        it,
+                        audio
+                    )
+                }) {
+                    loadingNow = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+    }
+
+    fun firePrepareDownload(position: Int, audio: Audio) {
+        tmpDownloadPos = position
+        tmpDownloadAudio = audio
+        view?.onDownloadAudioNextStage()
+    }
+
+    fun continueDownload() {
+        val position = tmpDownloadPos
+        val audio = tmpDownloadAudio
+        if (position < 0 || position > audios.size - 1 || audio == null) {
+            return
+        }
+        view?.onStartAudioDownload(accountId, position, audio)
+        tmpDownloadPos = -1
+        tmpDownloadAudio = null
+    }
+
+    fun fireSharePlaylistClick(playlist: AudioPlaylist) {
+        view?.onSharePlaylist(accountId, playlist)
+    }
+
+    fun fireMultipleDownload(context: Context) {
+        val tracks: List<Audio> = getSelected(true)
+        fireUpdateSelectMode()
+        if (tracks.isNotEmpty()) {
+            CheckDirectory(Settings.get().main().musicDir)
+            var obj = WorkManager.getInstance(context).beginWith(
+                makeDownloadRequestAudio(
+                    tracks[0], accountId
+                )
+            )
+            var indexAudio = audios.indexOf(tracks[0])
+            if (indexAudio >= 0) {
+                audios[indexAudio].downloadIndicator = 1
+                view?.notifyItemChanged(indexAudio)
+            }
+            if (tracks.size > 1) {
+                val requests: MutableList<OneTimeWorkRequest> =
+                    ArrayList(tracks.size - 1)
+                var isFirst = true
+                for (i in tracks) {
+                    if (isFirst) {
+                        isFirst = false
+                        continue
+                    }
+                    requests.add(makeDownloadRequestAudio(i, accountId))
+
+                    indexAudio = audios.indexOf(i)
+                    if (indexAudio >= 0) {
+                        audios[indexAudio].downloadIndicator = 1
+                        view?.notifyItemChanged(indexAudio)
+                    }
+                }
+                obj = obj.then(requests)
+            }
+            obj.enqueue()
+        }
+    }
+
+    fun fireStoreMoveFromPosition(position: Int?) {
+        tmpMoveFromPosition = position ?: -1
+        tmpMoveFromAudio = audios.getOrNull(tmpMoveFromPosition)
     }
 
     private inner class FindAudio(disposable: CompositeJob) : FindAtWithContent<Audio>(
@@ -504,5 +743,9 @@ class AudiosPresenter(
 
     init {
         needDeadHelper = hasHelp(HelperSimple.AUDIO_DEAD, 1)
+        serviceStatusJob += observeServiceBinding()
+            .sharedFlowToMain {
+                view?.onServiceBindEvent(it)
+            }
     }
 }

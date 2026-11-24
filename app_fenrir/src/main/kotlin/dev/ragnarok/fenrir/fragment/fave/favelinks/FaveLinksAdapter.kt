@@ -21,7 +21,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 
-class FaveLinksAdapter(private var data: List<FaveLink>, private val context: Context) :
+class FaveLinksAdapter(private var data: List<FaveLink>) :
     RecyclerView.Adapter<FaveLinksAdapter.Holder>() {
     private var recyclerView: RecyclerView? = null
     private var clickListener: ClickListener? = null
@@ -30,7 +30,9 @@ class FaveLinksAdapter(private var data: List<FaveLink>, private val context: Co
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_fave_link, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_fave_link, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
@@ -106,10 +108,10 @@ class FaveLinksAdapter(private var data: List<FaveLink>, private val context: Co
             }
             menu.add(0, v.id, 0, R.string.copy_url).setOnMenuItemClickListener {
                 val clipboard =
-                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+                    v.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                 val clip = ClipData.newPlainText("response", faveLink.url)
                 clipboard?.setPrimaryClip(clip)
-                createCustomToast(context, null)?.showToast(R.string.copied)
+                createCustomToast(v.context, null)?.showToast(R.string.copied)
                 true
             }
         }

@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.gms.services) apply false
 }
 
-tasks.register("clean") {
+tasks.register(LifecycleBasePlugin.CLEAN_TASK_NAME) {
     description = "Clean build directories"
 }.configure {
     delete(rootProject.layout.buildDirectory.asFile)

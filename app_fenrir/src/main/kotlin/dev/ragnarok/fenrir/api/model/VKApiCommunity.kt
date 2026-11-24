@@ -161,6 +161,8 @@ class VKApiCommunity
      */
     var can_upload_video = false
 
+    var can_upload_story = false
+
     /**
      * информация о том, может ли текущий пользователь создать тему обсуждения в группе, используя метод board.addTopic
      */

@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.products
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,11 +16,13 @@ import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
-class MarketAdapter(private var data: List<Market>, private val context: Context) :
+class MarketAdapter(private var data: List<Market>) :
     RecyclerView.Adapter<MarketAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_market, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_market, parent, false)
+        )
     }
 
     @SuppressLint("SetTextI18n")
@@ -44,11 +45,11 @@ class MarketAdapter(private var data: List<Market>, private val context: Context
         }
         if (market.date == 0L) holder.time.visibility = View.GONE else {
             holder.time.visibility = View.VISIBLE
-            holder.time.text = AppTextUtils.getDateFromUnixTime(context, market.date)
+            holder.time.text = AppTextUtils.getDateFromUnixTime(holder.time.context, market.date)
         }
         when (market.availability) {
             0 -> {
-                holder.available.setTextColor(CurrentTheme.getColorOnSurface(context))
+                holder.available.setTextColor(CurrentTheme.getColorOnSurface(holder.available.context))
                 holder.available.setText(R.string.markets_available)
             }
 

@@ -269,54 +269,6 @@ void AR30ToAB30Row_C(const uint8_t* src_ar30, uint8_t* dst_ab30, int width) {
   }
 }
 
-void ARGBToABGRRow_C(const uint8_t* src_argb, uint8_t* dst_abgr, int width) {
-  int x;
-  for (x = 0; x < width; ++x) {
-    uint8_t b = src_argb[0];
-    uint8_t g = src_argb[1];
-    uint8_t r = src_argb[2];
-    uint8_t a = src_argb[3];
-    dst_abgr[0] = r;
-    dst_abgr[1] = g;
-    dst_abgr[2] = b;
-    dst_abgr[3] = a;
-    dst_abgr += 4;
-    src_argb += 4;
-  }
-}
-
-void ARGBToBGRARow_C(const uint8_t* src_argb, uint8_t* dst_bgra, int width) {
-  int x;
-  for (x = 0; x < width; ++x) {
-    uint8_t b = src_argb[0];
-    uint8_t g = src_argb[1];
-    uint8_t r = src_argb[2];
-    uint8_t a = src_argb[3];
-    dst_bgra[0] = a;
-    dst_bgra[1] = r;
-    dst_bgra[2] = g;
-    dst_bgra[3] = b;
-    dst_bgra += 4;
-    src_argb += 4;
-  }
-}
-
-void ARGBToRGBARow_C(const uint8_t* src_argb, uint8_t* dst_rgba, int width) {
-  int x;
-  for (x = 0; x < width; ++x) {
-    uint8_t b = src_argb[0];
-    uint8_t g = src_argb[1];
-    uint8_t r = src_argb[2];
-    uint8_t a = src_argb[3];
-    dst_rgba[0] = a;
-    dst_rgba[1] = b;
-    dst_rgba[2] = g;
-    dst_rgba[3] = r;
-    dst_rgba += 4;
-    src_argb += 4;
-  }
-}
-
 void ARGBToRGB24Row_C(const uint8_t* src_argb, uint8_t* dst_rgb, int width) {
   int x;
   for (x = 0; x < width; ++x) {
@@ -342,22 +294,6 @@ void ARGBToRAWRow_C(const uint8_t* src_argb, uint8_t* dst_rgb, int width) {
     dst_rgb[2] = b;
     dst_rgb += 3;
     src_argb += 4;
-  }
-}
-
-void RGBAToARGBRow_C(const uint8_t* src_rgba, uint8_t* dst_argb, int width) {
-  int x;
-  for (x = 0; x < width; ++x) {
-    uint8_t a = src_rgba[0];
-    uint8_t b = src_rgba[1];
-    uint8_t g = src_rgba[2];
-    uint8_t r = src_rgba[3];
-    dst_argb[0] = b;
-    dst_argb[1] = g;
-    dst_argb[2] = r;
-    dst_argb[3] = a;
-    dst_argb += 4;
-    src_rgba += 4;
   }
 }
 
@@ -571,49 +507,41 @@ void AB64ToARGBRow_C(const uint16_t* src_ab64, uint8_t* dst_argb, int width) {
   }
 }
 
-void AR64ToAB64Row_C(const uint16_t* src_ar64, uint16_t* dst_ab64, int width) {
-  int x;
-  for (x = 0; x < width; ++x) {
-    uint16_t b = src_ar64[0];
-    uint16_t g = src_ar64[1];
-    uint16_t r = src_ar64[2];
-    uint16_t a = src_ar64[3];
-    dst_ab64[0] = r;
-    dst_ab64[1] = g;
-    dst_ab64[2] = b;
-    dst_ab64[3] = a;
-    dst_ab64 += 4;
-    src_ar64 += 4;
-  }
-}
-
-// TODO(fbarchard): Make shuffle compatible with SIMD versions
-// width is in units of 32 bit ARGB pixels (2 per AR64 pixel) so that
-// AR64Shuffle can share the ARGBShuffleRow SIMD kernels.
+// Use first 8 shuffler values to reorder AR64 bytes.
 void AR64ShuffleRow_C(const uint8_t* src_ar64,
                       uint8_t* dst_ar64,
                       const uint8_t* shuffler,
                       int width) {
-  const uint16_t* src_ar64_16 = (const uint16_t*)src_ar64;
-  uint16_t* dst_ar64_16 = (uint16_t*)dst_ar64;
-  int index0 = shuffler[0] / 2;
-  int index1 = shuffler[2] / 2;
-  int index2 = shuffler[4] / 2;
-  int index3 = shuffler[6] / 2;
+  int index0 = shuffler[0];
+  int index1 = shuffler[1];
+  int index2 = shuffler[2];
+  int index3 = shuffler[3];
+  int index4 = shuffler[4];
+  int index5 = shuffler[5];
+  int index6 = shuffler[6];
+  int index7 = shuffler[7];
   // Shuffle a row of AR64.
   int x;
-  for (x = 0; x < width / 2; ++x) {
+  for (x = 0; x < width; ++x) {
     // To support in-place conversion.
-    uint16_t b = src_ar64_16[index0];
-    uint16_t g = src_ar64_16[index1];
-    uint16_t r = src_ar64_16[index2];
-    uint16_t a = src_ar64_16[index3];
-    dst_ar64_16[0] = b;
-    dst_ar64_16[1] = g;
-    dst_ar64_16[2] = r;
-    dst_ar64_16[3] = a;
-    src_ar64_16 += 4;
-    dst_ar64_16 += 4;
+    uint8_t b0 = src_ar64[index0];
+    uint8_t b1 = src_ar64[index1];
+    uint8_t g0 = src_ar64[index2];
+    uint8_t g1 = src_ar64[index3];
+    uint8_t r0 = src_ar64[index4];
+    uint8_t r1 = src_ar64[index5];
+    uint8_t a0 = src_ar64[index6];
+    uint8_t a1 = src_ar64[index7];
+    dst_ar64[0] = b0;
+    dst_ar64[1] = b1;
+    dst_ar64[2] = g0;
+    dst_ar64[3] = g1;
+    dst_ar64[4] = r0;
+    dst_ar64[5] = r1;
+    dst_ar64[6] = a0;
+    dst_ar64[7] = a1;
+    src_ar64 += 8;
+    dst_ar64 += 8;
   }
 }
 // BT601 8 bit Y:
@@ -1087,10 +1015,14 @@ void ARGBColorTableRow_C(uint8_t* dst_argb,
     int g = dst_argb[1];
     int r = dst_argb[2];
     int a = dst_argb[3];
-    dst_argb[0] = table_argb[b * 4 + 0];
-    dst_argb[1] = table_argb[g * 4 + 1];
-    dst_argb[2] = table_argb[r * 4 + 2];
-    dst_argb[3] = table_argb[a * 4 + 3];
+    uint8_t b_out = table_argb[b * 4 + 0];
+    uint8_t g_out = table_argb[g * 4 + 1];
+    uint8_t r_out = table_argb[r * 4 + 2];
+    uint8_t a_out = table_argb[a * 4 + 3];
+    dst_argb[0] = b_out;
+    dst_argb[1] = g_out;
+    dst_argb[2] = r_out;
+    dst_argb[3] = a_out;
     dst_argb += 4;
   }
 }
@@ -1104,9 +1036,12 @@ void RGBColorTableRow_C(uint8_t* dst_argb,
     int b = dst_argb[0];
     int g = dst_argb[1];
     int r = dst_argb[2];
-    dst_argb[0] = table_argb[b * 4 + 0];
-    dst_argb[1] = table_argb[g * 4 + 1];
-    dst_argb[2] = table_argb[r * 4 + 2];
+    uint8_t b_out = table_argb[b * 4 + 0];
+    uint8_t g_out = table_argb[g * 4 + 1];
+    uint8_t r_out = table_argb[r * 4 + 2];
+    dst_argb[0] = b_out;
+    dst_argb[1] = g_out;
+    dst_argb[2] = r_out;
     dst_argb += 4;
   }
 }
@@ -3552,6 +3487,53 @@ const uint32_t fixed_invtbl8[256] = {
     T(0xfc),    T(0xfd),    T(0xfe), 0x01000100};
 #undef T
 
+#define T16(a) (0x10000 / (a))
+const uint16_t fixed_invtbl16[256] = {
+    0x0000,    0xffff,    T16(0x02), T16(0x03), T16(0x04), T16(0x05),
+    T16(0x06), T16(0x07), T16(0x08), T16(0x09), T16(0x0a), T16(0x0b),
+    T16(0x0c), T16(0x0d), T16(0x0e), T16(0x0f), T16(0x10), T16(0x11),
+    T16(0x12), T16(0x13), T16(0x14), T16(0x15), T16(0x16), T16(0x17),
+    T16(0x18), T16(0x19), T16(0x1a), T16(0x1b), T16(0x1c), T16(0x1d),
+    T16(0x1e), T16(0x1f), T16(0x20), T16(0x21), T16(0x22), T16(0x23),
+    T16(0x24), T16(0x25), T16(0x26), T16(0x27), T16(0x28), T16(0x29),
+    T16(0x2a), T16(0x2b), T16(0x2c), T16(0x2d), T16(0x2e), T16(0x2f),
+    T16(0x30), T16(0x31), T16(0x32), T16(0x33), T16(0x34), T16(0x35),
+    T16(0x36), T16(0x37), T16(0x38), T16(0x39), T16(0x3a), T16(0x3b),
+    T16(0x3c), T16(0x3d), T16(0x3e), T16(0x3f), T16(0x40), T16(0x41),
+    T16(0x42), T16(0x43), T16(0x44), T16(0x45), T16(0x46), T16(0x47),
+    T16(0x48), T16(0x49), T16(0x4a), T16(0x4b), T16(0x4c), T16(0x4d),
+    T16(0x4e), T16(0x4f), T16(0x50), T16(0x51), T16(0x52), T16(0x53),
+    T16(0x54), T16(0x55), T16(0x56), T16(0x57), T16(0x58), T16(0x59),
+    T16(0x5a), T16(0x5b), T16(0x5c), T16(0x5d), T16(0x5e), T16(0x5f),
+    T16(0x60), T16(0x61), T16(0x62), T16(0x63), T16(0x64), T16(0x65),
+    T16(0x66), T16(0x67), T16(0x68), T16(0x69), T16(0x6a), T16(0x6b),
+    T16(0x6c), T16(0x6d), T16(0x6e), T16(0x6f), T16(0x70), T16(0x71),
+    T16(0x72), T16(0x73), T16(0x74), T16(0x75), T16(0x76), T16(0x77),
+    T16(0x78), T16(0x79), T16(0x7a), T16(0x7b), T16(0x7c), T16(0x7d),
+    T16(0x7e), T16(0x7f), T16(0x80), T16(0x81), T16(0x82), T16(0x83),
+    T16(0x84), T16(0x85), T16(0x86), T16(0x87), T16(0x88), T16(0x89),
+    T16(0x8a), T16(0x8b), T16(0x8c), T16(0x8d), T16(0x8e), T16(0x8f),
+    T16(0x90), T16(0x91), T16(0x92), T16(0x93), T16(0x94), T16(0x95),
+    T16(0x96), T16(0x97), T16(0x98), T16(0x99), T16(0x9a), T16(0x9b),
+    T16(0x9c), T16(0x9d), T16(0x9e), T16(0x9f), T16(0xa0), T16(0xa1),
+    T16(0xa2), T16(0xa3), T16(0xa4), T16(0xa5), T16(0xa6), T16(0xa7),
+    T16(0xa8), T16(0xa9), T16(0xaa), T16(0xab), T16(0xac), T16(0xad),
+    T16(0xae), T16(0xaf), T16(0xb0), T16(0xb1), T16(0xb2), T16(0xb3),
+    T16(0xb4), T16(0xb5), T16(0xb6), T16(0xb7), T16(0xb8), T16(0xb9),
+    T16(0xba), T16(0xbb), T16(0xbc), T16(0xbd), T16(0xbe), T16(0xbf),
+    T16(0xc0), T16(0xc1), T16(0xc2), T16(0xc3), T16(0xc4), T16(0xc5),
+    T16(0xc6), T16(0xc7), T16(0xc8), T16(0xc9), T16(0xca), T16(0xcb),
+    T16(0xcc), T16(0xcd), T16(0xce), T16(0xcf), T16(0xd0), T16(0xd1),
+    T16(0xd2), T16(0xd3), T16(0xd4), T16(0xd5), T16(0xd6), T16(0xd7),
+    T16(0xd8), T16(0xd9), T16(0xda), T16(0xdb), T16(0xdc), T16(0xdd),
+    T16(0xde), T16(0xdf), T16(0xe0), T16(0xe1), T16(0xe2), T16(0xe3),
+    T16(0xe4), T16(0xe5), T16(0xe6), T16(0xe7), T16(0xe8), T16(0xe9),
+    T16(0xea), T16(0xeb), T16(0xec), T16(0xed), T16(0xee), T16(0xef),
+    T16(0xf0), T16(0xf1), T16(0xf2), T16(0xf3), T16(0xf4), T16(0xf5),
+    T16(0xf6), T16(0xf7), T16(0xf8), T16(0xf9), T16(0xfa), T16(0xfb),
+    T16(0xfc), T16(0xfd), T16(0xfe), 0x0100};
+#undef T16
+
 // This code mimics the Intel SIMD version for better testability.
 #define UNATTENUATE(f, ia) clamp255(((f | (f << 8)) * ia) >> 16)
 
@@ -3625,29 +3607,6 @@ void CumulativeSumToAverageRow_C(const int32_t* tl,
   }
 }
 
-// Copy pixels from rotated source to destination row with a slope.
-LIBYUV_API
-void ARGBAffineRow_C(const uint8_t* src_argb,
-                     int src_argb_stride,
-                     uint8_t* dst_argb,
-                     const float* uv_dudv,
-                     int width) {
-  int i;
-  // Render a row of pixels from source into a buffer.
-  float uv[2];
-  uv[0] = uv_dudv[0];
-  uv[1] = uv_dudv[1];
-  for (i = 0; i < width; ++i) {
-    int x = (int)(uv[0]);
-    int y = (int)(uv[1]);
-    memcpy(dst_argb,
-           src_argb + (ptrdiff_t)y * src_argb_stride + (ptrdiff_t)x * 4, 4);
-    dst_argb += 4;
-    uv[0] += uv_dudv[2];
-    uv[1] += uv_dudv[3];
-  }
-}
-
 // Blend 2 rows into 1.
 void HalfRow_C(const uint8_t* src_uv,
                ptrdiff_t src_uv_stride,
@@ -3665,8 +3624,237 @@ void HalfRow_16_C(const uint16_t* src_uv,
                   int width) {
   int x;
   for (x = 0; x < width; ++x) {
-    dst_uv[x] = (src_uv[x] + src_uv[src_uv_stride + x] + 1) >> 1;
+    dst_uv[x] = STATIC_CAST(
+        uint16_t, ((uint32_t)src_uv[x] + src_uv[src_uv_stride + x] + 1u) >> 1);
   }
+}
+
+void HalfWidthRow_C(const uint8_t* src_ptr, uint8_t* dst_ptr, int width) {
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_ptr[x] = (src_ptr[0] + src_ptr[1] + 1) >> 1;
+    src_ptr += 2;
+  }
+}
+
+void HalfWidthRow_Odd_C(const uint8_t* src_ptr, uint8_t* dst_ptr, int width) {
+  int x;
+  width -= 1;
+  for (x = 0; x < width; ++x) {
+    dst_ptr[x] = (src_ptr[0] + src_ptr[1] + 1) >> 1;
+    src_ptr += 2;
+  }
+  dst_ptr[width] = src_ptr[0];
+}
+
+void HalfWidthRow_16_C(const uint16_t* src_ptr, uint16_t* dst_ptr, int width) {
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_ptr[x] =
+        STATIC_CAST(uint16_t, ((uint32_t)src_ptr[0] + src_ptr[1] + 1u) >> 1);
+    src_ptr += 2;
+  }
+}
+
+void HalfWidthRow_16_Odd_C(const uint16_t* src_ptr,
+                           uint16_t* dst_ptr,
+                           int width) {
+  int x;
+  width -= 1;
+  for (x = 0; x < width; ++x) {
+    dst_ptr[x] =
+        STATIC_CAST(uint16_t, ((uint32_t)src_ptr[0] + src_ptr[1] + 1u) >> 1);
+    src_ptr += 2;
+  }
+  dst_ptr[width] = src_ptr[0];
+}
+
+void HalfWidthUVRow_C(const uint8_t* src_uv, uint8_t* dst_uv, int width) {
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] = (src_uv[0] + src_uv[2] + 1) >> 1;
+    dst_uv[1] = (src_uv[1] + src_uv[3] + 1) >> 1;
+    src_uv += 4;
+    dst_uv += 2;
+  }
+}
+
+void HalfWidthUVRow_Odd_C(const uint8_t* src_uv, uint8_t* dst_uv, int width) {
+  int x;
+  width -= 1;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] = (src_uv[0] + src_uv[2] + 1) >> 1;
+    dst_uv[1] = (src_uv[1] + src_uv[3] + 1) >> 1;
+    src_uv += 4;
+    dst_uv += 2;
+  }
+  dst_uv[0] = src_uv[0];
+  dst_uv[1] = src_uv[1];
+}
+
+void HalfWidthUVRow_16_C(const uint16_t* src_uv, uint16_t* dst_uv, int width) {
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] =
+        STATIC_CAST(uint16_t, ((uint32_t)src_uv[0] + src_uv[2] + 1u) >> 1);
+    dst_uv[1] =
+        STATIC_CAST(uint16_t, ((uint32_t)src_uv[1] + src_uv[3] + 1u) >> 1);
+    src_uv += 4;
+    dst_uv += 2;
+  }
+}
+
+void HalfWidthUVRow_16_Odd_C(const uint16_t* src_uv,
+                             uint16_t* dst_uv,
+                             int width) {
+  int x;
+  width -= 1;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] =
+        STATIC_CAST(uint16_t, ((uint32_t)src_uv[0] + src_uv[2] + 1u) >> 1);
+    dst_uv[1] =
+        STATIC_CAST(uint16_t, ((uint32_t)src_uv[1] + src_uv[3] + 1u) >> 1);
+    src_uv += 4;
+    dst_uv += 2;
+  }
+  dst_uv[0] = src_uv[0];
+  dst_uv[1] = src_uv[1];
+}
+
+void HalfBoxRow_C(const uint8_t* src_ptr,
+                  ptrdiff_t src_stride,
+                  uint8_t* dst_ptr,
+                  int width) {
+  const uint8_t* s = src_ptr;
+  const uint8_t* t = src_ptr + src_stride;
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_ptr[x] = (s[0] + s[1] + t[0] + t[1] + 2) >> 2;
+    s += 2;
+    t += 2;
+  }
+}
+
+void HalfBoxRow_Odd_C(const uint8_t* src_ptr,
+                      ptrdiff_t src_stride,
+                      uint8_t* dst_ptr,
+                      int width) {
+  const uint8_t* s = src_ptr;
+  const uint8_t* t = src_ptr + src_stride;
+  int x;
+  width -= 1;
+  for (x = 0; x < width; ++x) {
+    dst_ptr[x] = (s[0] + s[1] + t[0] + t[1] + 2) >> 2;
+    s += 2;
+    t += 2;
+  }
+  dst_ptr[width] = (s[0] + t[0] + 1) >> 1;
+}
+
+void HalfBoxRow_16_C(const uint16_t* src_ptr,
+                     ptrdiff_t src_stride,
+                     uint16_t* dst_ptr,
+                     int width) {
+  const uint16_t* s = src_ptr;
+  const uint16_t* t = src_ptr + src_stride;
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_ptr[x] =
+        STATIC_CAST(uint16_t, ((uint32_t)s[0] + s[1] + t[0] + t[1] + 2u) >> 2);
+    s += 2;
+    t += 2;
+  }
+}
+
+void HalfBoxRow_16_Odd_C(const uint16_t* src_ptr,
+                         ptrdiff_t src_stride,
+                         uint16_t* dst_ptr,
+                         int width) {
+  const uint16_t* s = src_ptr;
+  const uint16_t* t = src_ptr + src_stride;
+  int x;
+  width -= 1;
+  for (x = 0; x < width; ++x) {
+    dst_ptr[x] =
+        STATIC_CAST(uint16_t, ((uint32_t)s[0] + s[1] + t[0] + t[1] + 2u) >> 2);
+    s += 2;
+    t += 2;
+  }
+  dst_ptr[width] = STATIC_CAST(uint16_t, ((uint32_t)s[0] + t[0] + 1u) >> 1);
+}
+
+void HalfBoxUVRow_C(const uint8_t* src_uv,
+                    ptrdiff_t src_stride_uv,
+                    uint8_t* dst_uv,
+                    int width) {
+  const uint8_t* s = src_uv;
+  const uint8_t* t = src_uv + src_stride_uv;
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] = (s[0] + s[2] + t[0] + t[2] + 2) >> 2;
+    dst_uv[1] = (s[1] + s[3] + t[1] + t[3] + 2) >> 2;
+    s += 4;
+    t += 4;
+    dst_uv += 2;
+  }
+}
+
+void HalfBoxUVRow_Odd_C(const uint8_t* src_uv,
+                        ptrdiff_t src_stride_uv,
+                        uint8_t* dst_uv,
+                        int width) {
+  const uint8_t* s = src_uv;
+  const uint8_t* t = src_uv + src_stride_uv;
+  int x;
+  width -= 1;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] = (s[0] + s[2] + t[0] + t[2] + 2) >> 2;
+    dst_uv[1] = (s[1] + s[3] + t[1] + t[3] + 2) >> 2;
+    s += 4;
+    t += 4;
+    dst_uv += 2;
+  }
+  dst_uv[0] = (s[0] + t[0] + 1) >> 1;
+  dst_uv[1] = (s[1] + t[1] + 1) >> 1;
+}
+
+void HalfBoxUVRow_16_C(const uint16_t* src_uv,
+                       ptrdiff_t src_stride_uv,
+                       uint16_t* dst_uv,
+                       int width) {
+  const uint16_t* s = src_uv;
+  const uint16_t* t = src_uv + src_stride_uv;
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] =
+        STATIC_CAST(uint16_t, ((uint32_t)s[0] + s[2] + t[0] + t[2] + 2u) >> 2);
+    dst_uv[1] =
+        STATIC_CAST(uint16_t, ((uint32_t)s[1] + s[3] + t[1] + t[3] + 2u) >> 2);
+    s += 4;
+    t += 4;
+    dst_uv += 2;
+  }
+}
+
+void HalfBoxUVRow_16_Odd_C(const uint16_t* src_uv,
+                           ptrdiff_t src_stride_uv,
+                           uint16_t* dst_uv,
+                           int width) {
+  const uint16_t* s = src_uv;
+  const uint16_t* t = src_uv + src_stride_uv;
+  int x;
+  width -= 1;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] =
+        STATIC_CAST(uint16_t, ((uint32_t)s[0] + s[2] + t[0] + t[2] + 2u) >> 2);
+    dst_uv[1] =
+        STATIC_CAST(uint16_t, ((uint32_t)s[1] + s[3] + t[1] + t[3] + 2u) >> 2);
+    s += 4;
+    t += 4;
+    dst_uv += 2;
+  }
+  dst_uv[0] = STATIC_CAST(uint16_t, ((uint32_t)s[0] + t[0] + 1u) >> 1);
+  dst_uv[1] = STATIC_CAST(uint16_t, ((uint32_t)s[1] + t[1] + 1u) >> 1);
 }
 
 void HalfRow_16To8_C(const uint16_t* src_uv,
@@ -3964,33 +4152,47 @@ void ARGBLumaColorTableRow_C(const uint8_t* src_argb,
   int i;
   for (i = 0; i < width - 1; i += 2) {
     // Luminance in rows, color values in columns.
-    const uint8_t* luma0 =
-        ((src_argb[0] * bc + src_argb[1] * gc + src_argb[2] * rc) & 0x7F00u) +
-        luma;
-    const uint8_t* luma1;
-    dst_argb[0] = luma0[src_argb[0]];
-    dst_argb[1] = luma0[src_argb[1]];
-    dst_argb[2] = luma0[src_argb[2]];
-    dst_argb[3] = src_argb[3];
-    luma1 =
-        ((src_argb[4] * bc + src_argb[5] * gc + src_argb[6] * rc) & 0x7F00u) +
-        luma;
-    dst_argb[4] = luma1[src_argb[4]];
-    dst_argb[5] = luma1[src_argb[5]];
-    dst_argb[6] = luma1[src_argb[6]];
-    dst_argb[7] = src_argb[7];
+    uint32_t b0 = src_argb[0];
+    uint32_t g0 = src_argb[1];
+    uint32_t r0 = src_argb[2];
+    uint8_t a0 = src_argb[3];
+    uint32_t b1 = src_argb[4];
+    uint32_t g1 = src_argb[5];
+    uint32_t r1 = src_argb[6];
+    uint8_t a1 = src_argb[7];
+    const uint8_t* luma0 = ((b0 * bc + g0 * gc + r0 * rc) & 0x7F00u) + luma;
+    const uint8_t* luma1 = ((b1 * bc + g1 * gc + r1 * rc) & 0x7F00u) + luma;
+    uint8_t out0 = luma0[b0];
+    uint8_t out1 = luma0[g0];
+    uint8_t out2 = luma0[r0];
+    uint8_t out4 = luma1[b1];
+    uint8_t out5 = luma1[g1];
+    uint8_t out6 = luma1[r1];
+    dst_argb[0] = out0;
+    dst_argb[1] = out1;
+    dst_argb[2] = out2;
+    dst_argb[3] = a0;
+    dst_argb[4] = out4;
+    dst_argb[5] = out5;
+    dst_argb[6] = out6;
+    dst_argb[7] = a1;
     src_argb += 8;
     dst_argb += 8;
   }
   if (width & 1) {
     // Luminance in rows, color values in columns.
-    const uint8_t* luma0 =
-        ((src_argb[0] * bc + src_argb[1] * gc + src_argb[2] * rc) & 0x7F00u) +
-        luma;
-    dst_argb[0] = luma0[src_argb[0]];
-    dst_argb[1] = luma0[src_argb[1]];
-    dst_argb[2] = luma0[src_argb[2]];
-    dst_argb[3] = src_argb[3];
+    uint32_t b0 = src_argb[0];
+    uint32_t g0 = src_argb[1];
+    uint32_t r0 = src_argb[2];
+    uint8_t a0 = src_argb[3];
+    const uint8_t* luma0 = ((b0 * bc + g0 * gc + r0 * rc) & 0x7F00u) + luma;
+    uint8_t out0 = luma0[b0];
+    uint8_t out1 = luma0[g0];
+    uint8_t out2 = luma0[r0];
+    dst_argb[0] = out0;
+    dst_argb[1] = out1;
+    dst_argb[2] = out2;
+    dst_argb[3] = a0;
   }
 }
 
@@ -4550,6 +4752,22 @@ void HalfMergeUVRow_C(const uint8_t* src_u,
   }
 }
 
+void HalfUVRow_C(const uint8_t* src_u,
+                 ptrdiff_t src_stride_u,
+                 const uint8_t* src_v,
+                 ptrdiff_t src_stride_v,
+                 uint8_t* dst_uv,
+                 int width) {
+  const uint8_t* src_u1 = src_u + src_stride_u;
+  const uint8_t* src_v1 = src_v + src_stride_v;
+  int x;
+  for (x = 0; x < width; ++x) {
+    dst_uv[0] = (src_u[x] + src_u1[x] + 1) >> 1;
+    dst_uv[1] = (src_v[x] + src_v1[x] + 1) >> 1;
+    dst_uv += 2;
+  }
+}
+
 #undef STATIC_CAST
 
 void RGBToYMatrixRow_C(const uint8_t* src_rgb,
@@ -4620,23 +4838,6 @@ void RGBToYMatrixRow_SSSE3(const uint8_t* src_rgb,
 }
 #endif
 
-#if defined(HAS_ARGBTOYMATRIXROW_AVX2) && defined(HAS_RGB24TOARGBROW_AVX2)
-void RGBToYMatrixRow_AVX2(const uint8_t* src_rgb,
-                          uint8_t* dst_y,
-                          int width,
-                          const struct ArgbConstants* c) {
-  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4]);
-  while (width > 0) {
-    int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
-    RGB24ToARGBRow_AVX2(src_rgb, row, twidth);
-    ARGBToYMatrixRow_AVX2(row, dst_y, twidth, c);
-    src_rgb += twidth * 3;
-    dst_y += twidth;
-    width -= twidth;
-  }
-}
-#endif
-
 #if defined(HAS_ARGBTOUVMATRIXROW_SSSE3) && defined(HAS_RGB24TOARGBROW_SSSE3)
 void RGBToUVMatrixRow_SSSE3(const uint8_t* src_rgb,
                             int src_stride_rgb,
@@ -4650,27 +4851,6 @@ void RGBToUVMatrixRow_SSSE3(const uint8_t* src_rgb,
     RGB24ToARGBRow_SSSE3(src_rgb, row, twidth);
     RGB24ToARGBRow_SSSE3(src_rgb + src_stride_rgb, row + MAXTWIDTH * 4, twidth);
     ARGBToUVMatrixRow_SSSE3(row, MAXTWIDTH * 4, dst_u, dst_v, twidth, c);
-    src_rgb += twidth * 3;
-    dst_u += twidth / 2;
-    dst_v += twidth / 2;
-    width -= twidth;
-  }
-}
-#endif
-
-#if defined(HAS_ARGBTOUVMATRIXROW_AVX2) && defined(HAS_RGB24TOARGBROW_AVX2)
-void RGBToUVMatrixRow_AVX2(const uint8_t* src_rgb,
-                           int src_stride_rgb,
-                           uint8_t* dst_u,
-                           uint8_t* dst_v,
-                           int width,
-                           const struct ArgbConstants* c) {
-  SIMD_ALIGNED(uint8_t row[MAXTWIDTH * 4 * 2]);
-  while (width > 0) {
-    int twidth = width > MAXTWIDTH ? MAXTWIDTH : width;
-    RGB24ToARGBRow_AVX2(src_rgb, row, twidth);
-    RGB24ToARGBRow_AVX2(src_rgb + src_stride_rgb, row + MAXTWIDTH * 4, twidth);
-    ARGBToUVMatrixRow_AVX2(row, MAXTWIDTH * 4, dst_u, dst_v, twidth, c);
     src_rgb += twidth * 3;
     dst_u += twidth / 2;
     dst_v += twidth / 2;

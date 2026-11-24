@@ -38,7 +38,7 @@ import dev.ragnarok.fenrir.view.LinkHelperTextView
 import dev.ragnarok.fenrir.view.WeakViewAnimatorAdapter
 
 class CommentsAdapter(
-    private val context: Context,
+    context: Context,
     items: MutableList<Comment>,
     attachmentsActionCallback: OnAttachmentsActionCallback
 ) : RecyclerBindableAdapter<Comment, RecyclerView.ViewHolder>(items) {
@@ -122,10 +122,10 @@ class CommentsAdapter(
                     null,
                     comment.getObjectId()
                 ).tryOpenWith(
-                    context
+                    holder.ivOpenThread.context
                 )
             }
-            holder.ivOpenThread.text = context.getString(
+            holder.ivOpenThread.text = holder.ivOpenThread.context.getString(
                 R.string.open_comment_thread, AppTextUtils.getCounterWithK(
                     comment.threadsCount
                 )
@@ -138,7 +138,7 @@ class CommentsAdapter(
                     null,
                     comment.getObjectId()
                 ).tryOpenWith(
-                    context
+                    holder.item_comment_thread_counter.context
                 )
             }
             holder.item_comment_thread_counter.text =
@@ -177,7 +177,10 @@ class CommentsAdapter(
             comment.maxAuthorAvaUrl,
             Constants.PICASSO_TAG
         )
-        holder.tvTime.setText(genTimeAndReplyText(comment), TextView.BufferType.SPANNABLE)
+        holder.tvTime.setText(
+            genTimeAndReplyText(holder.tvTime.context, comment),
+            TextView.BufferType.SPANNABLE
+        )
         holder.tvTime.setTextColor(colorTextSecondary)
         holder.tvLikeCounter.setOnClickListener {
             listener?.onCommentLikeClick(comment, !comment.isUserLikes)
@@ -190,7 +193,7 @@ class CommentsAdapter(
         }
     }
 
-    private fun genTimeAndReplyText(comment: Comment): Spannable {
+    private fun genTimeAndReplyText(context: Context, comment: Comment): Spannable {
         val time = AppTextUtils.getDateFromUnixTime(comment.date)
         if (comment.replyToUser == 0L) {
             return SpannableStringBuilder(time)
@@ -290,7 +293,7 @@ class CommentsAdapter(
             tvTime = root.findViewById(R.id.item_comment_time)
             tvLikeCounter = root.findViewById(R.id.item_comment_like_counter)
             selectionView = root.findViewById(R.id.item_comment_selection)
-            selectionView.setBackgroundColor(CurrentTheme.getColorPrimary(context))
+            selectionView.setBackgroundColor(CurrentTheme.getColorPrimary(selectionView.context))
             TextViewCompat.setCompoundDrawableTintList(
                 tvLikeCounter,
                 ColorStateList.valueOf(CurrentTheme.getSecondaryTextColorCode(tvLikeCounter.context))

@@ -50,7 +50,7 @@ struct PictureImpl : Picture
     ~PictureImpl()
     {
         LoaderMgr::retrieve(loader);
-        tvg::free(resolver);
+        delete resolver;
         if (vector) vector->unref();
     }
 
@@ -96,6 +96,7 @@ struct PictureImpl : Picture
         this->w = w;
         this->h = h;
         resizing = true;
+        impl.mark(RenderUpdateFlag::Transform);
     }
 
     Result filterMethod(FilterMethod method)
@@ -126,10 +127,11 @@ struct PictureImpl : Picture
 
     bool bounds(Point* pt4, const Matrix& m, TVG_UNUSED bool obb)
     {
-        pt4[0] = Point{0.0f, 0.0f} * m;
-        pt4[1] = Point{w, 0.0f} * m;
-        pt4[2] = Point{w, h} * m;
-        pt4[3] = Point{0.0f, h} * m;
+        auto pivot = Point{-origin.x * w, -origin.y * h};
+        pt4[0] = pivot * m;
+        pt4[1] = Point{pivot.x + w, pivot.y} * m;
+        pt4[2] = Point{pivot.x + w, pivot.y + h} * m;
+        pt4[3] = Point{pivot.x, pivot.y + h} * m;
         return true;
     }
 
@@ -154,26 +156,26 @@ struct PictureImpl : Picture
         return loader ? load(loader) : ret;
     }
 
-    Result load(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, Ownership owner)
+    Result load(const uint32_t* data, uint32_t stride, uint32_t w, uint32_t h, ColorSpace cs, Ownership owner)
     {
-        if (!data || w <= 0 || h <= 0 || cs == ColorSpace::Unknown)  return Result::InvalidArguments;
+        if (!data || w <= 0 || h <= 0 || stride < w || cs == ColorSpace::Unknown)  return Result::InvalidArguments;
         if (vector) return Result::InsufficientCondition;
-        auto loader = LoaderMgr::loader(data, w, h, cs, owner);
+        auto loader = LoaderMgr::loader(data, stride, w, h, cs, owner);
         return loader ? load(loader) : Result::NonSupport;
     }
 
-    Result set(std::function<bool(Paint* paint, const char* src, void* data)> resolver, void* data)
+    Result set(std::function<bool(Paint* paint, const char* src, void* data)> resolver, void* data, bool fallback)
     {
         if (loader) return Result::InsufficientCondition;
 
         if (!resolver) {
-            tvg::free(this->resolver);
+            delete this->resolver;
             this->resolver = nullptr;
             return Result::Success;
         }
 
-        if (!this->resolver) this->resolver = tvg::calloc<AssetResolver>(1, sizeof(AssetResolver));
-        *(this->resolver) = {resolver, data};
+        if (!this->resolver) this->resolver = new AssetResolver;
+        *(this->resolver) = {resolver, data, fallback};
         return Result::Success;
     }
 
@@ -294,8 +296,7 @@ struct PictureImpl : Picture
     RenderRegion bounds()
     {
         if (vector) return vector->pImpl->bounds();
-        else if (impl.renderer) return impl.renderer->region(impl.rd);
-        return {};
+        return impl.renderer->region(impl.rd);
     }
 
     Result load(Loader* loader)

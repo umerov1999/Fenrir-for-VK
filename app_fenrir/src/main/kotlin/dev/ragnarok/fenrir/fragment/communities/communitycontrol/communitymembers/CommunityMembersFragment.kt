@@ -70,7 +70,7 @@ class CommunityMembersFragment :
         })
         mEmpty = root.findViewById(R.id.empty)
         ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = PeopleAdapter(requireActivity(), emptyList())
+        mAdapter = PeopleAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()

@@ -7,6 +7,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Animatable
 import android.view.ContextMenu
 import android.view.View
 import android.view.ViewGroup
@@ -88,6 +89,7 @@ import dev.ragnarok.fenrir.util.Mp3InfoHelper
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils
 import dev.ragnarok.fenrir.util.coroutines.CancelableJob
+import dev.ragnarok.fenrir.util.coroutines.CompositeJob
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
 import dev.ragnarok.fenrir.util.hls.M3U8
@@ -101,19 +103,18 @@ import java.lang.ref.WeakReference
 
 class CatalogV2SectionAdapter(
     data: MutableList<AbsModel>,
-    private val account_id: Long,
-    private val mContext: Context
+    private val accountId: Long,
+    context: Context
 ) : RecyclerBindableAdapter<AbsModel, IViewHolder>(data) {
     private var clickListener: ClickListener? = null
-    private var disposable = CancelableJob()
+    private var disposable = CompositeJob()
+    private var mPlayerDisposable = CancelableJob()
     private val mAudioInteractor: IAudioInteractor = InteractorFactory.audio
 
     private val isLongPressDownload: Boolean = Settings.get().main().isUse_long_click_download
-    private val isAudio_round_icon: Boolean = Settings.get().main().isAudio_round_icon
-    private var audioListDisposable = CancelableJob()
-    private var mPlayerDisposable = CancelableJob()
+    private val isAudioRoundIcon: Boolean = Settings.get().main().isAudio_round_icon
     private var currAudio: Audio? = currentAudio
-    private val isDark: Boolean = Settings.get().ui().isDarkModeEnabled(mContext)
+    private val isDark: Boolean = Settings.get().ui().isDarkModeEnabled(context)
     private var recyclerView: RecyclerView? = null
 
     private var currentListContentType: String? = null
@@ -217,7 +218,7 @@ class CatalogV2SectionAdapter(
                     if (itemDataHolder.next_from.nonNullNoEmpty()) {
                         clickListener?.onNext(true)
                         disposable += mAudioInteractor.getCatalogV2BlockItems(
-                            account_id,
+                            accountId,
                             itemDataHolder.id.orEmpty(),
                             itemDataHolder.next_from
                         )
@@ -301,7 +302,7 @@ class CatalogV2SectionAdapter(
                 val op = findScrollable(it)
                 createLayoutManager(itemDataHolder)
                 //list.setRecycledViewPool(poolCatalogV2Section)
-                val adapter = CatalogV2SectionAdapter(it, account_id, mContext)
+                val adapter = CatalogV2SectionAdapter(it, accountId, list.context)
                 adapter.clickListener = clickListener
                 list.adapter = adapter
                 configureAdapterBindable(itemDataHolder, list, WeakReference(adapter))
@@ -317,12 +318,12 @@ class CatalogV2SectionAdapter(
     ///////////////////////////////////////SUB_HOLDERS////////////////////////////////////////////////
 
     ///////////////////////////////////////PLAYLIST_HOLDER////////////////////////////////////////////
-    internal fun onDelete(index: Int, album: AudioPlaylist) {
-        audioListDisposable += mAudioInteractor.deletePlaylist(account_id, album.id, album.owner_id)
+    internal fun onDelete(context: Context, index: Int, album: AudioPlaylist) {
+        disposable += mAudioInteractor.deletePlaylist(accountId, album.id, album.owner_id)
             .fromIOToMain({
                 getItems().removeAt(index)
                 notifyItemBindableRemoved(index)
-                CustomToast.createCustomToast(mContext, null)?.showToast(R.string.deleted)
+                CustomToast.createCustomToast(context, null)?.showToast(R.string.deleted)
             }) { throwable ->
                 clickListener?.onError(
                     throwable
@@ -330,15 +331,15 @@ class CatalogV2SectionAdapter(
             }
     }
 
-    internal fun onAddPlaylist(album: AudioPlaylist) {
-        audioListDisposable += mAudioInteractor.followPlaylist(
-            account_id,
+    internal fun onAddPlaylist(context: Context, album: AudioPlaylist) {
+        disposable += mAudioInteractor.followPlaylist(
+            accountId,
             album.id,
             album.owner_id,
             album.access_key
         )
             .fromIOToMain({
-                CustomToast.createCustomToast(mContext, null)?.showToast(R.string.success)
+                CustomToast.createCustomToast(context, null)?.showToast(R.string.success)
             }) {
                 clickListener?.onError(
                     it
@@ -366,15 +367,15 @@ class CatalogV2SectionAdapter(
         ) {
             val position = recyclerView?.getChildAdapterPosition(v).orZero()
             val playlist = getItem(position) as AudioPlaylist
-            if (Settings.get().accounts().current == playlist.owner_id) {
+            if (accountId == playlist.owner_id) {
                 menu.add(0, v.id, 0, R.string.delete)
                     .setOnMenuItemClickListener {
-                        onDelete(position, playlist)
+                        onDelete(v.context, position, playlist)
                         true
                     }
             } else {
                 menu.add(0, v.id, 0, R.string.save).setOnMenuItemClickListener {
-                    onAddPlaylist(playlist)
+                    onAddPlaylist(v.context, playlist)
                     true
                 }
             }
@@ -412,7 +413,7 @@ class CatalogV2SectionAdapter(
             ) else thumb.setImageBitmap(
                 ImageHelper.getEllipseBitmap(
                     BitmapFactory.decodeResource(
-                        mContext.resources,
+                        thumb.context.resources,
                         if (isDark) R.drawable.generic_audio_nowplaying_dark else R.drawable.generic_audio_nowplaying_light
                     ), 0.1f
                 )
@@ -445,13 +446,13 @@ class CatalogV2SectionAdapter(
                 if (playlist.original_access_key
                         .isNullOrEmpty() || playlist.original_id == 0 || playlist.original_owner_id == 0L
                 ) PlaceFactory.getAudiosInAlbumPlace(
-                    account_id, playlist.owner_id, playlist.id, playlist.access_key
-                ).tryOpenWith(mContext) else PlaceFactory.getAudiosInAlbumPlace(
-                    account_id,
+                    accountId, playlist.owner_id, playlist.id, playlist.access_key
+                ).tryOpenWith(playlist_container.context) else PlaceFactory.getAudiosInAlbumPlace(
+                    accountId,
                     playlist.original_owner_id,
                     playlist.original_id,
                     playlist.original_access_key
-                ).tryOpenWith(mContext)
+                ).tryOpenWith(playlist_container.context)
             }
         }
     }
@@ -472,22 +473,22 @@ class CatalogV2SectionAdapter(
         ) {
             val position = recyclerView?.getChildAdapterPosition(itemView).orZero()
             val recPlaylist = getItem(position) as CatalogV2RecommendationPlaylist
-            if (Settings.get().accounts().current == recPlaylist.owner_id) {
+            if (accountId == recPlaylist.owner_id) {
                 menu.add(0, itemView.id, 0, R.string.delete)
                     .setOnMenuItemClickListener {
-                        onDelete(position, recPlaylist.getPlaylist())
+                        onDelete(v.context, position, recPlaylist.getPlaylist())
                         true
                     }
             } else {
                 menu.add(0, itemView.id, 0, R.string.save).setOnMenuItemClickListener {
-                    onAddPlaylist(recPlaylist.getPlaylist())
+                    onAddPlaylist(v.context, recPlaylist.getPlaylist())
                     true
                 }
 
                 menu.add(0, itemView.id, 0, R.string.goto_user).setOnMenuItemClickListener {
                     recPlaylist.owner
                         ?.let { it1 ->
-                            PlaceFactory.getOwnerWallPlace(account_id, it1).tryOpenWith(mContext)
+                            PlaceFactory.getOwnerWallPlace(accountId, it1).tryOpenWith(v.context)
                         }
                     true
                 }
@@ -531,13 +532,13 @@ class CatalogV2SectionAdapter(
                 if (playlist.original_access_key
                         .isNullOrEmpty() || playlist.original_id == 0 || playlist.original_owner_id == 0L
                 ) PlaceFactory.getAudiosInAlbumPlace(
-                    account_id, playlist.owner_id, playlist.id, playlist.access_key
-                ).tryOpenWith(mContext) else PlaceFactory.getAudiosInAlbumPlace(
-                    account_id,
+                    accountId, playlist.owner_id, playlist.id, playlist.access_key
+                ).tryOpenWith(playlist_container.context) else PlaceFactory.getAudiosInAlbumPlace(
+                    accountId,
                     playlist.original_owner_id,
                     playlist.original_id,
                     playlist.original_access_key
-                ).tryOpenWith(mContext)
+                ).tryOpenWith(playlist_container.context)
             }
             percentage.text = ((recPlaylist.percentage * 100).toInt()).toString() + "%"
             percentageTitle.text = recPlaylist.percentage_title
@@ -564,13 +565,13 @@ class CatalogV2SectionAdapter(
                     holderPosition: Int?
                 ) {
                     MusicPlaybackService.startForPlayList(
-                        mContext,
+                        contentRoot.context,
                         audios,
                         position
                     )
                     if (!Settings.get().main().isShow_mini_player) PlaceFactory.getPlayerPlace(
-                        Settings.get().accounts().current
-                    ).tryOpenWith(mContext)
+                        accountId
+                    ).tryOpenWith(contentRoot.context)
                 }
 
                 override fun onForwardMessagesOpen(messages: ArrayList<Message>) {}
@@ -597,7 +598,7 @@ class CatalogV2SectionAdapter(
 
                 override fun onUrlPhotoOpen(url: String, prefix: String, photo_prefix: String) {
                     PlaceFactory.getSingleURLPhotoPlace(url, prefix, photo_prefix)
-                        .tryOpenWith(mContext)
+                        .tryOpenWith(contentRoot.context)
                 }
 
                 override fun onStoryOpen(story: Story) {}
@@ -638,97 +639,98 @@ class CatalogV2SectionAdapter(
         disposable.cancel()
         clickListener?.onNext(false)
         mPlayerDisposable.cancel()
-        audioListDisposable.cancel()
     }
 
-    private fun deleteTrack(accountId: Long, audio: Audio, position: Int) {
-        audioListDisposable += mAudioInteractor.delete(accountId, audio.id, audio.ownerId)
+    private fun deleteTrack(context: Context, accountId: Long, audio: Audio, position: Int) {
+        disposable += mAudioInteractor.delete(accountId, audio.id, audio.ownerId)
             .fromIOToMain(
                 {
                     getItems().removeAt(position)
                     notifyItemBindableRemoved(position)
-                    CustomToast.createCustomToast(mContext, null)?.showToast(R.string.deleted)
-                }) { t -> CustomToast.createCustomToast(mContext, null)?.showToastThrowable(t) }
+                    CustomToast.createCustomToast(context, null)?.showToast(R.string.deleted)
+                }) { t -> CustomToast.createCustomToast(context, null)?.showToastThrowable(t) }
     }
 
-    private fun addTrack(accountId: Long, audio: Audio) {
-        audioListDisposable += mAudioInteractor.add(accountId, audio, null).fromIOToMain(
-            { CustomToast.createCustomToast(mContext, null)?.showToast(R.string.added) }) { t ->
-            CustomToast.createCustomToast(mContext, null)?.showToastThrowable(t)
+    private fun addTrack(context: Context, accountId: Long, audio: Audio) {
+        disposable += mAudioInteractor.add(accountId, audio, null).fromIOToMain(
+            { CustomToast.createCustomToast(context, null)?.showToast(R.string.added) }) { t ->
+            CustomToast.createCustomToast(context, null)?.showToastThrowable(t)
         }
     }
 
-    private fun getMp3AndBitrate(accountId: Long, audio: Audio) {
+    private fun getMp3AndBitrate(context: Context, accountId: Long, audio: Audio) {
         if (audio.needRefresh()) {
-            audioListDisposable += mAudioInteractor.getById(
+            disposable += mAudioInteractor.getById(
                 accountId,
                 listOf(audio)
-            ).fromIOToMain({ t -> getBitrate(t[0]) }) {
+            ).fromIOToMain({ t -> getBitrate(context, t[0]) }) {
                 getBitrate(
+                    context,
                     audio
                 )
             }
         } else {
-            getBitrate(audio)
+            getBitrate(context, audio)
         }
     }
 
-    private fun getBitrate(audio: Audio) {
+    private fun getBitrate(context: Context, audio: Audio) {
         val pUrl = audio.url
         if (pUrl.isNullOrEmpty()) {
             return
         }
-        audioListDisposable += if (audio.isHLS) {
+        disposable += if (audio.isHLS) {
             M3U8(pUrl).length.fromIOToMain(
                 { r ->
-                    CustomToast.createCustomToast(mContext, null)?.showToast(
+                    CustomToast.createCustomToast(context, null)?.showToast(
                         Mp3InfoHelper.getBitrate(
-                            mContext,
+                            context,
                             audio.duration,
                             r
                         )
                     )
                 }
-            ) { e -> CustomToast.createCustomToast(mContext, null)?.showToastThrowable(e) }
+            ) { e -> CustomToast.createCustomToast(context, null)?.showToastThrowable(e) }
         } else {
             Mp3InfoHelper.getLength(pUrl).fromIOToMain(
                 { r ->
-                    CustomToast.createCustomToast(mContext, null)?.showToast(
+                    CustomToast.createCustomToast(context, null)?.showToast(
                         Mp3InfoHelper.getBitrate(
-                            mContext,
+                            context,
                             audio.duration,
                             r
                         )
                     )
                 }
-            ) { e -> CustomToast.createCustomToast(mContext, null)?.showToastThrowable(e) }
+            ) { e -> CustomToast.createCustomToast(context, null)?.showToastThrowable(e) }
         }
     }
 
-    private fun get_lyrics(audio: Audio) {
-        audioListDisposable += mAudioInteractor.getLyrics(Settings.get().accounts().current, audio)
+    private fun getLyrics(context: Context, audio: Audio) {
+        disposable += mAudioInteractor.getLyrics(accountId, audio)
             .fromIOToMain({ t ->
                 onAudioLyricsReceived(
+                    context,
                     t,
                     audio
                 )
-            }) { t -> CustomToast.createCustomToast(mContext, null)?.showToastThrowable(t) }
+            }) { t -> CustomToast.createCustomToast(context, null)?.showToastThrowable(t) }
     }
 
-    private fun onAudioLyricsReceived(Text: String, audio: Audio) {
+    private fun onAudioLyricsReceived(context: Context, lyricText: String, audio: Audio) {
         val title = audio.artistAndTitle
-        MaterialAlertDialogBuilder(mContext)
+        MaterialAlertDialogBuilder(context)
             .setIcon(R.drawable.dir_song)
-            .setMessage(Text)
+            .setMessage(lyricText)
             .setTitle(title)
             .setPositiveButton(R.string.button_ok, null)
             .setNeutralButton(R.string.copy_text) { _, _ ->
-                val clipboard = mContext.getSystemService(
+                val clipboard = context.getSystemService(
                     Context.CLIPBOARD_SERVICE
                 ) as ClipboardManager?
-                val clip = ClipData.newPlainText("response", Text)
+                val clip = ClipData.newPlainText("response", lyricText)
                 clipboard?.setPrimaryClip(clip)
-                CustomToast.createCustomToast(mContext, null)
+                CustomToast.createCustomToast(context, null)
                     ?.showToast(R.string.copied_to_clipboard)
             }
             .setCancelable(true)
@@ -738,9 +740,13 @@ class CatalogV2SectionAdapter(
     private fun onServiceBindEvent(@PlayerStatus status: Int) {
         when (status) {
             PlayerStatus.UPDATE_METADATA, PlayerStatus.SERVICE_KILLED, PlayerStatus.UPDATE_PLAY_PAUSE -> {
-                updateAudio(currAudio)
+                val tmpCurrAudio = currAudio
                 currAudio = currentAudio
-                updateAudio(currAudio)
+
+                if (status != PlayerStatus.UPDATE_METADATA || tmpCurrAudio != currAudio) {
+                    updateAudio(tmpCurrAudio)
+                    updateAudio(currAudio)
+                }
             }
 
             PlayerStatus.REPEAT_MODE_CHANGED, PlayerStatus.SHUFFLE_MODE_CHANGED, PlayerStatus.UPDATE_PLAY_LIST, PlayerStatus.UPDATE_TRACK_INFO -> {}
@@ -749,35 +755,36 @@ class CatalogV2SectionAdapter(
 
     private fun updateAudio(audio: Audio?) {
         audio ?: return
-        val pos = indexOfAdapter(audio)
-        if (pos != -1) {
-            notifyItemChanged(pos)
+        var pos = indexOf(0, audio)
+        while (pos != -1) {
+            notifyItemBindableRangeChanged(pos, 1)
+            pos = indexOf(pos + 1, audio)
         }
     }
 
     @get:DrawableRes
     internal val audioCoverSimple: Int
-        get() = if (isAudio_round_icon) R.drawable.audio_button else R.drawable.audio_button_material
+        get() = if (isAudioRoundIcon) R.drawable.audio_button else R.drawable.audio_button_material
 
     internal val transformCover: Transformation by lazy {
-        if (isAudio_round_icon) RoundTransformation() else PolyTransformation()
+        if (isAudioRoundIcon) RoundTransformation() else PolyTransformation()
     }
 
     internal fun updateAudioStatus(holder: AudioHolder, audio: Audio) {
-        if (audio != currAudio) {
+        if (audio != currAudio && (holder.visual.drawable is Animatable || holder.visual.drawable == null)) {
             holder.visual.setImageResource(audio.songIcon)
-            holder.play_cover.clearColorFilter()
+            holder.playCover.clearColorFilter()
             return
         }
         when (MusicPlaybackController.playerStatus()) {
             1 -> {
                 Utils.doWavesLottie(holder.visual, true)
-                holder.play_cover.setColorFilter("#44000000".toColor())
+                holder.playCover.setColorFilter("#44000000".toColor())
             }
 
             2 -> {
                 Utils.doWavesLottie(holder.visual, false)
-                holder.play_cover.setColorFilter("#44000000".toColor())
+                holder.playCover.setColorFilter("#44000000".toColor())
             }
         }
     }
@@ -785,20 +792,20 @@ class CatalogV2SectionAdapter(
     internal fun updateDownloadState(holder: AudioHolder, audio: Audio) {
         if (audio.downloadIndicator == 2) {
             holder.saved.setImageResource(R.drawable.remote_cloud)
-            Utils.setColorFilter(holder.saved, CurrentTheme.getColorSecondary(mContext))
+            Utils.setColorFilter(holder.saved, CurrentTheme.getColorSecondary(holder.saved.context))
         } else {
             holder.saved.setImageResource(R.drawable.save)
-            Utils.setColorFilter(holder.saved, CurrentTheme.getColorPrimary(mContext))
+            Utils.setColorFilter(holder.saved, CurrentTheme.getColorPrimary(holder.saved.context))
         }
         holder.saved.visibility =
             if (audio.downloadIndicator != 0) View.VISIBLE else View.GONE
     }
 
-    private fun fireEditTrack(position: Int, audio: Audio) {
-        val root = View.inflate(mContext, R.layout.entry_audio_info, null)
+    private fun fireEditTrack(context: Context, position: Int, audio: Audio) {
+        val root = View.inflate(context, R.layout.entry_audio_info, null)
         root.findViewById<TextInputEditText>(R.id.edit_artist).setText(audio.artist)
         root.findViewById<TextInputEditText>(R.id.edit_title).setText(audio.title)
-        MaterialAlertDialogBuilder(mContext)
+        MaterialAlertDialogBuilder(context)
             .setTitle(R.string.enter_audio_info)
             .setCancelable(true)
             .setView(root)
@@ -807,8 +814,8 @@ class CatalogV2SectionAdapter(
                     root.findViewById<TextInputEditText>(R.id.edit_artist).text?.toString()
                 val title =
                     root.findViewById<TextInputEditText>(R.id.edit_title).text?.toString()
-                audioListDisposable += mAudioInteractor.edit(
-                    account_id,
+                disposable += mAudioInteractor.edit(
+                    accountId,
                     audio.ownerId,
                     audio.id,
                     artist,
@@ -829,7 +836,7 @@ class CatalogV2SectionAdapter(
         menus.add(
             OptionRequest(
                 AudioOption.play_item_audio,
-                mContext.getString(R.string.play),
+                holder.play.context.getString(R.string.play),
                 R.drawable.play,
                 true
             )
@@ -838,17 +845,17 @@ class CatalogV2SectionAdapter(
             menus.add(
                 OptionRequest(
                     AudioOption.play_item_after_current_audio,
-                    mContext.getString(R.string.play_audio_after_current),
+                    holder.play.context.getString(R.string.play_audio_after_current),
                     R.drawable.play_next,
                     false
                 )
             )
         }
-        if (audio.ownerId != Settings.get().accounts().current) {
+        if (audio.ownerId != accountId) {
             menus.add(
                 OptionRequest(
                     AudioOption.add_item_audio,
-                    mContext.getString(R.string.action_add),
+                    holder.play.context.getString(R.string.action_add),
                     R.drawable.list_add,
                     true
                 )
@@ -856,7 +863,7 @@ class CatalogV2SectionAdapter(
             menus.add(
                 OptionRequest(
                     AudioOption.add_and_download_button,
-                    mContext.getString(R.string.add_and_download_button),
+                    holder.play.context.getString(R.string.add_and_download_button),
                     R.drawable.add_download,
                     false
                 )
@@ -865,7 +872,7 @@ class CatalogV2SectionAdapter(
             menus.add(
                 OptionRequest(
                     AudioOption.add_item_audio,
-                    mContext.getString(R.string.delete),
+                    holder.play.context.getString(R.string.delete),
                     R.drawable.ic_outline_delete,
                     true
                 )
@@ -873,7 +880,7 @@ class CatalogV2SectionAdapter(
             menus.add(
                 OptionRequest(
                     AudioOption.edit_track,
-                    mContext.getString(R.string.edit),
+                    holder.play.context.getString(R.string.edit),
                     R.drawable.about_writed,
                     true
                 )
@@ -882,7 +889,7 @@ class CatalogV2SectionAdapter(
         menus.add(
             OptionRequest(
                 AudioOption.share_button,
-                mContext.getString(R.string.share),
+                holder.play.context.getString(R.string.share),
                 R.drawable.ic_outline_share,
                 true
             )
@@ -890,7 +897,7 @@ class CatalogV2SectionAdapter(
         menus.add(
             OptionRequest(
                 AudioOption.save_item_audio,
-                mContext.getString(R.string.save),
+                holder.play.context.getString(R.string.save),
                 R.drawable.save,
                 true
             )
@@ -898,7 +905,7 @@ class CatalogV2SectionAdapter(
         if (audio.albumId != 0) menus.add(
             OptionRequest(
                 AudioOption.open_album,
-                mContext.getString(R.string.open_album),
+                holder.play.context.getString(R.string.open_album),
                 R.drawable.audio_album,
                 false
             )
@@ -906,7 +913,7 @@ class CatalogV2SectionAdapter(
         menus.add(
             OptionRequest(
                 AudioOption.get_recommendation_by_audio,
-                mContext.getString(R.string.get_recommendation_by_audio),
+                holder.play.context.getString(R.string.get_recommendation_by_audio),
                 R.drawable.music_mic,
                 false
             )
@@ -914,7 +921,7 @@ class CatalogV2SectionAdapter(
         if (audio.main_artists.nonNullNoEmpty()) menus.add(
             OptionRequest(
                 AudioOption.goto_artist,
-                mContext.getString(R.string.audio_goto_artist),
+                holder.play.context.getString(R.string.audio_goto_artist),
                 R.drawable.artist_icon,
                 false
             )
@@ -922,7 +929,7 @@ class CatalogV2SectionAdapter(
         if (audio.lyricsId != 0) menus.add(
             OptionRequest(
                 AudioOption.get_lyrics_menu,
-                mContext.getString(R.string.get_lyrics_menu),
+                holder.play.context.getString(R.string.get_lyrics_menu),
                 R.drawable.lyric,
                 false
             )
@@ -930,7 +937,7 @@ class CatalogV2SectionAdapter(
         menus.add(
             OptionRequest(
                 AudioOption.bitrate_item_audio,
-                mContext.getString(R.string.get_bitrate),
+                holder.play.context.getString(R.string.get_bitrate),
                 R.drawable.high_quality,
                 false
             )
@@ -938,7 +945,7 @@ class CatalogV2SectionAdapter(
         menus.add(
             OptionRequest(
                 AudioOption.search_by_artist,
-                mContext.getString(R.string.search_by_artist),
+                holder.play.context.getString(R.string.search_by_artist),
                 R.drawable.magnify,
                 true
             )
@@ -946,7 +953,7 @@ class CatalogV2SectionAdapter(
         menus.add(
             OptionRequest(
                 AudioOption.copy_url,
-                mContext.getString(R.string.copy_url),
+                holder.play.context.getString(R.string.copy_url),
                 R.drawable.content_copy,
                 false
             )
@@ -958,12 +965,12 @@ class CatalogV2SectionAdapter(
         )
         menus.columns(2)
         menus.show(
-            (mContext as FragmentActivity).supportFragmentManager,
+            (holder.play.context as FragmentActivity).supportFragmentManager,
             "audio_options"
         ) { _, option ->
             when (option.id) {
                 AudioOption.play_item_audio -> {
-                    doPlay(position, audio)
+                    doPlay(holder.play.context, position, audio)
                 }
 
                 AudioOption.play_item_after_current_audio -> MusicPlaybackController.playAfterCurrent(
@@ -971,71 +978,72 @@ class CatalogV2SectionAdapter(
                 )
 
                 AudioOption.edit_track -> {
-                    fireEditTrack(position, audio)
+                    fireEditTrack(holder.play.context, position, audio)
                 }
 
                 AudioOption.share_button -> SendAttachmentsActivity.startForSendAttachments(
-                    mContext,
-                    Settings.get().accounts().current,
+                    holder.play.context,
+                    accountId,
                     audio
                 )
 
                 AudioOption.search_by_artist -> PlaceFactory.getSingleTabSearchPlace(
-                    Settings.get().accounts().current,
+                    accountId,
                     SearchContentType.AUDIOS,
                     AudioSearchCriteria(
                         audio.artist, by_artist = true, in_main_page = false
                     )
-                ).tryOpenWith(mContext)
+                ).tryOpenWith(holder.play.context)
 
-                AudioOption.get_lyrics_menu -> get_lyrics(audio)
+                AudioOption.get_lyrics_menu -> getLyrics(holder.play.context, audio)
                 AudioOption.get_recommendation_by_audio -> PlaceFactory.SearchByAudioPlace(
-                    Settings.get().accounts().current, audio.ownerId, audio.id
-                ).tryOpenWith(mContext)
+                    accountId, audio.ownerId, audio.id
+                ).tryOpenWith(holder.play.context)
 
                 AudioOption.open_album -> PlaceFactory.getAudiosInAlbumPlace(
-                    Settings.get().accounts().current,
+                    accountId,
                     audio.album_owner_id,
                     audio.albumId,
                     audio.album_access_key
-                ).tryOpenWith(mContext)
+                ).tryOpenWith(holder.play.context)
 
                 AudioOption.copy_url -> {
                     val clipboard =
-                        mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+                        holder.play.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
                     val clip = ClipData.newPlainText("response", audio.url)
                     clipboard?.setPrimaryClip(clip)
-                    CustomToast.createCustomToast(mContext, null)?.showToast(R.string.copied)
+                    CustomToast.createCustomToast(holder.play.context, null)
+                        ?.showToast(R.string.copied)
                 }
 
                 AudioOption.add_item_audio -> {
-                    val myAudio = audio.ownerId == Settings.get().accounts().current
+                    val myAudio = audio.ownerId == accountId
                     if (myAudio) {
-                        deleteTrack(Settings.get().accounts().current, audio, position)
+                        deleteTrack(holder.play.context, accountId, audio, position)
                     } else {
-                        addTrack(Settings.get().accounts().current, audio)
+                        addTrack(holder.play.context, accountId, audio)
                     }
                 }
 
                 AudioOption.add_and_download_button -> {
-                    if (audio.ownerId != Settings.get().accounts().current) {
-                        addTrack(Settings.get().accounts().current, audio)
+                    if (audio.ownerId != accountId) {
+                        addTrack(holder.play.context, accountId, audio)
                     }
-                    if (!AppPerms.hasReadWriteStoragePermission(mContext)) {
+                    if (!AppPerms.hasReadWriteStoragePermission(holder.play.context)) {
                         clickListener?.onRequestWritePermissions()
                         return@show
                     }
                     audio.downloadIndicator = 1
                     updateDownloadState(holder, audio)
                     val ret = DownloadWorkUtils.doDownloadAudio(
-                        mContext,
+                        holder.play.context,
                         audio,
-                        Settings.get().accounts().current,
+                        accountId,
                         Force = false,
                         isLocal = false
                     )
                     when (ret) {
-                        0 -> CustomToast.createCustomToast(mContext, null)
+                        0 -> CustomToast.createCustomToast(holder.play.context, null)
                             ?.showToastBottom(R.string.saved_audio)
 
                         1, 2 -> {
@@ -1046,9 +1054,9 @@ class CatalogV2SectionAdapter(
                                     R.string.button_yes
                                 ) {
                                     DownloadWorkUtils.doDownloadAudio(
-                                        mContext,
+                                        holder.play.context,
                                         audio,
-                                        Settings.get().accounts().current,
+                                        accountId,
                                         Force = true,
                                         isLocal = false
                                     )
@@ -1059,28 +1067,28 @@ class CatalogV2SectionAdapter(
                         else -> {
                             audio.downloadIndicator = 0
                             updateDownloadState(holder, audio)
-                            CustomToast.createCustomToast(mContext, null)
+                            CustomToast.createCustomToast(holder.play.context, null)
                                 ?.showToastBottom(R.string.error_audio)
                         }
                     }
                 }
 
                 AudioOption.save_item_audio -> {
-                    if (!AppPerms.hasReadWriteStoragePermission(mContext)) {
+                    if (!AppPerms.hasReadWriteStoragePermission(holder.play.context)) {
                         clickListener?.onRequestWritePermissions()
                         return@show
                     }
                     audio.downloadIndicator = 1
                     updateDownloadState(holder, audio)
                     val ret = DownloadWorkUtils.doDownloadAudio(
-                        mContext,
+                        holder.play.context,
                         audio,
-                        Settings.get().accounts().current,
+                        accountId,
                         Force = false,
                         isLocal = false
                     )
                     when (ret) {
-                        0 -> CustomToast.createCustomToast(mContext, null)
+                        0 -> CustomToast.createCustomToast(holder.play.context, null)
                             ?.showToastBottom(R.string.saved_audio)
 
                         1, 2 -> {
@@ -1091,9 +1099,9 @@ class CatalogV2SectionAdapter(
                                     R.string.button_yes
                                 ) {
                                     DownloadWorkUtils.doDownloadAudio(
-                                        mContext,
+                                        holder.play.context,
                                         audio,
-                                        Settings.get().accounts().current,
+                                        accountId,
                                         Force = true,
                                         isLocal = false
                                     )
@@ -1104,14 +1112,15 @@ class CatalogV2SectionAdapter(
                         else -> {
                             audio.downloadIndicator = 0
                             updateDownloadState(holder, audio)
-                            CustomToast.createCustomToast(mContext, null)
+                            CustomToast.createCustomToast(holder.play.context, null)
                                 ?.showToastBottom(R.string.error_audio)
                         }
                     }
                 }
 
                 AudioOption.bitrate_item_audio -> getMp3AndBitrate(
-                    Settings.get().accounts().current, audio
+                    holder.play.context,
+                    accountId, audio
                 )
 
                 AudioOption.goto_artist -> {
@@ -1119,26 +1128,26 @@ class CatalogV2SectionAdapter(
                         audio.main_artists
                     )
                     if (audio.main_artists?.keys?.size.orZero() > 1) {
-                        MaterialAlertDialogBuilder(mContext)
+                        MaterialAlertDialogBuilder(holder.play.context)
                             .setItems(artists[1]) { _, which ->
                                 PlaceFactory.getArtistPlace(
-                                    Settings.get().accounts().current,
+                                    accountId,
                                     artists[0][which]
-                                ).tryOpenWith(mContext)
+                                ).tryOpenWith(holder.play.context)
                             }
                             .show()
                     } else {
                         PlaceFactory.getArtistPlace(
-                            Settings.get().accounts().current,
+                            accountId,
                             artists[0][0]
-                        ).tryOpenWith(mContext)
+                        ).tryOpenWith(holder.play.context)
                     }
                 }
             }
         }
     }
 
-    internal fun doPlay(position: Int, audio: Audio) {
+    internal fun doPlay(context: Context, position: Int, audio: Audio) {
         if (MusicPlaybackController.isNowPlayingOrPreparingOrPaused(audio)) {
             if (!Settings.get().main().isUse_stop_audio) {
                 MusicPlaybackController.playOrPause()
@@ -1156,11 +1165,11 @@ class CatalogV2SectionAdapter(
                 }
             }
             MusicPlaybackService.startForPlayList(
-                mContext, op, op.indexOf(audio)
+                context, op, op.indexOf(audio)
             )
             if (!Settings.get().main().isShow_mini_player) PlaceFactory.getPlayerPlace(
-                account_id
-            ).tryOpenWith(mContext)
+                accountId
+            ).tryOpenWith(context)
         }
     }
 
@@ -1168,14 +1177,14 @@ class CatalogV2SectionAdapter(
         val artist: TextView = itemView.findViewById(R.id.dialog_title)
         val title: TextView = itemView.findViewById(R.id.dialog_message)
         val play: View = itemView.findViewById(R.id.item_audio_play)
-        val play_cover: ImageView = itemView.findViewById(R.id.item_audio_play_cover)
+        val playCover: ImageView = itemView.findViewById(R.id.item_audio_play_cover)
         val visual: ThorVGLottieView = itemView.findViewById(R.id.item_audio_visual)
         val time: TextView = itemView.findViewById(R.id.item_audio_time)
         val saved: ImageView = itemView.findViewById(R.id.saved)
         private val lyric: ImageView = itemView.findViewById(R.id.lyric)
         val my: ImageView = itemView.findViewById(R.id.my)
         private val quality: ImageView = itemView.findViewById(R.id.quality)
-        private val Track: View = itemView.findViewById(R.id.track_option)
+        private val trackOption: View = itemView.findViewById(R.id.track_option)
         val selectionView: MaterialCardView = itemView.findViewById(R.id.item_audio_selection)
         private val isSelectedView: MaterialCardView =
             itemView.findViewById(R.id.item_audio_select_add)
@@ -1195,7 +1204,7 @@ class CatalogV2SectionAdapter(
             }
         var animator: ObjectAnimator? = null
         private fun startSelectionAnimation() {
-            selectionView.setCardBackgroundColor(CurrentTheme.getColorPrimary(mContext))
+            selectionView.setCardBackgroundColor(CurrentTheme.getColorPrimary(selectionView.context))
             selectionView.alpha = 0.5f
             animator = ObjectAnimator.ofFloat(selectionView, View.ALPHA, 0.0f)
             animator?.duration = 1500
@@ -1204,7 +1213,7 @@ class CatalogV2SectionAdapter(
         }
 
         private fun startSomeAnimation() {
-            selectionView.setCardBackgroundColor(CurrentTheme.getColorSecondary(mContext))
+            selectionView.setCardBackgroundColor(CurrentTheme.getColorSecondary(selectionView.context))
             selectionView.alpha = 0.5f
             animator = ObjectAnimator.ofFloat(selectionView, View.ALPHA, 0.0f)
             animator?.duration = 500
@@ -1256,14 +1265,14 @@ class CatalogV2SectionAdapter(
                     else -> {
                         isSelectedView.setCardBackgroundColor(
                             CurrentTheme.getColorPrimary(
-                                mContext
+                                isSelectedView.context
                             )
                         )
                     }
                 }
             }
             my.visibility =
-                if (audio.ownerId == Settings.get().accounts().current) View.VISIBLE else View.GONE
+                if (audio.ownerId == accountId) View.VISIBLE else View.GONE
             saved.visibility = View.GONE
             updateDownloadState(this, audio)
             updateAudioStatus(this, audio)
@@ -1272,17 +1281,17 @@ class CatalogV2SectionAdapter(
                     .load(audio.thumb_image_little)
                     .placeholder(
                         ResourcesCompat.getDrawable(
-                            mContext.resources,
+                            playCover.context.resources,
                             audioCoverSimple,
-                            mContext.theme
+                            playCover.context.theme
                         ) ?: return
                     )
                     .transform(transformCover)
                     .tag(Constants.PICASSO_TAG)
-                    .into(play_cover)
+                    .into(playCover)
             } else {
-                PicassoInstance.with().cancelRequest(play_cover)
-                play_cover.setImageResource(audioCoverSimple)
+                PicassoInstance.with().cancelRequest(playCover)
+                playCover.setImageResource(audioCoverSimple)
             }
             play.setOnLongClickListener {
                 if ((audio.thumb_image_very_big.nonNullNoEmpty()
@@ -1295,7 +1304,7 @@ class CatalogV2SectionAdapter(
                         audio.artist?.let { it1 ->
                             audio.title?.let { it2 ->
                                 PlaceFactory.getSingleURLPhotoPlace(it, it1, it2)
-                                    .tryOpenWith(mContext)
+                                    .tryOpenWith(play.context)
                             }
                         }
                     }
@@ -1306,26 +1315,26 @@ class CatalogV2SectionAdapter(
                 if (Settings.get().main().isRevert_play_audio) {
                     doMenu(this, getItemRawPosition(bindingAdapterPosition), it, audio)
                 } else {
-                    doPlay(getItemRawPosition(bindingAdapterPosition), audio)
+                    doPlay(play.context, getItemRawPosition(bindingAdapterPosition), audio)
                 }
             }
             if (isLongPressDownload) {
-                Track.setOnLongClickListener { v: View? ->
-                    if (!AppPerms.hasReadWriteStoragePermission(mContext)) {
+                trackOption.setOnLongClickListener { v: View? ->
+                    if (!AppPerms.hasReadWriteStoragePermission(trackOption.context)) {
                         clickListener?.onRequestWritePermissions()
                         return@setOnLongClickListener false
                     }
                     audio.downloadIndicator = 1
                     updateDownloadState(this, audio)
                     val ret = DownloadWorkUtils.doDownloadAudio(
-                        mContext,
+                        trackOption.context,
                         audio,
-                        Settings.get().accounts().current,
+                        accountId,
                         Force = false,
                         isLocal = false
                     )
                     when (ret) {
-                        0 -> CustomToast.createCustomToast(mContext, null)
+                        0 -> CustomToast.createCustomToast(trackOption.context, null)
                             ?.showToastBottom(R.string.saved_audio)
 
                         1, 2 -> {
@@ -1337,9 +1346,9 @@ class CatalogV2SectionAdapter(
                                         R.string.button_yes
                                     ) {
                                         DownloadWorkUtils.doDownloadAudio(
-                                            mContext,
+                                            trackOption.context,
                                             audio,
-                                            Settings.get().accounts().current,
+                                            accountId,
                                             Force = true,
                                             isLocal = false
                                         )
@@ -1351,18 +1360,18 @@ class CatalogV2SectionAdapter(
                         else -> {
                             audio.downloadIndicator = 0
                             updateDownloadState(this, audio)
-                            CustomToast.createCustomToast(mContext, null)
+                            CustomToast.createCustomToast(trackOption.context, null)
                                 ?.showToastBottom(R.string.error_audio)
                         }
                     }
                     true
                 }
             }
-            Track.setOnClickListener {
+            trackOption.setOnClickListener {
                 cancelSelectionAnimation()
                 startSomeAnimation()
                 if (Settings.get().main().isRevert_play_audio) {
-                    doPlay(getItemRawPosition(bindingAdapterPosition), audio)
+                    doPlay(trackOption.context, getItemRawPosition(bindingAdapterPosition), audio)
                 } else {
                     doMenu(this, getItemRawPosition(bindingAdapterPosition), it, audio)
                 }

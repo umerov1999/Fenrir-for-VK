@@ -50,8 +50,8 @@ internal val ESCAPE_MARKERS: ByteArray = ByteArray(128).apply {
 internal fun StringBuilder.printQuoted(value: String) {
     append(STRING)
     var lastPos = 0
-    for (i in value.indices) {
-        val c = value[i].code
+    for ((i, element) in value.withIndex()) {
+        val c = element.code
         if (c < ESCAPE_STRINGS.size && ESCAPE_STRINGS[c] != null) {
             append(value, lastPos, i) // flush prev
             append(ESCAPE_STRINGS[c])
@@ -59,8 +59,11 @@ internal fun StringBuilder.printQuoted(value: String) {
         }
     }
 
-    if (lastPos != 0) append(value, lastPos, value.length)
-    else append(value)
+    if (lastPos != 0) {
+        append(value, lastPos, value.length)
+    } else {
+        append(value)
+    }
     append(STRING)
 }
 

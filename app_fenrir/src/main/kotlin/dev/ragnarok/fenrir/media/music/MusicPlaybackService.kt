@@ -41,7 +41,6 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
-import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import de.maxr1998.modernpreferences.PreferenceScreen
@@ -291,7 +290,7 @@ class MusicPlaybackService : MediaSessionService() {
                     .build()
             )
 
-        refreshMediaButtonCustomLayout()
+        refreshMediaButtonPreferences()
         notifyChange(META_CHANGED)
         scheduleDelayedShutdown()
     }
@@ -326,9 +325,9 @@ class MusicPlaybackService : MediaSessionService() {
             else -> throw IllegalArgumentException()
         }
 
-    internal fun refreshMediaButtonCustomLayout() {
-        mediaSession.setCustomLayout(
-            ImmutableList.of(
+    internal fun refreshMediaButtonPreferences() {
+        mediaSession.setMediaButtonPreferences(
+            listOf(
                 customCommands[0],
                 getRepeatCommand()
             )
@@ -349,7 +348,7 @@ class MusicPlaybackService : MediaSessionService() {
                 }
                 musicPlayer.shuffleMode = shuffleMode
                 notifyChange(SHUFFLE_MODE_CHANGED)
-                refreshMediaButtonCustomLayout()
+                refreshMediaButtonPreferences()
                 PreferenceScreen.getPreferences(this).edit(true) {
                     putBoolean(
                         PREFS_SHUFFLE,
@@ -365,7 +364,7 @@ class MusicPlaybackService : MediaSessionService() {
             synchronized(this) {
                 musicPlayer.repeatMode = repeatMode
                 notifyChange(REPEAT_MODE_CHANGED)
-                refreshMediaButtonCustomLayout()
+                refreshMediaButtonPreferences()
                 PreferenceScreen.getPreferences(this).edit(true) {
                     putInt(
                         PREFS_REPEAT,
@@ -405,7 +404,7 @@ class MusicPlaybackService : MediaSessionService() {
                 if (musicPlayer.repeatMode != repeatMode) {
                     musicPlayer.repeatMode = repeatMode
                     notifyChange(REPEAT_MODE_CHANGED)
-                    refreshMediaButtonCustomLayout()
+                    refreshMediaButtonPreferences()
                     changed = true
                 }
                 musicPlayer.setSources(audios)
@@ -414,7 +413,7 @@ class MusicPlaybackService : MediaSessionService() {
                     musicPlayer.shuffleMode = shuffleMode
                     notifyChange(SHUFFLE_MODE_CHANGED)
                     if (!changed) {
-                        refreshMediaButtonCustomLayout()
+                        refreshMediaButtonPreferences()
                     }
                 }
             }
@@ -769,7 +768,7 @@ class MusicPlaybackService : MediaSessionService() {
                                 }
                             }
                         }
-                        mService.get()?.refreshMediaButtonCustomLayout()
+                        mService.get()?.refreshMediaButtonPreferences()
                     } else if (events.contains(Player.EVENT_TRACKS_CHANGED)
                         && !events.contains(Player.EVENT_TIMELINE_CHANGED)
                     ) {
@@ -945,7 +944,7 @@ class MusicPlaybackService : MediaSessionService() {
     internal fun playAfterCurrent(audio: Audio) {
         synchronized(this) {
             val current = musicPlayer.itemIndex
-            if (current <= 0) {
+            if (current < 0) {
                 return
             }
             musicPlayer.insertSourceAfterCurrent(audio)
@@ -1196,6 +1195,10 @@ class MusicPlaybackService : MediaSessionService() {
 
         override fun getQueue(): List<Audio>? {
             return mService.get()?.queue
+        }
+
+        override fun getQueueCount(): Int {
+            return mService.get()?.queue?.size.orZero()
         }
 
         override fun duration(): Long {

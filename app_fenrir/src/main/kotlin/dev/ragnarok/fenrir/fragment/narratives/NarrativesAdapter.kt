@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.narratives
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,12 +15,12 @@ import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.picasso.PicassoInstance
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
-class NarrativesAdapter(private var data: List<Narratives>, private val context: Context) :
+class NarrativesAdapter(private var data: List<Narratives>) :
     RecyclerView.Adapter<NarrativesAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
-            LayoutInflater.from(context).inflate(R.layout.item_narratives, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_narratives, parent, false)
         )
     }
 
@@ -39,7 +38,10 @@ class NarrativesAdapter(private var data: List<Narratives>, private val context:
         if (narrative.stories?.size.orZero() <= 0) holder.count.visibility = View.GONE else {
             holder.count.visibility = View.VISIBLE
             holder.count.text =
-                context.getString(R.string.narratives_count, narrative.stories?.size.orZero())
+                holder.count.context.getString(
+                    R.string.narratives_count,
+                    narrative.stories?.size.orZero()
+                )
         }
         holder.itemView.setOnClickListener {
             clickListener?.onOpenClick(holder.bindingAdapterPosition, narrative)

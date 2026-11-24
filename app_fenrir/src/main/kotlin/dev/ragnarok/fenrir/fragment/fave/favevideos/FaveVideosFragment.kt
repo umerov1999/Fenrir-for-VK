@@ -48,7 +48,7 @@ class FaveVideosFragment : BaseMvpFragment<FaveVideosPresenter, IFaveVideosView>
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = FaveVideosAdapter(requireActivity(), emptyList())
+        mAdapter = FaveVideosAdapter(emptyList())
         mAdapter?.setVideoOnClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()

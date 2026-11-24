@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.dialog.selectcity
 
-import android.content.Context
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
@@ -10,13 +9,13 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.City
 
-class CitiesAdapter(private val mContext: Context, private val mData: List<City>) :
+class CitiesAdapter(private val mData: List<City>) :
     RecyclerView.Adapter<CitiesAdapter.Holder>() {
     private var mListener: Listener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
             LayoutInflater.from(
-                mContext
+                parent.context
             ).inflate(R.layout.item_city, parent, false)
         )
     }

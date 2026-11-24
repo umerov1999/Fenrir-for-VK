@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.fave.favepages
 
-import android.content.Context
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
@@ -28,7 +27,7 @@ import dev.ragnarok.fenrir.util.ViewUtils.getOnlineIcon
 import dev.ragnarok.fenrir.view.AspectRatioImageView
 import dev.ragnarok.fenrir.view.OnlineView
 
-class FavePagesAdapter(private var data: List<FavePage>, private val context: Context) :
+class FavePagesAdapter(private var data: List<FavePage>) :
     RecyclerView.Adapter<FavePagesAdapter.Holder>() {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val storyTransformation: Transformation =
@@ -36,7 +35,9 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
     private var recyclerView: RecyclerView? = null
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_fave_page, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_fave_page, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
@@ -53,7 +54,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
         holder.name.text = favePage.owner?.fullName
         holder.name.setTextColor(
             Utils.getVerifiedColor(
-                context,
+                holder.name.context,
                 favePage.owner?.isVerified == true
             )
         )
@@ -99,13 +100,13 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
             if (user?.isOnline == false) holder.ivOnline.setCircleColor(
                 CurrentTheme.getColorFromAttrs(
                     R.attr.icon_color_inactive,
-                    context,
+                    holder.ivOnline.context,
                     "#000000"
                 )
             ) else holder.ivOnline.setCircleColor(
                 CurrentTheme.getColorFromAttrs(
                     R.attr.icon_color_active,
-                    context,
+                    holder.ivOnline.context,
                     "#000000"
                 )
             )
@@ -120,7 +121,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
                 favePage.owner?.maxSquareAvatar,
                 Constants.PICASSO_TAG
             )
-            holder.name.setTextColor(Utils.getVerifiedColor(context, false))
+            holder.name.setTextColor(Utils.getVerifiedColor(holder.name.context, false))
             holder.ivOnline.visibility = View.GONE
             if (group?.isBlacklisted == true) {
                 holder.blacklisted.setImageResource(R.drawable.audio_died)
@@ -130,7 +131,7 @@ class FavePagesAdapter(private var data: List<FavePage>, private val context: Co
                 holder.blacklisted.visibility = View.GONE
             }
         }
-        addSelectionProfileSupport(context, holder.avatar_root, favePage)
+        addSelectionProfileSupport(holder.avatar_root.context, holder.avatar_root, favePage)
         holder.itemView.setOnClickListener {
             favePage.owner?.let { it1 ->
                 clickListener?.onPageClick(

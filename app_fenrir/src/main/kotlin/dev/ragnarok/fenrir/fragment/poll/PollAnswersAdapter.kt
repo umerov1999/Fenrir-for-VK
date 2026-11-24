@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.poll
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.view.View
 import android.widget.ProgressBar
@@ -13,7 +12,7 @@ import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.util.Utils
 
-class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.Answer>) :
+class PollAnswersAdapter(items: MutableList<Poll.Answer>) :
     RecyclerBindableAdapter<Poll.Answer, PollAnswersAdapter.ViewHolder>(items) {
     private var checkedIds: MutableSet<Long>
     private var checkable = false
@@ -27,7 +26,7 @@ class PollAnswersAdapter(private val context: Context, items: MutableList<Poll.A
         viewHolder.pbRate.progress = answer.rate.toInt()
         viewHolder.pbRate.progressTintList = ColorStateList.valueOf(
             CurrentTheme.getColorPrimary(
-                context
+                viewHolder.pbRate.context
             )
         )
         val isMyAnswer = checkedIds.contains(answer.id)

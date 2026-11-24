@@ -74,7 +74,7 @@ class FeedOwnersFragment :
         val recyclerView: RecyclerView = root.findViewById(R.id.recycler_view)
         val manager = LinearLayoutManager(requireActivity())
         recyclerView.layoutManager = manager
-        mAdapter = OwnersAdapter(requireActivity(), emptyList())
+        mAdapter = OwnersAdapter(emptyList())
         mAdapter?.setClickListener(this)
         mAdapter?.setLongClickListener(this)
         recyclerView.adapter = mAdapter

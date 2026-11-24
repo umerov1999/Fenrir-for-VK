@@ -35,26 +35,27 @@ foreach (ffmpeg_lib avutil swresample avcodec avformat swscale)
 endforeach ()
 
 add_library(thorvg STATIC
+        animation/thorvg/src/common/tvgArray.cpp
         animation/thorvg/src/common/tvgCompressor.cpp
         animation/thorvg/src/common/tvgMath.cpp
         animation/thorvg/src/common/tvgStr.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieAnimation.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieBuilder.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieExpressions.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieInterpolator.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieLoader.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieModel.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieModifier.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieParser.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieParserHandler.cpp
-        animation/thorvg/src/loaders/lottie/tvgLottieProperty.cpp
-        animation/thorvg/src/loaders/raw/tvgRawLoader.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgBuilder.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgCssStyle.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgLoader.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgPath.cpp
-        animation/thorvg/src/loaders/svg/tvgSvgUtil.cpp
-        animation/thorvg/src/loaders/svg/tvgXmlParser.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieAnimation.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieBuilder.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieExpressions.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieInterpolator.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieLoader.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieModel.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieModifier.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieParser.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieParserHandler.cpp
+        animation/thorvg/src/modules/lottie/tvgLottieProperty.cpp
+        animation/thorvg/src/modules/raw/tvgRawLoader.cpp
+        animation/thorvg/src/modules/svg/tvgSvgBuilder.cpp
+        animation/thorvg/src/modules/svg/tvgSvgCssStyle.cpp
+        animation/thorvg/src/modules/svg/tvgSvgLoader.cpp
+        animation/thorvg/src/modules/svg/tvgSvgPath.cpp
+        animation/thorvg/src/modules/svg/tvgSvgUtil.cpp
+        animation/thorvg/src/modules/svg/tvgXmlParser.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwBlendOp.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwFill.cpp
         animation/thorvg/src/renderer/cpu_engine/tvgSwImage.cpp
@@ -88,9 +89,9 @@ target_compile_options(thorvg PRIVATE
 target_include_directories(thorvg PRIVATE
         animation/thorvg/inc
         animation/thorvg/src/common
-        animation/thorvg/src/loaders/lottie
-        animation/thorvg/src/loaders/raw
-        animation/thorvg/src/loaders/svg
+        animation/thorvg/src/modules/lottie
+        animation/thorvg/src/modules/raw
+        animation/thorvg/src/modules/svg
         animation/thorvg/src/renderer
         animation/thorvg/src/renderer/cpu_engine)
 
@@ -509,13 +510,6 @@ target_compile_options(common PRIVATE
 
 #####################################################################
 add_library(zxing STATIC
-        zxing/aztec/AZDecoder.cpp
-        zxing/aztec/AZDetector.cpp
-        zxing/aztec/AZEncoder.cpp
-        zxing/aztec/AZHighLevelEncoder.cpp
-        zxing/aztec/AZReader.cpp
-        zxing/aztec/AZToken.cpp
-        zxing/aztec/AZWriter.cpp
         zxing/datamatrix/DMBitLayout.cpp
         zxing/datamatrix/DMDataBlock.cpp
         zxing/datamatrix/DMDecoder.cpp
@@ -527,9 +521,6 @@ add_library(zxing STATIC
         zxing/datamatrix/DMVersion.cpp
         zxing/datamatrix/DMWriter.cpp
         zxing/libzueci/zueci.c
-        zxing/maxicode/MCBitMatrixParser.cpp
-        zxing/maxicode/MCDecoder.cpp
-        zxing/maxicode/MCReader.cpp
         zxing/oned/ODDataBarReader.cpp
         zxing/oned/ODCode39Reader.cpp
         zxing/oned/ODCodabarReader.cpp
@@ -555,21 +546,6 @@ add_library(zxing STATIC
         zxing/oned/ODDataBarExpandedReader.cpp
         zxing/oned/ODITFWriter.cpp
         zxing/oned/ODDataBarExpandedBitDecoder.cpp
-        zxing/pdf417/PDFReader.cpp
-        zxing/pdf417/PDFBarcodeValue.cpp
-        zxing/pdf417/PDFScanningDecoder.cpp
-        zxing/pdf417/ZXBigInteger.cpp
-        zxing/pdf417/PDFCodewordDecoder.cpp
-        zxing/pdf417/PDFEncoder.cpp
-        zxing/pdf417/PDFDecoder.cpp
-        zxing/pdf417/MicroPDFReader.cpp
-        zxing/pdf417/PDF417.cpp
-        zxing/pdf417/PDFHighLevelEncoder.cpp
-        zxing/pdf417/PDFWriter.cpp
-        zxing/pdf417/PDFDetectionResult.cpp
-        zxing/pdf417/PDFDetector.cpp
-        zxing/pdf417/PDFDetectionResultColumn.cpp
-        zxing/pdf417/PDFBoundingBox.cpp
         zxing/qrcode/QRBitMatrixParser.cpp
         zxing/qrcode/QRVersion.cpp
         zxing/qrcode/QRMaskUtil.cpp
@@ -621,12 +597,9 @@ add_library(zxing STATIC
 target_include_directories(zxing
         PRIVATE
         zxing
-        zxing/aztec
         zxing/datamatrix
         zxing/libzueci
-        zxing/maxicode
         zxing/oned
-        zxing/pdf417
         zxing/qrcode
 )
 

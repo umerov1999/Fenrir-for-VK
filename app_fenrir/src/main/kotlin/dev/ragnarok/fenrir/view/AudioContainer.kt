@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.drawable.Animatable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -78,7 +79,7 @@ class AudioContainer : LinearLayout {
     private var audios: List<Audio> = emptyList()
     private var currAudio = currentAudio
     private var holderPosition: Int? = null
-    private val isAudio_round_icon: Boolean =
+    private val isAudioRoundIcon: Boolean =
         isInEditMode || Settings.get().main().isAudio_round_icon
 
     constructor(context: Context) : super(context)
@@ -103,24 +104,26 @@ class AudioContainer : LinearLayout {
         ) R.drawable.audio_button else R.drawable.audio_button_material
 
     private val transformCover: Transformation by lazy {
-        if (isAudio_round_icon) RoundTransformation() else PolyTransformation()
+        if (isAudioRoundIcon) RoundTransformation() else PolyTransformation()
     }
 
     private fun updateAudioStatus(holder: AudioHolder, audio: Audio) {
         if (audio != currAudio) {
-            holder.visual.setImageResource(audio.songIcon)
-            holder.play_cover.clearColorFilter()
+            if (holder.visual.drawable is Animatable || holder.visual.drawable == null) {
+                holder.visual.setImageResource(audio.songIcon)
+                holder.playCover.clearColorFilter()
+            }
             return
         }
         when (playerStatus()) {
             1 -> {
                 Utils.doWavesLottie(holder.visual, true)
-                holder.play_cover.setColorFilter("#44000000".toColor())
+                holder.playCover.setColorFilter("#44000000".toColor())
             }
 
             2 -> {
                 Utils.doWavesLottie(holder.visual, false)
-                holder.play_cover.setColorFilter("#44000000".toColor())
+                holder.playCover.setColorFilter("#44000000".toColor())
             }
         }
     }
@@ -187,25 +190,25 @@ class AudioContainer : LinearLayout {
         }
     }
 
-    private fun get_lyrics(audio: Audio) {
+    private fun getLyrics(audio: Audio) {
         audioListDisposable += mAudioInteractor.getLyrics(Settings.get().accounts().current, audio)
             .fromIOToMain({ t -> onAudioLyricsReceived(t, audio) }) { t ->
                 createCustomToast(context, null)?.showToastThrowable(t)
             }
     }
 
-    private fun onAudioLyricsReceived(Text: String, audio: Audio) {
+    private fun onAudioLyricsReceived(lyricText: String, audio: Audio) {
         val title = audio.artistAndTitle
         MaterialAlertDialogBuilder(context)
             .setIcon(R.drawable.dir_song)
-            .setMessage(Text)
+            .setMessage(lyricText)
             .setTitle(title)
             .setPositiveButton(R.string.button_ok, null)
             .setNeutralButton(R.string.copy_text) { _, _ ->
                 val clipboard = context.getSystemService(
                     Context.CLIPBOARD_SERVICE
                 ) as ClipboardManager?
-                val clip = ClipData.newPlainText("response", Text)
+                val clip = ClipData.newPlainText("response", lyricText)
                 clipboard?.setPrimaryClip(clip)
                 createCustomToast(context, null)?.showToast(R.string.copied_to_clipboard)
             }
@@ -403,7 +406,7 @@ class AudioContainer : LinearLayout {
                     context
                 )
 
-                AudioOption.get_lyrics_menu -> get_lyrics(audio)
+                AudioOption.get_lyrics_menu -> getLyrics(audio)
                 AudioOption.get_recommendation_by_audio -> SearchByAudioPlace(
                     Settings.get().accounts().current, audio.ownerId, audio.id
                 ).tryOpenWith(
@@ -632,10 +635,10 @@ class AudioContainer : LinearLayout {
                     )
                     .transform(transformCover)
                     .tag(Constants.PICASSO_TAG)
-                    .into(check.play_cover)
+                    .into(check.playCover)
             } else {
-                with().cancelRequest(check.play_cover)
-                check.play_cover.setImageResource(audioCoverSimple)
+                with().cancelRequest(check.playCover)
+                check.playCover.setImageResource(audioCoverSimple)
             }
             check.ibPlay.setOnLongClickListener {
                 if (audio.thumb_image_very_big.nonNullNoEmpty()
@@ -671,7 +674,7 @@ class AudioContainer : LinearLayout {
             check.lyric.visibility = if (audio.lyricsId != 0) VISIBLE else GONE
             check.my.visibility =
                 if (audio.ownerId == Settings.get().accounts().current) VISIBLE else GONE
-            check.Track.setOnLongClickListener { v: View? ->
+            check.trackOption.setOnLongClickListener { v: View? ->
                 if (!hasReadWriteStoragePermission(context)) {
                     mAttachmentsActionCallback?.onRequestWritePermissions()
                     return@setOnLongClickListener false
@@ -717,7 +720,7 @@ class AudioContainer : LinearLayout {
                 }
                 true
             }
-            check.Track.setOnClickListener { view ->
+            check.trackOption.setOnClickListener { view ->
                 check.cancelSelectionAnimation()
                 check.startSomeAnimation()
                 if (Settings.get().main().isRevert_play_audio) {
@@ -733,17 +736,40 @@ class AudioContainer : LinearLayout {
             .sharedFlowToMain { onServiceBindEvent(it) }
     }
 
+    private fun indexOf(startPos: Int, audio: Audio): Int {
+        var ret = -1
+        for (i in startPos..<audios.size) {
+            if (audios[i] == audio) {
+                ret = i
+                break
+            }
+        }
+        return ret
+    }
+
+    private fun updateAudio(audio: Audio?) {
+        audio ?: return
+        var pos = indexOf(0, audio)
+        while (pos != -1) {
+            val root = getChildAt(pos) as ViewGroup? ?: continue
+            val holder = root.tag as AudioHolder? ?: continue
+            updateAudioStatus(holder, audio)
+
+            pos = indexOf(pos + 1, audio)
+        }
+    }
+
     private fun onServiceBindEvent(@PlayerStatus status: Int) {
         when (status) {
             PlayerStatus.UPDATE_METADATA, PlayerStatus.UPDATE_PLAY_PAUSE, PlayerStatus.SERVICE_KILLED -> {
+                val tmpCurrAudio = currAudio
                 currAudio = currentAudio
+
                 if (childCount < audios.size) return
-                var g = 0
-                while (g < audios.size) {
-                    val root = getChildAt(g) as ViewGroup? ?: continue
-                    val holder = root.tag as AudioHolder? ?: continue
-                    updateAudioStatus(holder, audios[g])
-                    g++
+
+                if (status != PlayerStatus.UPDATE_METADATA || tmpCurrAudio != currAudio) {
+                    updateAudio(tmpCurrAudio)
+                    updateAudio(currAudio)
                 }
             }
 
@@ -753,10 +779,22 @@ class AudioContainer : LinearLayout {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        currAudio = currentAudio
+
         if (audios.nonNullNoEmpty()) {
+            val tmpCurrAudio = currAudio
+            currAudio = currentAudio
+
+            if (childCount >= audios.size) {
+                if (tmpCurrAudio != currAudio) {
+                    updateAudio(tmpCurrAudio)
+                    updateAudio(currAudio)
+                }
+            }
+
             mPlayerDisposable += observeServiceBinding()
                 .sharedFlowToMain { onServiceBindEvent(it) }
+        } else {
+            currAudio = null
         }
     }
 
@@ -770,13 +808,13 @@ class AudioContainer : LinearLayout {
         val tvTitle: TextView = root.findViewById(R.id.dialog_title)
         val tvSubtitle: TextView = root.findViewById(R.id.dialog_message)
         val ibPlay: View = root.findViewById(R.id.item_audio_play)
-        val play_cover: ImageView = root.findViewById(R.id.item_audio_play_cover)
+        val playCover: ImageView = root.findViewById(R.id.item_audio_play_cover)
         val time: TextView = root.findViewById(R.id.item_audio_time)
         val saved: ImageView = root.findViewById(R.id.saved)
         val lyric: ImageView = root.findViewById(R.id.lyric)
         val my: ImageView = root.findViewById(R.id.my)
         val quality: ImageView
-        val Track: View = root.findViewById(R.id.track_option)
+        val trackOption: View = root.findViewById(R.id.track_option)
         val selectionView: MaterialCardView = root.findViewById(R.id.item_audio_selection)
         private val isSelectedView: MaterialCardView = root.findViewById(R.id.item_audio_select_add)
         private val animationAdapter: Animator.AnimatorListener

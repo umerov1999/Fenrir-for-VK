@@ -1,20 +1,14 @@
 package dev.ragnarok.filegallery.fragment.filemanager
 
 import android.content.Context
-import android.content.Intent
-import android.media.MediaMetadataRetriever
-import android.os.Build
+import android.graphics.drawable.Animatable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.net.toFile
-import androidx.core.net.toUri
-import androidx.fragment.app.FragmentActivity
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Picasso
@@ -23,38 +17,31 @@ import dev.ragnarok.filegallery.Constants
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.filePathToUrl
 import dev.ragnarok.filegallery.media.music.MusicPlaybackController
+import dev.ragnarok.filegallery.media.music.MusicPlaybackController.currentAudio
 import dev.ragnarok.filegallery.media.music.PlayerStatus
-import dev.ragnarok.filegallery.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
-import dev.ragnarok.filegallery.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.filegallery.model.Audio
 import dev.ragnarok.filegallery.model.FileItem
 import dev.ragnarok.filegallery.model.FileType
-import dev.ragnarok.filegallery.model.menu.options.FileManagerOption
 import dev.ragnarok.filegallery.picasso.PicassoInstance
-import dev.ragnarok.filegallery.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.filegallery.settings.CurrentTheme
 import dev.ragnarok.filegallery.settings.Settings
 import dev.ragnarok.filegallery.toColor
 import dev.ragnarok.filegallery.util.AppTextUtils.pluralNumerical
-import dev.ragnarok.filegallery.util.FileUtil
 import dev.ragnarok.filegallery.util.Utils
-import dev.ragnarok.filegallery.util.coroutines.CancelableJob
-import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
-import dev.ragnarok.filegallery.util.toast.CustomToast
 import dev.ragnarok.filegallery.view.natives.animation.ThorVGLottieView
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import java.io.File
 
-class FileManagerAdapter(private var context: Context, private var data: List<FileItem>) :
+class FileManagerAdapter(context: Context, private var data: List<FileItem>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    @ColorInt
     private val colorPrimary = CurrentTheme.getColorPrimary(context)
+
+    @ColorInt
     private val colorOnSurface = CurrentTheme.getColorOnSurface(context)
+
+    @ColorInt
     private val messageBubbleColor = CurrentTheme.getMessageBubbleColor(context)
     private var clickListener: ClickListener? = null
-    private var mPlayerDisposable = CancelableJob()
-    private var audioListDisposable = CancelableJob()
-    private var currAudio: Audio? = MusicPlaybackController.currentAudio
+    private var currAudio: Audio? = currentAudio
     private var isSelectMode = false
 
     fun updateSelectedMode(show: Boolean) {
@@ -66,23 +53,16 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         notifyDataSetChanged()
     }
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-        mPlayerDisposable.set(
-            MusicPlaybackController.observeServiceBinding()
-                .fromIOToMain { status ->
-                    onServiceBindEvent(
-                        status
-                    )
-                })
-    }
-
-    private fun onServiceBindEvent(@PlayerStatus status: Int) {
+    fun onServiceBindEvent(@PlayerStatus status: Int) {
         when (status) {
             PlayerStatus.UPDATE_METADATA, PlayerStatus.SERVICE_KILLED, PlayerStatus.UPDATE_PLAY_PAUSE -> {
-                updateAudio(currAudio)
-                currAudio = MusicPlaybackController.currentAudio
-                updateAudio(currAudio)
+                val tmpCurrAudio = currAudio
+                currAudio = currentAudio
+
+                if (status != PlayerStatus.UPDATE_METADATA || tmpCurrAudio != currAudio) {
+                    updateAudio(tmpCurrAudio)
+                    updateAudio(currAudio)
+                }
             }
 
             PlayerStatus.REPEAT_MODE_CHANGED, PlayerStatus.SHUFFLE_MODE_CHANGED, PlayerStatus.UPDATE_PLAY_LIST, PlayerStatus.UPDATE_TRACK_INFO -> {}
@@ -104,12 +84,6 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         if (pos != -1) {
             notifyItemChanged(pos)
         }
-    }
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        mPlayerDisposable.cancel()
-        audioListDisposable.cancel()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -150,8 +124,10 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         audio: FileItem
     ) {
         if (audio.fileNameHash != currAudio?.id && audio.filePathHash != currAudio?.ownerId) {
-            holder.visual.setImageResource(R.drawable.song)
-            holder.icon.clearColorFilter()
+            if (holder.visual.drawable is Animatable || holder.visual.drawable == null) {
+                holder.visual.setImageResource(R.drawable.song)
+                holder.icon.clearColorFilter()
+            }
             return
         }
         when (MusicPlaybackController.playerStatus()) {
@@ -165,227 +141,6 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
                 holder.icon.setColorFilter("#44000000".toColor())
             }
         }
-    }
-
-    private fun doLocalBitrate(url: String): Flow<Pair<Int, Long>> {
-        return flow {
-            val retriever = MediaMetadataRetriever()
-            var finalUrl = url
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                val uri = url.toUri()
-                if ("file" == uri.scheme) {
-                    finalUrl = uri.path.toString()
-                }
-            }
-            retriever.setDataSource(finalUrl)
-            val bitrate =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
-            if (bitrate != null) {
-                emit(
-                    Pair(
-                        (bitrate.toLong() / 1000).toInt(),
-                        url.toUri().toFile().length()
-                    )
-                )
-            } else {
-                throw Throwable("Can't receipt bitrate ")
-            }
-        }
-    }
-
-    private fun getLocalBitrate(url: String?) {
-        if (url.isNullOrEmpty()) {
-            return
-        }
-        audioListDisposable.set(doLocalBitrate(url).fromIOToMain({
-            CustomToast.createCustomToast(
-                context, null
-            )?.showToast(
-                context.resources.getString(
-                    R.string.bitrate,
-                    it.first,
-                    Utils.BytesToSize(it.second)
-                )
-            )
-        }, {
-            CustomToast.createCustomToast(context, null)?.setDuration(Toast.LENGTH_LONG)
-                ?.showToastThrowable(it)
-        }))
-    }
-
-    private fun doAudioMenu(position: Int, audio: FileItem) {
-        val t = Audio()
-        t.setId(audio.fileNameHash)
-        t.setOwnerId(audio.filePathHash)
-        t.setUrl(audio.file_path?.filePathToUrl())
-        t.setThumb_image(audio.file_path?.filePathToUrl("thumb_file"))
-        t.setDuration(audio.size.toInt())
-
-        var TrackName: String = audio.file_name?.replace(".mp3", "") ?: ""
-        val Artist: String
-        val arr = TrackName.split(Regex(" - ")).toTypedArray()
-        if (arr.size > 1) {
-            Artist = arr[0]
-            TrackName = TrackName.replace("$Artist - ", "")
-        } else {
-            Artist = audio.parent_name ?: ""
-        }
-        t.setIsLocal()
-        t.setArtist(Artist)
-        t.setTitle(TrackName)
-        val menus = ModalBottomSheetDialogFragment.Builder()
-        menus.add(
-            OptionRequest(
-                FileManagerOption.play_item_audio,
-                context.getString(R.string.play),
-                R.drawable.play,
-                true
-            )
-        )
-        if (MusicPlaybackController.canPlayAfterCurrent()) {
-            menus.add(
-                OptionRequest(
-                    FileManagerOption.play_item_after_current_audio,
-                    context.getString(R.string.play_audio_after_current),
-                    R.drawable.play_next,
-                    false
-                )
-            )
-        }
-        menus.add(
-            OptionRequest(
-                FileManagerOption.bitrate_item_audio,
-                context.getString(R.string.get_bitrate),
-                R.drawable.high_quality,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.open_with_item,
-                context.getString(R.string.open_with),
-                R.drawable.ic_external,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.share_item,
-                context.getString(R.string.share),
-                R.drawable.ic_share,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.update_file_time_item,
-                context.getString(R.string.update_time),
-                R.drawable.ic_recent,
-                false
-            )
-        )
-        if (Settings.get().main().localServer.enabled) {
-            menus.add(
-                OptionRequest(
-                    FileManagerOption.play_via_local_server,
-                    context.getString(R.string.play_remote),
-                    R.drawable.remote_cloud,
-                    false
-                )
-            )
-        }
-        menus.add(
-            OptionRequest(
-                FileManagerOption.add_dir_tag_item,
-                if (audio.isHasTag) context.getString(R.string.remove_dir_tag) else context.getString(
-                    R.string.add_dir_tag
-                ),
-                R.drawable.star,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.delete_item,
-                context.getString(R.string.delete),
-                R.drawable.ic_outline_delete,
-                false
-            )
-        )
-        menus.header(
-            audio.file_name,
-            R.drawable.song,
-            t.thumb_image
-        )
-        menus.columns(2)
-        menus.show(
-            (context as FragmentActivity).supportFragmentManager,
-            "audio_options", { _, option ->
-                notifyItemChanged(position)
-                when (option.id) {
-                    FileManagerOption.play_via_local_server -> {
-                        clickListener?.onRemotePlay(audio)
-                    }
-
-                    FileManagerOption.add_dir_tag_item -> {
-                        clickListener?.onDirTag(audio)
-                    }
-
-                    FileManagerOption.delete_item -> {
-                        clickListener?.onDelete(audio)
-                    }
-
-                    FileManagerOption.play_item_audio -> {
-                        clickListener?.onClick(position, audio)
-                        if (Settings.get().main().isShow_mini_player) getPlayerPlace(
-                        ).tryOpenWith(context)
-                    }
-
-                    FileManagerOption.play_item_after_current_audio -> MusicPlaybackController.playAfterCurrent(
-                        t
-                    )
-
-                    FileManagerOption.bitrate_item_audio -> getLocalBitrate(t.url)
-                    FileManagerOption.open_with_item -> {
-                        val intent_open = Intent(Intent.ACTION_VIEW)
-                        intent_open.setDataAndType(
-                            FileUtil.getExportedUriForFile(
-                                context,
-                                File(audio.file_path ?: return@show)
-                            ), MimeTypeMap.getSingleton()
-                                .getMimeTypeFromExtension(File(audio.file_path).extension)
-                        )
-                        intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        context.startActivity(intent_open)
-                    }
-
-                    FileManagerOption.share_item -> {
-                        val intent_send = Intent(Intent.ACTION_SEND)
-                        intent_send.type = MimeTypeMap.getSingleton()
-                            .getMimeTypeFromExtension(
-                                File(
-                                    audio.file_path ?: return@show
-                                ).extension
-                            )
-                        intent_send.putExtra(
-                            Intent.EXTRA_STREAM, FileUtil.getExportedUriForFile(
-                                context,
-                                File(audio.file_path)
-                            )
-                        )
-                        intent_send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        context.startActivity(intent_send)
-                    }
-
-                    FileManagerOption.update_file_time_item -> {
-                        clickListener?.onUpdateTimeFile(audio)
-                    }
-
-                    else -> {}
-                }
-            }, {
-                notifyItemChanged(position)
-            })
     }
 
     private fun onBindAudioHolder(holder: AudioHolder, position: Int) {
@@ -445,164 +200,10 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         }
         holder.itemView.setOnLongClickListener {
             holder.fileInfo.setBackgroundColor(colorPrimary)
-            doAudioMenu(holder.bindingAdapterPosition, item)
+            clickListener?.onOpenAudioMenu(holder.bindingAdapterPosition, item)
             true
         }
         updateAudioStatus(holder, item)
-    }
-
-    private fun doFileMenu(position: Int, file: FileItem) {
-        val menus = ModalBottomSheetDialogFragment.Builder()
-        menus.add(
-            OptionRequest(
-                FileManagerOption.open_with_item,
-                context.getString(R.string.open_with),
-                R.drawable.ic_external,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.share_item,
-                context.getString(R.string.share),
-                R.drawable.ic_share,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.update_file_time_item,
-                context.getString(R.string.update_time),
-                R.drawable.ic_recent,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.add_dir_tag_item,
-                if (file.isHasTag) context.getString(R.string.remove_dir_tag) else context.getString(
-                    R.string.add_dir_tag
-                ),
-                R.drawable.star,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.delete_item,
-                context.getString(R.string.delete),
-                R.drawable.ic_outline_delete,
-                false
-            )
-        )
-        menus.header(
-            file.file_name,
-            R.drawable.file,
-            "thumb_file://" + file.file_path
-        )
-        menus.columns(2)
-        menus.show(
-            (context as FragmentActivity).supportFragmentManager,
-            "file_options", { _, option ->
-                notifyItemChanged(position)
-                when (option.id) {
-                    FileManagerOption.add_dir_tag_item -> {
-                        clickListener?.onDirTag(file)
-                    }
-
-                    FileManagerOption.delete_item -> {
-                        clickListener?.onDelete(file)
-                    }
-
-                    FileManagerOption.open_with_item -> {
-                        val intent_open = Intent(Intent.ACTION_VIEW)
-                        intent_open.setDataAndType(
-                            FileUtil.getExportedUriForFile(
-                                context,
-                                File(file.file_path ?: return@show)
-                            ), MimeTypeMap.getSingleton()
-                                .getMimeTypeFromExtension(File(file.file_path).extension)
-                        )
-                        intent_open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        context.startActivity(intent_open)
-                    }
-
-                    FileManagerOption.share_item -> {
-                        val intent_send = Intent(Intent.ACTION_SEND)
-                        intent_send.type = MimeTypeMap.getSingleton()
-                            .getMimeTypeFromExtension(File(file.file_path ?: return@show).extension)
-                        intent_send.putExtra(
-                            Intent.EXTRA_STREAM, FileUtil.getExportedUriForFile(
-                                context,
-                                File(file.file_path)
-                            )
-                        )
-                        intent_send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        context.startActivity(intent_send)
-                    }
-
-                    FileManagerOption.update_file_time_item -> {
-                        clickListener?.onUpdateTimeFile(file)
-                    }
-
-                    else -> {}
-                }
-            }, {
-                notifyItemChanged(position)
-            })
-    }
-
-    private fun doFolderMenu(position: Int, file: FileItem) {
-        val menus = ModalBottomSheetDialogFragment.Builder()
-        menus.add(
-            OptionRequest(
-                FileManagerOption.delete_item,
-                context.getString(R.string.delete),
-                R.drawable.ic_outline_delete,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.fix_dir_time_item,
-                context.getString(R.string.fix_dir_time),
-                R.drawable.ic_recent,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileManagerOption.add_dir_tag_item,
-                if (file.isHasTag) context.getString(R.string.remove_dir_tag) else context.getString(
-                    R.string.add_dir_tag
-                ),
-                R.drawable.star,
-                false
-            )
-        )
-        menus.columns(1)
-        menus.show(
-            (context as FragmentActivity).supportFragmentManager,
-            "folder_options", { _, option ->
-                notifyItemChanged(position)
-                when (option.id) {
-                    FileManagerOption.fix_dir_time_item -> {
-                        clickListener?.onFixDir(file)
-                    }
-
-                    FileManagerOption.add_dir_tag_item -> {
-                        clickListener?.onDirTag(file)
-                    }
-
-                    FileManagerOption.delete_item -> {
-                        clickListener?.onDelete(file)
-                    }
-
-                    else -> {}
-                }
-            }, {
-                notifyItemChanged(position)
-            })
     }
 
     private fun onBindFileHolder(holder: FileHolder, position: Int) {
@@ -645,13 +246,13 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
         holder.itemView.setOnLongClickListener {
             if (item.type != FileType.folder) {
                 holder.fileInfo.setBackgroundColor(colorPrimary)
-                doFileMenu(holder.bindingAdapterPosition, item)
+                clickListener?.onOpenFileMenu(holder.bindingAdapterPosition, item)
             } else {
                 if (isSelectMode) {
                     clickListener?.onToggleDirTag(item)
                 } else {
                     holder.fileInfo.setBackgroundColor(colorPrimary)
-                    doFolderMenu(holder.bindingAdapterPosition, item)
+                    clickListener?.onOpenFolderMenu(holder.bindingAdapterPosition, item)
                 }
             }
             true
@@ -668,12 +269,10 @@ class FileManagerAdapter(private var context: Context, private var data: List<Fi
 
     interface ClickListener {
         fun onClick(position: Int, item: FileItem)
-        fun onFixDir(item: FileItem)
-        fun onUpdateTimeFile(item: FileItem)
-        fun onDirTag(item: FileItem)
         fun onToggleDirTag(item: FileItem)
-        fun onDelete(item: FileItem)
-        fun onRemotePlay(audio: FileItem)
+        fun onOpenFolderMenu(position: Int, item: FileItem)
+        fun onOpenFileMenu(position: Int, item: FileItem)
+        fun onOpenAudioMenu(position: Int, item: FileItem)
     }
 
     class FileHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

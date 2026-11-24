@@ -14,7 +14,7 @@
 
 <b>Инструкция по сборке:</b><br>
 Требуется:<br>
-  1. Android Studio Rabbit 2 2026.2.2 или выше. Kotlin 2.4.*<br>
+  1. Android Studio Rabbit 3 2026.2.3 или выше. Kotlin 2.4.*<br>
   2. Android SDK 37.2<br>
   3. Android NDK 30.0.16248370<br>
   4. CMake 4.1.2<br>

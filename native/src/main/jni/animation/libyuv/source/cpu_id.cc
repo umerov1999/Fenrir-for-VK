@@ -493,7 +493,17 @@ LIBYUV_API SAFEBUFFERS int WasmCpuCaps(void) {
   return flag;
 }
 
+static int detected_cpu_info_ = 0;
+
 static SAFEBUFFERS int GetCpuFlags(void) {
+#ifdef __ATOMIC_RELAXED
+  int cached_info = __atomic_load_n(&detected_cpu_info_, __ATOMIC_RELAXED);
+#else
+  int cached_info = detected_cpu_info_;
+#endif
+  if (cached_info) {
+    return cached_info;
+  }
   int cpu_info = 0;
 #if !defined(__pnacl__) && !defined(__CLR_VER) &&                   \
     (defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || \
@@ -504,7 +514,6 @@ static SAFEBUFFERS int GetCpuFlags(void) {
   int cpu_einfo7[4] = {0, 0, 0, 0};
   int cpu_info1d[4] = {0, 0, 0, 0};
   int cpu_einfo1d_2[4] = {0, 0, 0, 0};
-  int cpu_einfo1e[4] = {0, 0, 0, 0};
   int cpu_info24[4] = {0, 0, 0, 0};
   int cpu_einfo24_1[4] = {0, 0, 0, 0};
   int cpu_info21[4] = {0, 0, 0, 0};
@@ -532,9 +541,6 @@ static SAFEBUFFERS int GetCpuFlags(void) {
       CpuId(0x1d, 2, cpu_einfo1d_2);
     }
   }
-  if (cpu_info0[0] >= 0x1e) {
-    CpuId(0x1e, 1, cpu_einfo1e);
-  }
   if (cpu_info0[0] >= 0x21) {
     CpuId(0x21, 0, cpu_info21);
   }
@@ -559,8 +565,7 @@ static SAFEBUFFERS int GetCpuFlags(void) {
                 ((cpu_info1[2] & 0x00001000) ? kCpuHasFMA3 : 0) |
                 ((cpu_info1[2] & 0x20000000) ? kCpuHasF16C : 0) |
                 ((cpu_einfo7[0] & 0x00000010) ? kCpuHasAVXVNNI : 0) |
-                ((cpu_einfo7[3] & 0x00000010) ? kCpuHasAVXVNNIINT8 : 0) |
-                ((cpu_einfo7[3] & 0x00200000) ? kCpuHasAPX : 0);
+                ((cpu_einfo7[3] & 0x00000010) ? kCpuHasAVXVNNIINT8 : 0);
 
     // Detect AVX512bw / AVX10 (512-bit vector support)
     int has_avx512 = (cpu_info7[1] & 0x00010000) ||
@@ -575,10 +580,10 @@ static SAFEBUFFERS int GetCpuFlags(void) {
           ((cpu_info7[2] & 0x00000002) ? kCpuHasAVX512VBMI : 0) |
           ((cpu_info7[2] & 0x00000040) ? kCpuHasAVX512VBMI2 : 0) |
           ((cpu_info7[2] & 0x00000800) ? kCpuHasAVX512VNNI : 0) |
+          ((cpu_info7[2] & 0x00001000) ? kCpuHasAVX512VBITALG : 0) |
           ((cpu_einfo7[3] & 0x00080000) ? kCpuHasAVX10 : 0) |
           ((has_tile && (cpu_info7[3] & 0x02000000)) ? kCpuHasAMXINT8 : 0) |
-          ((cpu_amdinfo21[0] & 0x00800000) ? kCpuHasAVX512BMM : 0) |
-          ((cpu_einfo1e[0] & 0x00000040) ? kCpuHasAMXTF32 : 0);
+          ((cpu_amdinfo21[0] & 0x00800000) ? kCpuHasAVX512BMM : 0);
       if (cpu_info0[0] >= 0x24 && (cpu_einfo7[3] & 0x00080000)) {
         cpu_info |= ((cpu_info24[1] & 0xFF) >= 2) ? kCpuHasAVX10_2 : 0;
         if (has_tile && (GetXCR0() & 0x001000e6) == 0x001000e6 &&
@@ -640,12 +645,26 @@ static SAFEBUFFERS int GetCpuFlags(void) {
 #endif
 #endif  // __hexagon__
   cpu_info |= kCpuInitialized;
+#ifdef __ATOMIC_RELAXED
+  __atomic_store_n(&detected_cpu_info_, cpu_info, __ATOMIC_RELAXED);
+#else
+  detected_cpu_info_ = cpu_info;
+#endif
   return cpu_info;
 }
 
 // Note that use of this function is not thread safe.
 LIBYUV_API
 int MaskCpuFlags(int enable_flags) {
+  if (enable_flags == 0) {
+#ifdef __ATOMIC_RELAXED
+    __atomic_store_n(&detected_cpu_info_, 0, __ATOMIC_RELAXED);
+#else
+    detected_cpu_info_ = 0;
+#endif
+    SetCpuFlags(0);
+    return 0;
+  }
   int cpu_info = GetCpuFlags() & enable_flags;
   SetCpuFlags(cpu_info);
   return cpu_info;

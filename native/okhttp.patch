@@ -1,7 +1,7 @@
-Index: FFmpeg-n9.0/libavformat/hls.c
+Index: FFmpeg-n9.1/libavformat/hls.c
 ===================================================================
---- FFmpeg-n9.0.orig/libavformat/hls.c
-+++ FFmpeg-n9.0/libavformat/hls.c
+--- FFmpeg-n9.1.orig/libavformat/hls.c
++++ FFmpeg-n9.1/libavformat/hls.c
 @@ -29,7 +29,6 @@
  
  #include "config_components.h"
@@ -10,8 +10,8 @@ Index: FFmpeg-n9.0/libavformat/hls.c
  #include "libavutil/aes.h"
  #include "libavutil/avstring.h"
  #include "libavutil/avassert.h"
-@@ -661,23 +660,6 @@ static int ensure_playlist(HLSContext *c
-     return 0;
+@@ -804,23 +803,6 @@ static int is_native_http(AVIOContext *p
+ #endif
  }
  
 -static int open_url_keepalive(AVFormatContext *s, AVIOContext **pb,
@@ -34,11 +34,11 @@ Index: FFmpeg-n9.0/libavformat/hls.c
  
  static int open_url(AVFormatContext *s, AVIOContext **pb, const char *url,
                      AVDictionary **opts, AVDictionary *opts2, int *is_http_out)
-@@ -730,23 +712,9 @@ static int open_url(AVFormatContext *s,
+@@ -873,24 +855,8 @@ static int open_url(AVFormatContext *s,
      av_dict_copy(&tmp, *opts, 0);
      av_dict_copy(&tmp, opts2, 0);
  
--    if (is_http && c->http_persistent && *pb) {
+-    if (is_http && c->http_persistent && is_native_http(*pb)) {
 -        ret = open_url_keepalive(c->ctx, pb, url, &tmp);
 -        if (ret == AVERROR_EXIT) {
 -            av_dict_free(&tmp);
@@ -53,17 +53,17 @@ Index: FFmpeg-n9.0/libavformat/hls.c
 -            ret = s->io_open(s, pb, url, AVIO_FLAG_READ, &tmp);
 -        }
 -    } else {
+-        av_assert0(!*pb);
 -        ret = s->io_open(s, pb, url, AVIO_FLAG_READ, &tmp);
 -    }
-+
++    av_assert0(!*pb);
 +    ret = s->io_open(s, pb, url, AVIO_FLAG_READ, &tmp);
-+
      if (ret >= 0) {
          // update cookies on http response with setcookies.
          char *new_cookies = NULL;
-@@ -836,19 +804,6 @@ static int parse_playlist(HLSContext *c,
-     int prev_n_segments = 0;
-     int64_t prev_start_seq_no = -1;
+@@ -984,19 +950,6 @@ static int parse_playlist(HLSContext *c,
+     int time_offset_flag = 0;
+     int finished = 0;
  
 -    if (is_http && !in && c->http_persistent && c->playlist_pb) {
 -        in = c->playlist_pb;
@@ -81,13 +81,13 @@ Index: FFmpeg-n9.0/libavformat/hls.c
  
      if (!in) {
          AVDictionary *opts = NULL;
-Index: FFmpeg-n9.0/libavformat/protocols.c
+Index: FFmpeg-n9.1/libavformat/protocols.c
 ===================================================================
---- FFmpeg-n9.0.orig/libavformat/protocols.c
-+++ FFmpeg-n9.0/libavformat/protocols.c
-@@ -80,7 +80,11 @@ extern const URLProtocol ff_libzmq_proto
- extern const URLProtocol ff_ipfs_gateway_protocol;
+--- FFmpeg-n9.1.orig/libavformat/protocols.c
++++ FFmpeg-n9.1/libavformat/protocols.c
+@@ -82,7 +82,11 @@ extern const URLProtocol ff_ipfs_gateway
  extern const URLProtocol ff_ipns_gateway_protocol;
+ extern const URLProtocol ff_windows_handle_protocol;
  
 -#include "libavformat/protocol_list.c"
 +static const URLProtocol * const url_protocols[] = {

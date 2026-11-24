@@ -103,13 +103,13 @@ class FeedFragment : PlaceSupportMvpFragment<FeedPresenter, IFeedView>(), IFeedV
             }
 
             R.id.action_feed_lists -> {
-                PlaceFactory.getFeedOwnerListPlace(Settings.get().accounts().current)
+                PlaceFactory.getFeedOwnerListPlace(requireArguments().getLong(Extra.ACCOUNT_ID))
                     .tryOpenWith(requireActivity())
                 true
             }
 
             R.id.action_feed_ban -> {
-                PlaceFactory.getFeedBanPlace(Settings.get().accounts().current)
+                PlaceFactory.getFeedBanPlace(requireArguments().getLong(Extra.ACCOUNT_ID))
                     .tryOpenWith(requireActivity())
                 true
             }

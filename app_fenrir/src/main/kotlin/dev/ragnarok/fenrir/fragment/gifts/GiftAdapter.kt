@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.gifts
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,11 +15,13 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
-class GiftAdapter(private var data: List<Gift>, private val context: Context) :
+class GiftAdapter(private var data: List<Gift>) :
     RecyclerView.Adapter<GiftAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_gift, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_gift, parent, false)
+        )
     }
 
     @SuppressLint("SetTextI18n")
@@ -39,7 +40,7 @@ class GiftAdapter(private var data: List<Gift>, private val context: Context) :
         }
         if (gift.date == 0L) holder.time.visibility = View.GONE else {
             holder.time.visibility = View.VISIBLE
-            holder.time.text = AppTextUtils.getDateFromUnixTime(context, gift.date)
+            holder.time.text = AppTextUtils.getDateFromUnixTime(holder.time.context, gift.date)
         }
         holder.gift_container.setOnClickListener {
             clickListener?.onOpenClick(holder.bindingAdapterPosition, gift)

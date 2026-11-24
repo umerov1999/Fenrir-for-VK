@@ -103,7 +103,7 @@ class FeedbackLinkDialog : DialogFragment(), FeedbackLinkAdapter.ActionListener 
         val view = View.inflate(requireActivity(), R.layout.fragment_feedback_links, null)
         val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        val adapter = FeedbackLinkAdapter(requireActivity(), getAllModels(mFeedback), this)
+        val adapter = FeedbackLinkAdapter(getAllModels(mFeedback), this)
         recyclerView.adapter = adapter
         val builder = MaterialAlertDialogBuilder(requireActivity())
             .setTitle(R.string.choose_action)

@@ -25,7 +25,7 @@ class VideoSearchFragment :
 
     override fun postCreate(root: View) {}
     override fun createAdapter(data: MutableList<Video>): VideosAdapter {
-        val adapter = VideosAdapter(requireActivity(), data)
+        val adapter = VideosAdapter(data)
         adapter.setVideoOnClickListener(this)
         return adapter
     }

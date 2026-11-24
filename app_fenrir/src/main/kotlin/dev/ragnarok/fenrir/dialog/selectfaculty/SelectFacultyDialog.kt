@@ -36,7 +36,7 @@ class SelectFacultyDialog : AccountDependencyDialogFragment(), FacultiesAdapter.
             mData = ArrayList()
             firstRun = true
         }
-        mAdapter = FacultiesAdapter(requireActivity(), mData ?: emptyList())
+        mAdapter = FacultiesAdapter(mData ?: emptyList())
         mAdapter?.setListener(this)
         mRecyclerView.adapter = mAdapter
         if (firstRun) {

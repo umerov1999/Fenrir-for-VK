@@ -31,7 +31,7 @@
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.MediumRoundedPictures" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/video_lenght"
+                android:id="@+id/video_length"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|bottom"

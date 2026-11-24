@@ -100,7 +100,7 @@ internal class UISettings(context: Context) : IUISettings {
                 Place.DOCS -> getDocumentsPlace(accountId, accountId, null)
                 Place.BOOKMARKS -> getBookmarksPlace(accountId, FaveTabsFragment.TAB_PAGES)
                 Place.SEARCH -> getSearchPlace(accountId, SearchTabsFragment.TAB_PEOPLE)
-                Place.VIDEOS -> getVideosPlace(accountId, accountId, null)
+                Place.VIDEOS -> getVideosPlace(accountId, accountId, null, false)
                 Place.PREFERENCES -> getPreferencesPlace(accountId)
                 else -> getDialogsPlace(accountId, accountId, null)
             }
@@ -117,7 +117,7 @@ internal class UISettings(context: Context) : IUISettings {
                 "4" -> getNotificationsPlace(accountId)
                 "5" -> getCommunitiesPlace(accountId, accountId)
                 "6" -> getVKPhotoAlbumsPlace(accountId, accountId, null, null)
-                "7" -> getVideosPlace(accountId, accountId, null)
+                "7" -> getVideosPlace(accountId, accountId, null, false)
                 "8" -> getAudiosPlace(accountId, accountId)
                 "9" -> getDocumentsPlace(accountId, accountId, null)
                 "10" -> getBookmarksPlace(accountId, FaveTabsFragment.TAB_PAGES)

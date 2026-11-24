@@ -311,7 +311,8 @@ object LinkHelper {
                     videoAlbumLink.ownerId,
                     videoAlbumLink.albumId,
                     null,
-                    null
+                    null,
+                    false
                 )
                     .tryOpenWith(context)
             }
@@ -321,7 +322,8 @@ object LinkHelper {
                 getVideosPlace(
                     accountId,
                     videosLink.ownerId,
-                    null
+                    null,
+                    false
                 )
                     .tryOpenWith(context)
             }

@@ -95,7 +95,7 @@ class ImportantMessagesFragment :
         }).attachToRecyclerView(recyclerView)
 
         mAdapter = MessagesAdapter(
-            Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             requireActivity(),
             mutableListOf(),
             LastReadId(0, 0),

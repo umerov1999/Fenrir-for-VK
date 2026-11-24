@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.absownerslist
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +23,7 @@ import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.util.ViewUtils.getOnlineIcon
 
-class OwnersAdapter(private val mContext: Context, private var mData: List<Owner>) :
+class OwnersAdapter(private var mData: List<Owner>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val transformationWithStory: Transformation =
@@ -34,11 +33,11 @@ class OwnersAdapter(private val mContext: Context, private var mData: List<Owner
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             TYPE_USER -> PeopleHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.item_people, parent, false)
+                LayoutInflater.from(parent.context).inflate(R.layout.item_people, parent, false)
             )
 
             TYPE_COMMUNITY -> CommunityHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.item_group, parent, false)
+                LayoutInflater.from(parent.context).inflate(R.layout.item_group, parent, false)
             )
 
             else -> throw RuntimeException("OwnersAdapter.onCreateViewHolder")
@@ -57,10 +56,15 @@ class OwnersAdapter(private val mContext: Context, private var mData: List<Owner
 
     private fun bindCommunityHolder(holder: CommunityHolder, community: Community) {
         holder.tvName.text = community.fullName
-        holder.tvName.setTextColor(Utils.getVerifiedColor(mContext, community.isVerified))
+        holder.tvName.setTextColor(
+            Utils.getVerifiedColor(
+                holder.tvName.context,
+                community.isVerified
+            )
+        )
         holder.ivVerified.visibility = if (community.isVerified) View.VISIBLE else View.GONE
-        holder.tvType.text = getCommunityType(mContext, community)
-        holder.tvMembersCount.text = mContext.getString(
+        holder.tvType.text = getCommunityType(holder.tvType.context, community)
+        holder.tvMembersCount.text = holder.tvMembersCount.context.getString(
             R.string.members_count,
             if (community.membersCount > 0) AppTextUtils.getCounterWithK(community.membersCount) else "-"
         )
@@ -81,11 +85,12 @@ class OwnersAdapter(private val mContext: Context, private var mData: List<Owner
 
     private fun bindUserHolder(holder: PeopleHolder, user: User) {
         holder.name.text = user.fullName
-        holder.name.setTextColor(Utils.getVerifiedColor(mContext, user.isVerified))
+        holder.name.setTextColor(Utils.getVerifiedColor(holder.name.context, user.isVerified))
         holder.ivVerified.visibility = if (user.isVerified) View.VISIBLE else View.GONE
         holder.blacklisted.visibility = if (user.blacklisted) View.VISIBLE else View.GONE
-        holder.subtitle.text = UserInfoResolveUtil.getUserActivityLine(mContext, user, true)
-        holder.subtitle.setTextColor(if (user.isOnline) CurrentTheme.getColorPrimary(mContext) else STATUS_COLOR_OFFLINE)
+        holder.subtitle.text =
+            UserInfoResolveUtil.getUserActivityLine(holder.subtitle.context, user, true)
+        holder.subtitle.setTextColor(if (user.isOnline) CurrentTheme.getColorPrimary(holder.subtitle.context) else STATUS_COLOR_OFFLINE)
         holder.online.visibility = if (user.isOnline) View.VISIBLE else View.GONE
         val onlineIcon =
             getOnlineIcon(user.isOnline, user.isOnlineMobile, user.platform, user.onlineApp)
@@ -110,7 +115,7 @@ class OwnersAdapter(private val mContext: Context, private var mData: List<Owner
                 user
             ) == true
         }
-        addSelectionProfileSupport(mContext, holder.avatarRoot, user)
+        addSelectionProfileSupport(holder.avatarRoot.context, holder.avatarRoot, user)
     }
 
     override fun getItemCount(): Int {
@@ -150,7 +155,7 @@ class OwnersAdapter(private val mContext: Context, private var mData: List<Owner
         val ivVerified: ImageView = itemView.findViewById(R.id.item_verified)
     }
 
-    private inner class PeopleHolder(itemView: View) :
+    private class PeopleHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.item_people_name)
         val subtitle: TextView = itemView.findViewById(R.id.item_people_subtitle)
@@ -161,7 +166,7 @@ class OwnersAdapter(private val mContext: Context, private var mData: List<Owner
         val blacklisted: ImageView = itemView.findViewById(R.id.item_blacklisted)
 
         init {
-            Utils.setColorFilter(online, CurrentTheme.getColorPrimary(mContext))
+            Utils.setColorFilter(online, CurrentTheme.getColorPrimary(online.context))
         }
     }
 

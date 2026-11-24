@@ -20,7 +20,7 @@ class FeedBannedFragment : AbsOwnersListFragment<FeedBannedPresenter, ISimpleOwn
         menus.add(
             OptionRequest(
                 1,
-                requireActivity().getString(R.string.delete),
+                getString(R.string.delete),
                 R.drawable.ic_outline_delete,
                 true
             )
@@ -32,7 +32,7 @@ class FeedBannedFragment : AbsOwnersListFragment<FeedBannedPresenter, ISimpleOwn
         )
         menus.columns(1)
         menus.show(
-            requireActivity().supportFragmentManager,
+            childFragmentManager,
             "ban_options"
         ) { _, option ->
             if (option.id == 1) {

@@ -198,7 +198,7 @@ class FileManagerSelectFragment :
                 )
             }
             menus.show(
-                requireActivity().supportFragmentManager,
+                childFragmentManager,
                 "select_storage"
             ) { _, option ->
                 option.title.nonNullNoEmpty {

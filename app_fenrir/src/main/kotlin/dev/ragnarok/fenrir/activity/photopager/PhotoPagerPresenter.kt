@@ -235,7 +235,7 @@ open class PhotoPagerPresenter internal constructor(
             ) {
                 PlaceFactory.getOwnerWallPlace(accountId, photo.ownerId, null).tryOpenWith(context)
             })
-        val adapter = ButtonAdapter(context, buttons)
+        val adapter = ButtonAdapter(buttons)
         MaterialAlertDialogBuilder(context)
             .setTitle(
                 context.getString(R.string.uploaded) + " " + AppTextUtils.getDateFromUnixTime(
@@ -610,7 +610,7 @@ open class PhotoPagerPresenter internal constructor(
                 buttons.add(FunctionSource(i.tagged_name, R.drawable.pencil) {})
             }
         }
-        val adapter = ButtonAdapter(context, buttons)
+        val adapter = ButtonAdapter(buttons)
         MaterialAlertDialogBuilder(context)
             .setTitle(R.string.has_tags)
             .setPositiveButton(R.string.button_ok, null)
@@ -714,20 +714,19 @@ open class PhotoPagerPresenter internal constructor(
     }
 
     private class ButtonAdapter(
-        private val context: Context,
         private val items: List<FunctionSource>
     ) : RecyclerView.Adapter<ButtonHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ButtonHolder {
             return ButtonHolder(
                 LayoutInflater.from(
-                    context
+                    parent.context
                 ).inflate(R.layout.item_button, parent, false)
             )
         }
 
         override fun onBindViewHolder(holder: ButtonHolder, position: Int) {
             val source = items[position]
-            holder.button.text = source.getTitle(context)
+            holder.button.text = source.getTitle(holder.button.context)
             holder.button.setIconResource(source.getIcon())
             holder.button.setOnClickListener { source.call.invoke() }
         }

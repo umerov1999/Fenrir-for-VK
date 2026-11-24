@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.dialog.privacyview
 
-import android.content.Context
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -20,12 +19,12 @@ import dev.ragnarok.fenrir.model.User
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.util.Utils
 
-class PrivacyAdapter(private val mContext: Context, private val mPrivacy: Privacy) :
+class PrivacyAdapter(private val mPrivacy: Privacy) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var mLayoutManager: RecyclerView.LayoutManager? = null
     private var mActionListener: ActionListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(mContext)
+        val inflater = LayoutInflater.from(parent.context)
         when (viewType) {
             TYPE_ENTRY -> return EntryViewHolder(
                 inflater.inflate(
@@ -111,8 +110,9 @@ class PrivacyAdapter(private val mContext: Context, private val mPrivacy: Privac
         }
         val position = holder.bindingAdapterPosition
         if (position == 0) {
-            val title = mContext.getString(typeTitle)
-            val fullText = mContext.getString(R.string.who_can_have_access) + " " + title
+            val title = holder.title.context.getString(typeTitle)
+            val fullText =
+                holder.title.context.getString(R.string.who_can_have_access) + " " + title
             val spannable: Spannable = SpannableStringBuilder.valueOf(fullText)
             val span: ClickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {

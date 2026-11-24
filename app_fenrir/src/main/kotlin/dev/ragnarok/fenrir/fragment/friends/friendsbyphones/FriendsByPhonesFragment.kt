@@ -126,7 +126,7 @@ class FriendsByPhonesFragment : BaseMvpFragment<FriendsByPhonesPresenter, IFrien
         recyclerView.layoutManager =
             LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false)
         PicassoPauseOnScrollListener.addListener(recyclerView)
-        mAdapter = ContactsAdapter(requireActivity(), emptyList())
+        mAdapter = ContactsAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()

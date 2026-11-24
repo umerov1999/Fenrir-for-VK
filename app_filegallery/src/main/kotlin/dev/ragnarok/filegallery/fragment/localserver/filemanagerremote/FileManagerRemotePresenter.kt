@@ -4,8 +4,10 @@ import android.os.Parcelable
 import androidx.recyclerview.widget.LinearLayoutManagerSavedState
 import dev.ragnarok.fenrir.module.parcel.ParcelFlags
 import dev.ragnarok.fenrir.module.parcel.ParcelNative
-import dev.ragnarok.filegallery.Includes
+import dev.ragnarok.filegallery.Includes.networkInterfaces
+import dev.ragnarok.filegallery.api.interfaces.ILocalServerApi
 import dev.ragnarok.filegallery.fragment.base.RxSupportPresenter
+import dev.ragnarok.filegallery.media.music.MusicPlaybackController.observeServiceBinding
 import dev.ragnarok.filegallery.model.Audio
 import dev.ragnarok.filegallery.model.FileRemote
 import dev.ragnarok.filegallery.model.FileType
@@ -13,15 +15,23 @@ import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.nonNullNoEmpty
 import dev.ragnarok.filegallery.util.Utils
+import dev.ragnarok.filegallery.util.Utils.parseLocalServerURL
+import dev.ragnarok.filegallery.util.coroutines.CancelableJob
 import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.fromIOToMain
+import dev.ragnarok.filegallery.util.coroutines.CoroutinesUtils.sharedFlowToMain
 
 class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() {
     private val fileList: ArrayList<FileRemote> = ArrayList()
     private val fileListSearch: ArrayList<FileRemote> = ArrayList()
+    private val fInteractor: ILocalServerApi = networkInterfaces.localServerApi()
     private var isLoading = false
     private val directoryScrollPositions = HashMap<String?, Pair<Parcelable, Int>>()
     private var q: String? = null
     private var path: ArrayList<String> = ArrayList()
+    private var serviceStatusJob = CancelableJob()
+
+    private var tmpDownloadAudio: Audio? = null
+    private var tmpDownloadPos = -1
 
     private inline fun <reified T> join(
         tokens: Iterable<T>?,
@@ -93,7 +103,18 @@ class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() 
         viewHost.displayData(if (q == null) fileList else fileListSearch)
         viewHost.updatePathString(buildPath())
         viewHost.resolveEmptyText(fileList.isEmpty())
-        viewHost.resolveLoading(isLoading)
+        resolveRefreshingView()
+    }
+
+    private fun resolveRefreshingView() {
+        view?.resolveLoading(
+            isLoading
+        )
+    }
+
+    override fun onDestroyed() {
+        serviceStatusJob.cancel()
+        super.onDestroyed()
     }
 
     fun backupDirectoryScroll(scroll: Parcelable, appVerticalOffset: Int) {
@@ -195,6 +216,143 @@ class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() 
         }
     }
 
+    fun fireOpenAudioMenu(
+        position: Int,
+        audio: FileRemote
+    ) {
+        val ent = if (q == null) fileList else fileListSearch
+        if (position < ent.size && position >= 0) {
+            view?.doAudioMenu(position, audio)
+        }
+    }
+
+    fun fireOpenFileMenu(
+        position: Int,
+        file: FileRemote
+    ) {
+        val ent = if (q == null) fileList else fileListSearch
+        if (position < ent.size && position >= 0) {
+            view?.doFileMenu(position, file)
+        }
+    }
+
+    fun firePrepareDownload(position: Int, audio: Audio) {
+        tmpDownloadPos = position
+        tmpDownloadAudio = audio
+        view?.onDownloadAudioNextStage()
+    }
+
+    fun continueDownload() {
+        val position = tmpDownloadPos
+        val audio = tmpDownloadAudio
+        val ent = if (q == null) fileList else fileListSearch
+        if (position < 0 || position > ent.size - 1 || audio == null) {
+            return
+        }
+        view?.onStartAudioDownload(position, audio)
+        tmpDownloadPos = -1
+        tmpDownloadAudio = null
+    }
+
+    fun fireUpdateTime(file: FileRemote) {
+        val hash = parseLocalServerURL(file.url)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        isLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.updateTime(hash).fromIOToMain(
+                {
+                    isLoading = false
+                    resolveRefreshingView()
+
+                    view?.showSuccess()
+                    loadFiles()
+                }, {
+                    isLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun firePrepareEditFileName(file: FileRemote) {
+        val hash = parseLocalServerURL(file.url)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        isLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.getFileName(hash).fromIOToMain(
+                {
+                    isLoading = false
+                    resolveRefreshingView()
+
+                    view?.displayEditFileNameDialog(hash, it)
+                }, {
+                    isLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun firEditFileName(hash: String, newFileName: String) {
+        isLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.updateFileName(hash, newFileName).fromIOToMain(
+                {
+                    isLoading = false
+                    resolveRefreshingView()
+                    view?.showSuccess()
+                    loadFiles()
+                }, {
+                    isLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
+    fun fireDeleteFile(position: Int, file: FileRemote) {
+        val ent = if (q == null) fileList else fileListSearch
+        if (position >= ent.size || position < 0) {
+            return
+        }
+        val hash = parseLocalServerURL(file.url)
+        if (hash.isNullOrEmpty()) {
+            return
+        }
+        isLoading = true
+        resolveRefreshingView()
+
+        appendJob(
+            fInteractor.deleteMedia(hash).fromIOToMain(
+                {
+                    ent.removeAt(position)
+                    isLoading = false
+                    resolveRefreshingView()
+
+                    view?.showSuccess()
+                    view?.notifyItemRemoved(position)
+                }, {
+                    isLoading = false
+                    resolveRefreshingView()
+
+                    view?.showThrowable(it)
+                })
+        )
+    }
+
     fun goFolder(item: FileRemote) {
         if (isLoading) {
             return
@@ -234,28 +392,32 @@ class FileManagerRemotePresenter : RxSupportPresenter<IFileManagerRemoteView>() 
             return
         }
         isLoading = true
+        resolveRefreshingView()
         view?.resolveEmptyText(false)
-        view?.resolveLoading(isLoading)
         appendJob(
-            Includes.networkInterfaces.localServerApi().fsGet(buildPath()).fromIOToMain({
+            fInteractor.fsGet(buildPath()).fromIOToMain({
                 fileList.clear()
                 fileList.addAll(it)
                 isLoading = false
+                resolveRefreshingView()
                 view?.resolveEmptyText(fileList.isEmpty())
-                view?.resolveLoading(isLoading)
                 view?.notifyAllChanged()
                 directoryScrollPositions.remove(buildPath())?.let { scroll ->
                     view?.restoreScroll(scroll.first, scroll.second)
                 } ?: view?.restoreScroll(LinearLayoutManagerSavedState(), 0)
             }, {
-                view?.showThrowable(it)
+                view?.onError(it)
                 isLoading = false
-                view?.resolveLoading(isLoading)
+                resolveRefreshingView()
             })
         )
     }
 
     init {
         loadFiles()
+        serviceStatusJob += observeServiceBinding()
+            .sharedFlowToMain {
+                view?.onServiceBindEvent(it)
+            }
     }
 }

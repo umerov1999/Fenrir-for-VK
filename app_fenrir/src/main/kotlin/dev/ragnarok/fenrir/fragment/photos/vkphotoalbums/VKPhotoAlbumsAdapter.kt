@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.photos.vkphotoalbums
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import dev.ragnarok.fenrir.model.PhotoSize
 import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 
-class VKPhotoAlbumsAdapter(private val context: Context, private var data: List<PhotoAlbum>) :
+class VKPhotoAlbumsAdapter(private var data: List<PhotoAlbum>) :
     RecyclerView.Adapter<VKPhotoAlbumsAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -40,7 +39,7 @@ class VKPhotoAlbumsAdapter(private val context: Context, private var data: List<
         holder.imageView.setOnClickListener {
             clickListener?.onVkPhotoAlbumClick(photoAlbum)
         }
-        if (photoAlbum.size >= 0) holder.counterText.text = context.getString(
+        if (photoAlbum.size >= 0) holder.counterText.text = holder.counterText.context.getString(
             R.string.photos_count,
             photoAlbum.size
         ) else holder.counterText.setText(R.string.unknown_photos_count)

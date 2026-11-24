@@ -37,6 +37,31 @@ namespace utf8
         append16(cp, std::back_inserter(s));
     }
 
+    inline std::size_t find_invalid16(const std::u16string& s)
+    {
+        std::u16string::const_iterator invalid = find_invalid16(s.begin(), s.end());
+        return (invalid == s.end()) ? std::u16string::npos : static_cast<std::size_t>(invalid - s.begin());
+    }
+
+    inline bool is_valid16(const std::u16string& s)
+    {
+        return is_valid16(s.begin(), s.end());
+    }
+
+    inline std::u16string replace_invalid16(const std::u16string& s, utfchar32_t replacement)
+    {
+        std::u16string result;
+        replace_invalid16(s.begin(), s.end(), std::back_inserter(result), replacement);
+        return result;
+    }
+
+    inline std::u16string replace_invalid16(const std::u16string& s)
+    {
+        std::u16string result;
+        replace_invalid16(s.begin(), s.end(), std::back_inserter(result));
+        return result;
+    }
+
     inline std::string utf16to8(const std::u16string& s)
     {
         std::string result;

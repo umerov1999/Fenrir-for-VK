@@ -68,7 +68,7 @@ class StoriesViewFragment : BaseMvpFragment<StoriesViewPresenter, IStoriesViewVi
                 presenter?.fireScrollToEnd()
             }
         })
-        mOwnersAdapter = StoriesViewAdapter(requireActivity(), emptyList())
+        mOwnersAdapter = StoriesViewAdapter(emptyList())
         mOwnersAdapter?.setClickListener(object : StoriesViewAdapter.ClickListener {
             override fun onOwnerClick(owner: Owner) {
                 presenter?.fireOwnerClick(owner)

@@ -8,18 +8,28 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import dev.ragnarok.fenrir.Extra
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.fragment.base.BaseMvpFragment
 import dev.ragnarok.fenrir.listener.EndlessRecyclerOnScrollListener
 import dev.ragnarok.fenrir.listener.PicassoPauseOnScrollListener
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
+import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.InternalVideoSize
 import dev.ragnarok.fenrir.model.Video
+import dev.ragnarok.fenrir.model.menu.options.VideoLocalServerOption
 import dev.ragnarok.fenrir.place.PlaceFactory.getVkInternalPlayerPlace
 import dev.ragnarok.fenrir.settings.Settings
+import dev.ragnarok.fenrir.toColor
+import dev.ragnarok.fenrir.util.AppPerms.hasReadWriteStoragePermission
 import dev.ragnarok.fenrir.util.AppPerms.requestPermissionsAbs
+import dev.ragnarok.fenrir.util.DownloadWorkUtils.doDownloadVideo
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.util.ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme
+import dev.ragnarok.fenrir.util.toast.CustomSnackbars
 import dev.ragnarok.fenrir.view.MySearchView
 import dev.ragnarok.fenrir.view.MySearchView.OnAdditionalButtonClickListener
 
@@ -33,10 +43,10 @@ class VideosLocalServerFragment :
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     ) {
-        customToast?.showToast(R.string.permission_all_granted_text)
+        presenter?.continueDownload()
     }
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
-    private var mVideoRecyclerAdapter: LocalServerVideosAdapter? = null
+    private var mVideosAdapter: LocalServerVideosAdapter? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,7 +71,7 @@ class VideosLocalServerFragment :
         }
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
         val recyclerView: RecyclerView = root.findViewById(R.id.recycler_view)
-        val columns = requireActivity().resources.getInteger(R.integer.videos_column_count)
+        val columns = resources.getInteger(R.integer.videos_column_count)
         val manager =
             if (Settings.get().main().single_line_videos) Utils.getSingleElementsLayoutManager(
                 requireActivity()
@@ -73,9 +83,9 @@ class VideosLocalServerFragment :
                 presenter?.fireScrollToEnd()
             }
         })
-        mVideoRecyclerAdapter = LocalServerVideosAdapter(requireActivity(), emptyList())
-        mVideoRecyclerAdapter?.setVideoOnClickListener(this)
-        recyclerView.adapter = mVideoRecyclerAdapter
+        mVideosAdapter = LocalServerVideosAdapter(emptyList())
+        mVideosAdapter?.setVideoOnClickListener(this)
+        recyclerView.adapter = mVideosAdapter
         return root
     }
 
@@ -85,11 +95,11 @@ class VideosLocalServerFragment :
     )
 
     override fun displayList(videos: List<Video>) {
-        mVideoRecyclerAdapter?.setData(videos)
+        mVideosAdapter?.setData(videos)
     }
 
     override fun notifyListChanged() {
-        mVideoRecyclerAdapter?.notifyDataSetChanged()
+        mVideosAdapter?.notifyDataSetChanged()
     }
 
     override fun displayLoading(loading: Boolean) {
@@ -97,11 +107,15 @@ class VideosLocalServerFragment :
     }
 
     override fun notifyItemChanged(index: Int) {
-        mVideoRecyclerAdapter?.notifyItemChanged(index)
+        mVideosAdapter?.notifyItemChanged(index)
+    }
+
+    override fun notifyItemRemoved(index: Int) {
+        mVideosAdapter?.notifyItemRemoved(index)
     }
 
     override fun notifyDataAdded(position: Int, count: Int) {
-        mVideoRecyclerAdapter?.notifyItemRangeInserted(position, count)
+        mVideosAdapter?.notifyItemRangeInserted(position, count)
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
@@ -124,8 +138,153 @@ class VideosLocalServerFragment :
         )
     }
 
-    override fun onRequestWritePermissions() {
-        requestWritePermission.launch()
+    override fun onOpenVideoMenu(position: Int, video: Video) {
+        presenter?.fireOpenVideoMenu(position, video)
+    }
+
+    override fun doVideoMenu(accountId: Long, position: Int, video: Video) {
+        val menus = ModalBottomSheetDialogFragment.Builder()
+        menus.add(
+            OptionRequest(
+                VideoLocalServerOption.save_item_video,
+                getString(R.string.download),
+                R.drawable.save,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                VideoLocalServerOption.play_item_video,
+                getString(R.string.play),
+                R.drawable.play,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                VideoLocalServerOption.update_time_item_video,
+                getString(R.string.update_time),
+                R.drawable.ic_recent,
+                false
+            )
+        )
+        menus.add(
+            OptionRequest(
+                VideoLocalServerOption.delete_item_video,
+                getString(R.string.delete),
+                R.drawable.ic_outline_delete,
+                true
+            )
+        )
+        menus.add(
+            OptionRequest(
+                VideoLocalServerOption.edit_item_video,
+                getString(R.string.edit),
+                R.drawable.about_writed,
+                true
+            )
+        )
+        menus.header(
+            Utils.firstNonEmptyString(video.description, " ") + " - " + video.title,
+            R.drawable.video,
+            null
+        )
+        menus.columns(2)
+        menus.show(
+            childFragmentManager,
+            "server_video_options"
+        ) { _, option ->
+            when (option.id) {
+                VideoLocalServerOption.save_item_video -> {
+                    presenter?.firePrepareDownload(position, video)
+                }
+
+                VideoLocalServerOption.play_item_video -> {
+                    getVkInternalPlayerPlace(video, InternalVideoSize.SIZE_720, true).tryOpenWith(
+                        requireActivity()
+                    )
+                }
+
+                VideoLocalServerOption.update_time_item_video -> {
+                    presenter?.fireUpdateTime(video)
+                }
+
+                VideoLocalServerOption.edit_item_video -> {
+                    presenter?.firePrepareEditFileName(video)
+                }
+
+                VideoLocalServerOption.delete_item_video -> {
+                    MaterialAlertDialogBuilder(
+                        requireActivity()
+                    )
+                        .setMessage(R.string.do_delete)
+                        .setTitle(R.string.confirmation)
+                        .setCancelable(true)
+                        .setPositiveButton(R.string.button_yes) { _, _ ->
+                            presenter?.fireDeleteVideo(position, video)
+                        }
+                        .setNegativeButton(R.string.button_cancel, null)
+                        .show()
+                }
+
+                else -> {}
+            }
+        }
+    }
+
+    override fun onDownloadVideoNextStage() {
+        if (!hasReadWriteStoragePermission(requireActivity())) {
+            requestWritePermission.launch()
+            return
+        }
+        presenter?.continueDownload()
+    }
+
+    override fun onStartVideoDownload(
+        accountId: Long,
+        position: Int,
+        video: Video
+    ) {
+        video.mp4link720?.let { it1 ->
+            doDownloadVideo(
+                requireActivity(), video,
+                it1, "Local"
+            )
+        }
+    }
+
+    override fun showSuccess() {
+        CustomSnackbars.createCustomSnackbars(view)
+            ?.setDurationSnack(Snackbar.LENGTH_LONG)
+            ?.coloredSnack(
+                R.string.success,
+                "#48BE2D".toColor(), false
+            )
+            ?.show()
+    }
+
+    override fun displayEditFileNameDialog(
+        hash: String,
+        fileName: String
+    ) {
+        val root =
+            View.inflate(requireActivity(), R.layout.entry_file_name, null)
+        root.findViewById<TextInputEditText>(R.id.edit_file_name).setText(fileName)
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.change_name)
+            .setCancelable(true)
+            .setView(root)
+            .setPositiveButton(R.string.button_ok) { _, _ ->
+                val newFileName =
+                    root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
+                        ?.trim()
+                if (newFileName.isNullOrEmpty()) {
+                    return@setPositiveButton
+                }
+                presenter?.firEditFileName(hash, newFileName)
+            }
+            .setNegativeButton(R.string.button_cancel, null)
+            .show()
     }
 
     companion object {

@@ -15,7 +15,7 @@ import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.view.emoji.EmojiconsPopup.OnStickerClickedListener
 import java.lang.ref.WeakReference
 
-class StickersKeyWordsAdapter(private val context: Context, private var stickers: List<Sticker>) :
+class StickersKeyWordsAdapter(context: Context, private var stickers: List<Sticker>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val isNightSticker: Boolean =
         Settings.get().ui().isStickers_by_theme && Settings.get().ui().isDarkModeEnabled(
@@ -38,7 +38,7 @@ class StickersKeyWordsAdapter(private val context: Context, private var stickers
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return StickerHolder(
             LayoutInflater.from(
-                context
+                parent.context
             ).inflate(R.layout.sticker_keyword_item, parent, false)
         )
     }

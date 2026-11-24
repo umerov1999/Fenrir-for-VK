@@ -53,7 +53,7 @@ class SelectUniversityDialog : AccountDependencyDialogFragment(), UniversitiesAd
             mData = ArrayList()
             firstRun = true
         }
-        mAdapter = UniversitiesAdapter(requireActivity(), mData ?: emptyList())
+        mAdapter = UniversitiesAdapter(mData ?: emptyList())
         mAdapter?.setListener(this)
         mRecyclerView.adapter = mAdapter
         if (firstRun) {

@@ -66,6 +66,14 @@ abstract class AbsChatAttachmentsFragment<T, P : BaseChatAttachmentsPresenter<T,
         adapter?.notifyItemRangeInserted(position, count)
     }
 
+    override fun notifyItemRemoved(index: Int) {
+        adapter?.notifyItemRemoved(index)
+    }
+
+    override fun notifyItemChanged(index: Int) {
+        adapter?.notifyItemChanged(index)
+    }
+
     override fun notifyDatasetChanged() {
         adapter?.notifyDataSetChanged()
     }

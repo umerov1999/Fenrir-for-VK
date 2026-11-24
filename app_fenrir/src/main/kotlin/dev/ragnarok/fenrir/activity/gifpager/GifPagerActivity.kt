@@ -29,7 +29,7 @@ import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrListener
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrPosition
-import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
+import dev.ragnarok.fenrir.fragment.audio.player.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.docs.absdocumentpreview.AbsDocumentPreviewActivity
 import dev.ragnarok.fenrir.getParcelableArrayListCompat
 import dev.ragnarok.fenrir.listener.ActivityFuturesListener

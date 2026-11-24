@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.fave.favevideos
 
-import android.content.Context
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
@@ -21,19 +20,21 @@ import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.util.Utils
 import dev.ragnarok.fenrir.view.VideoServiceIcons.getIconByType
 
-class FaveVideosAdapter(private val context: Context, private var data: List<Video>) :
+class FaveVideosAdapter(private var data: List<Video>) :
     RecyclerView.Adapter<FaveVideosAdapter.Holder>() {
     private var recyclerView: RecyclerView? = null
     private var videoOnClickListener: VideoOnClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_fave_video, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_fave_video, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val video = data[position]
         holder.viewsCount.text = String.format(Utils.appLocale, "%d", video.views)
         holder.title.text = video.title
-        holder.videoLenght.text = AppTextUtils.getDurationString(video.duration)
+        holder.videoLength.text = AppTextUtils.getDurationString(video.duration)
         val photoUrl = video.image
         if (photoUrl.nonNullNoEmpty()) {
             with()
@@ -88,7 +89,7 @@ class FaveVideosAdapter(private val context: Context, private var data: List<Vid
         OnCreateContextMenuListener {
         val card: View
         val image: ImageView
-        val videoLenght: TextView
+        val videoLength: TextView
         val videoService: ImageView
         val title: TextView
         val viewsCount: TextView
@@ -115,7 +116,7 @@ class FaveVideosAdapter(private val context: Context, private var data: List<Vid
             itemView.setOnCreateContextMenuListener(this)
             card = itemView.findViewById(R.id.card_view)
             image = itemView.findViewById(R.id.video_image)
-            videoLenght = itemView.findViewById(R.id.video_lenght)
+            videoLength = itemView.findViewById(R.id.video_length)
             videoService = itemView.findViewById(R.id.video_service)
             title = itemView.findViewById(R.id.title)
             viewsCount = itemView.findViewById(R.id.view_count)

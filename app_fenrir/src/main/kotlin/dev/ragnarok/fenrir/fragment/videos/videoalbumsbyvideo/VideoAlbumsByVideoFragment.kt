@@ -50,11 +50,11 @@ class VideoAlbumsByVideoFragment :
         }
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
         mEmpty = root.findViewById(R.id.empty)
-        val columns = requireActivity().resources.getInteger(R.integer.videos_column_count)
+        val columns = resources.getInteger(R.integer.videos_column_count)
         val manager = StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.layoutManager = manager
         PicassoPauseOnScrollListener.addListener(recyclerView, VideoAlbumsNewAdapter.PICASSO_TAG)
-        mAdapter = VideoAlbumsNewAdapter(requireActivity(), emptyList())
+        mAdapter = VideoAlbumsNewAdapter(emptyList())
         mAdapter?.setListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()
@@ -104,7 +104,8 @@ class VideoAlbumsByVideoFragment :
             ownerId,
             albumId,
             action,
-            title
+            title,
+            false
         ).tryOpenWith(requireActivity())
     }
 

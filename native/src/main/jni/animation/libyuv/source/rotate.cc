@@ -245,6 +245,16 @@ void RotatePlane180(const uint8_t* src,
     }
   }
 #endif
+#if defined(HAS_MIRRORROW_SVE2)
+  if (TestCpuFlag(kCpuHasSVE2)) {
+    MirrorRow = MirrorRow_SVE2;
+  }
+#endif
+#if defined(HAS_MIRRORROW_SME)
+  if (TestCpuFlag(kCpuHasSME)) {
+    MirrorRow = MirrorRow_SME;
+  }
+#endif
 #if defined(HAS_MIRRORROW_SSSE3)
   if (TestCpuFlag(kCpuHasSSSE3)) {
     MirrorRow = MirrorRow_Any_SSSE3;
@@ -301,6 +311,11 @@ void RotatePlane180(const uint8_t* src,
 #if defined(HAS_MIRRORROW_HVX)
   if (TestCpuFlag(kCpuHasHVX)) {
     MirrorRow = MirrorRow_HVX;
+  }
+#endif
+#if defined(HAS_MIRRORROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    MirrorRow = MirrorRow_RVV;
   }
 #endif
 #if defined(HAS_COPYROW_SSE2)
@@ -571,8 +586,8 @@ void SplitRotateUV270(const uint8_t* src,
                       int dst_stride_b,
                       int width,
                       int height) {
-  dst_a += dst_stride_a * (width - 1);
-  dst_b += dst_stride_b * (width - 1);
+  dst_a += (ptrdiff_t)dst_stride_a * (width - 1);
+  dst_b += (ptrdiff_t)dst_stride_b * (width - 1);
   dst_stride_a = -dst_stride_a;
   dst_stride_b = -dst_stride_b;
 
@@ -599,6 +614,16 @@ void SplitRotateUV180(const uint8_t* src,
     if (IS_ALIGNED(width, 16)) {
       MirrorSplitUVRow = MirrorSplitUVRow_NEON;
     }
+  }
+#endif
+#if defined(HAS_MIRRORSPLITUVROW_SVE2)
+  if (TestCpuFlag(kCpuHasSVE2)) {
+    MirrorSplitUVRow = MirrorSplitUVRow_SVE2;
+  }
+#endif
+#if defined(HAS_MIRRORSPLITUVROW_SME)
+  if (TestCpuFlag(kCpuHasSME)) {
+    MirrorSplitUVRow = MirrorSplitUVRow_SME;
   }
 #endif
 #if defined(HAS_MIRRORSPLITUVROW_SSSE3)
@@ -659,9 +684,14 @@ void SplitRotateUV180(const uint8_t* src,
     MirrorSplitUVRow = MirrorSplitUVRow_HVX;
   }
 #endif
+#if defined(HAS_MIRRORSPLITUVROW_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    MirrorSplitUVRow = MirrorSplitUVRow_RVV;
+  }
+#endif
 
-  dst_a += dst_stride_a * (height - 1);
-  dst_b += dst_stride_b * (height - 1);
+  dst_a += (ptrdiff_t)dst_stride_a * (height - 1);
+  dst_b += (ptrdiff_t)dst_stride_b * (height - 1);
 
   for (i = 0; i < height; ++i) {
     MirrorSplitUVRow(src, dst_a, dst_b, width);
@@ -1132,7 +1162,7 @@ int I422Rotate(const uint8_t* src_y,
       RotatePlane90(src_v, src_stride_v, dst_y, dst_stride_y, halfwidth,
                     height);
       r = ScalePlane(dst_y, dst_stride_y, height, halfwidth, dst_v,
-                     dst_stride_v, halfheight, width, kFilterLinear);
+                     dst_stride_v, halfheight, width, kFilterBilinear);
       if (r != 0) {
         return r;
       }
@@ -1149,7 +1179,7 @@ int I422Rotate(const uint8_t* src_y,
       RotatePlane270(src_v, src_stride_v, dst_y, dst_stride_y, halfwidth,
                      height);
       r = ScalePlane(dst_y, dst_stride_y, height, halfwidth, dst_v,
-                     dst_stride_v, halfheight, width, kFilterLinear);
+                     dst_stride_v, halfheight, width, kFilterBilinear);
       if (r != 0) {
         return r;
       }
@@ -1512,7 +1542,7 @@ int I210Rotate(const uint16_t* src_y,
       RotatePlane90_16(src_v, src_stride_v, dst_y, dst_stride_y, halfwidth,
                        height);
       r = ScalePlane_16(dst_y, dst_stride_y, height, halfwidth, dst_v,
-                        dst_stride_v, halfheight, width, kFilterLinear);
+                        dst_stride_v, halfheight, width, kFilterBilinear);
       if (r != 0) {
         return r;
       }
@@ -1529,7 +1559,7 @@ int I210Rotate(const uint16_t* src_y,
       RotatePlane270_16(src_v, src_stride_v, dst_y, dst_stride_y, halfwidth,
                         height);
       r = ScalePlane_16(dst_y, dst_stride_y, height, halfwidth, dst_v,
-                        dst_stride_v, halfheight, width, kFilterLinear);
+                        dst_stride_v, halfheight, width, kFilterBilinear);
       if (r != 0) {
         return r;
       }

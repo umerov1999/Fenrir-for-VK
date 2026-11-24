@@ -1,7 +1,6 @@
 package dev.ragnarok.fenrir.fragment.accounts
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +27,6 @@ import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 import kotlin.math.abs
 
 class AccountAdapter(
-    private val context: Context,
     private var data: List<Account>,
     private val callback: Callback
 ) : RecyclerView.Adapter<AccountAdapter.AccountHolder>() {
@@ -36,7 +34,7 @@ class AccountAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccountHolder {
         return AccountHolder(
             LayoutInflater.from(
-                context
+                parent.context
             ).inflate(R.layout.item_account, parent, false)
         )
     }
@@ -78,8 +76,9 @@ class AccountAdapter(
                 holder.domain.text = "@id" + account.getOwnerObjectId()
             }
             holder.tvLastTime.visibility = View.VISIBLE
-            holder.tvLastTime.text = UserInfoResolveUtil.getUserActivityLine(context, owner, false)
-            holder.tvLastTime.setTextColor(if (owner.isOnline) CurrentTheme.getColorPrimary(context) else STATUS_COLOR_OFFLINE)
+            holder.tvLastTime.text =
+                UserInfoResolveUtil.getUserActivityLine(holder.tvLastTime.context, owner, false)
+            holder.tvLastTime.setTextColor(if (owner.isOnline) CurrentTheme.getColorPrimary(holder.tvLastTime.context) else STATUS_COLOR_OFFLINE)
             val iconRes = getOnlineIcon(
                 online,
                 owner.isOnlineMobile,
@@ -107,8 +106,8 @@ class AccountAdapter(
                     dev.ragnarok.fenrir_common.R.raw.select_check_box,
                     intArrayOf(
                         0x333333, CurrentTheme.getColorPrimary(
-                            context
-                        ), 0x777777, CurrentTheme.getColorSecondary(context)
+                            holder.active.context
+                        ), 0x777777, CurrentTheme.getColorSecondary(holder.active.context)
                     )
                 )
                 holder.active.startAnimation()

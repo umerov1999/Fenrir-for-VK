@@ -116,7 +116,7 @@ class VKPhotoAlbumsFragment : BaseMvpFragment<PhotoAlbumsPresenter, IPhotoAlbums
                 presenter?.fireScrollToEnd()
             }
         })
-        mAdapter = VKPhotoAlbumsAdapter(requireActivity(), emptyList())
+        mAdapter = VKPhotoAlbumsAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         mFab = root.findViewById(R.id.fab)

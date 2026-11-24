@@ -52,7 +52,7 @@ import java.util.Date
 
 class MessagesAdapter(
     accountId: Long,
-    private val context: Context,
+    context: Context,
     items: MutableList<Message>,
     private var lastReadId: LastReadId,
     private val attachmentsActionCallback: OnAttachmentsActionCallback,
@@ -156,11 +156,11 @@ class MessagesAdapter(
             })
         }
         holder.sticker.setOnLongClickListener {
-            if (!hasReadWriteStoragePermission(context)) {
+            if (!hasReadWriteStoragePermission(holder.sticker.context)) {
                 attachmentsActionCallback.onRequestWritePermissions()
             } else {
                 if (sticker != null) {
-                    doDownloadSticker(context, sticker)
+                    doDownloadSticker(holder.sticker.context, sticker)
                 }
             }
             true
@@ -224,27 +224,27 @@ class MessagesAdapter(
     private fun bindStatusText(textView: TextView, status: Int, time: Long, updateTime: Long) {
         when (status) {
             MessageStatus.SENDING -> {
-                textView.text = context.getString(R.string.sending)
+                textView.text = textView.context.getString(R.string.sending)
                 textView.setTextColor(
                     ContextCompat.getColor(
-                        context,
+                        textView.context,
                         R.color.default_message_status
                     )
                 )
             }
 
             MessageStatus.QUEUE -> {
-                textView.text = context.getString(R.string.in_order)
+                textView.text = textView.context.getString(R.string.in_order)
                 textView.setTextColor(
                     ContextCompat.getColor(
-                        context,
+                        textView.context,
                         R.color.default_message_status
                     )
                 )
             }
 
             MessageStatus.ERROR -> {
-                textView.text = context.getString(R.string.error)
+                textView.text = textView.context.getString(R.string.error)
                 textView.setTextColor(Color.RED)
             }
 
@@ -252,7 +252,7 @@ class MessagesAdapter(
                 textView.setText(R.string.waiting_for_upload)
                 textView.setTextColor(
                     ContextCompat.getColor(
-                        context,
+                        textView.context,
                         R.color.default_message_status
                     )
                 )
@@ -263,10 +263,13 @@ class MessagesAdapter(
                 if (updateTime != 0L) {
                     DATE.time = updateTime * 1000
                     text =
-                        text + " " + context.getString(R.string.message_edited_at, df.format(DATE))
+                        "$text " + textView.context.getString(
+                            R.string.message_edited_at,
+                            df.format(DATE)
+                        )
                 }
                 textView.text = text
-                textView.setTextColor(CurrentTheme.getSecondaryTextColorCode(context))
+                textView.setTextColor(CurrentTheme.getSecondaryTextColorCode(textView.context))
             }
         }
     }
@@ -285,7 +288,7 @@ class MessagesAdapter(
         if (disableRead) read = true
         bindReadState(holder.itemView, message.status == MessageStatus.SENT && read)
         if (message.isSelected) {
-            holder.itemView.setBackgroundColor(CurrentTheme.getColorSecondary(context))
+            holder.itemView.setBackgroundColor(CurrentTheme.getColorSecondary(holder.itemView.context))
             holder.itemView.background.alpha = 80
             holder.avatar.background = selectedDrawable
             holder.avatar.setImageResource(R.drawable.ic_message_check_vector)
@@ -406,7 +409,7 @@ class MessagesAdapter(
                         holder.bubble.setNonGradientColor(
                             CurrentTheme.getColorFromAttrs(
                                 R.attr.message_bubble_color,
-                                context,
+                                holder.bubble.context,
                                 "#D4ff0000"
                             )
                         )
@@ -414,12 +417,12 @@ class MessagesAdapter(
                         holder.bubble.setGradientColor(
                             CurrentTheme.getColorFromAttrs(
                                 R.attr.my_messages_bubble_color,
-                                context,
+                                holder.bubble.context,
                                 "#D4ff0000"
                             ),
                             CurrentTheme.getColorFromAttrs(
                                 R.attr.my_messages_secondary_bubble_color,
-                                context,
+                                holder.bubble.context,
                                 "#D4ff0000"
                             )
                         )
@@ -430,7 +433,7 @@ class MessagesAdapter(
                     holder.bubble.setNonGradientColor(
                         CurrentTheme.getColorFromAttrs(
                             R.attr.message_bubble_color,
-                            context,
+                            holder.bubble.context,
                             "#D4ff0000"
                         )
                     )
@@ -497,7 +500,7 @@ class MessagesAdapter(
             if (message.isOut) lastReadId.outgoing >= message.cmId else lastReadId.incoming >= message.cmId
         if (disableRead) read = true
         bindReadState(holder.itemView, message.status == MessageStatus.SENT && read)
-        holder.tvAction.precompute(message.getServiceText(context))
+        holder.tvAction.precompute(message.getServiceText(holder.tvAction.context))
 
         var lastX = 0
         var lastY = 0

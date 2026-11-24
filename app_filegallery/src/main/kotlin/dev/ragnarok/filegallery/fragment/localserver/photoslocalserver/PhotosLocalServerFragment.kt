@@ -75,7 +75,7 @@ class PhotosLocalServerFragment :
         }
         ViewUtils.setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
         recyclerView = root.findViewById(R.id.recycler_view)
-        val columns = requireActivity().resources.getInteger(R.integer.photos_column_count)
+        val columns = resources.getInteger(R.integer.photos_column_count)
         val manager = StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL)
         recyclerView?.layoutManager = manager
         PicassoPauseOnScrollListener.addListener(recyclerView)

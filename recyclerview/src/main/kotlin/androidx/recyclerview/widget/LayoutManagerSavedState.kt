@@ -2,8 +2,10 @@ package androidx.recyclerview.widget
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
 
+@Keep
 @Serializable
 class LinearLayoutManagerSavedState : Parcelable {
     @JvmField
@@ -57,6 +59,7 @@ class LinearLayoutManagerSavedState : Parcelable {
     }
 }
 
+@Keep
 @Serializable
 class StaggeredGridLayoutManagerSavedState : Parcelable {
     @JvmField
@@ -180,6 +183,7 @@ class StaggeredGridLayoutManagerSavedState : Parcelable {
 /**
  * We keep information about full span items because they may create gaps in the UI.
  */
+@Keep
 @Serializable
 class FullSpanItem : Parcelable {
     @JvmField

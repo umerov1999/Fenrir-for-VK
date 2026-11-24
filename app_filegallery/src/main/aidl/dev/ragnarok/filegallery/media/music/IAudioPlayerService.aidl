@@ -23,6 +23,7 @@ interface IAudioPlayerService {
     boolean isPreparing();
     boolean isInitialized();
     List<Audio> getQueue();
+    int getQueueCount();
     long duration();
     long position();
     long seek(long pos);

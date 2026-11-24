@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.feed.ownerlist
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.LinearGradient
@@ -23,13 +22,14 @@ import dev.ragnarok.fenrir.orZero
 import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppTextUtils.pluralNumerical
 
-class FeedOwnerListAdapter(private var data: List<FeedOwnersEntity>, private val context: Context) :
+class FeedOwnerListAdapter(private var data: List<FeedOwnersEntity>) :
     RecyclerView.Adapter<FeedOwnerListAdapter.Holder>() {
     private var recyclerView: RecyclerView? = null
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
-            LayoutInflater.from(context).inflate(R.layout.item_feed_owner_list, parent, false)
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_feed_owner_list, parent, false)
         )
     }
 
@@ -120,7 +120,7 @@ class FeedOwnerListAdapter(private var data: List<FeedOwnersEntity>, private val
             holder.tvTitle.text = item.title
         }
         holder.tvCount.text = pluralNumerical(
-            context,
+            holder.tvCount.context,
             item.ownersIds?.size.orZero(),
             R.string.owner_count_a,
             R.string.owner_count_b,

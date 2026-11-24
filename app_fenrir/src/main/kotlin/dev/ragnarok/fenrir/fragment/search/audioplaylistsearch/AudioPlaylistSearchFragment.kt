@@ -15,7 +15,6 @@ import dev.ragnarok.fenrir.fragment.search.criteria.AudioPlaylistSearchCriteria
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.model.AudioPlaylist
 import dev.ragnarok.fenrir.place.PlaceFactory.getAudiosInAlbumPlace
-import dev.ragnarok.fenrir.settings.Settings
 
 class AudioPlaylistSearchFragment :
     AbsSearchFragment<AudioPlaylistSearchPresenter, IAudioPlaylistSearchView, AudioPlaylist, AudioPlaylistsAdapter>(),
@@ -58,12 +57,12 @@ class AudioPlaylistSearchFragment :
             if (album.original_access_key
                     .isNullOrEmpty() || album.original_id == 0 || album.original_owner_id == 0L
             ) getAudiosInAlbumPlace(
-                presenter?.accountId ?: Settings.get().accounts().current,
+                requireArguments().getLong(Extra.ACCOUNT_ID),
                 album.owner_id,
                 album.id,
                 album.access_key
             ).tryOpenWith(requireActivity()) else getAudiosInAlbumPlace(
-                presenter?.accountId ?: Settings.get().accounts().current,
+                requireArguments().getLong(Extra.ACCOUNT_ID),
                 album.original_owner_id,
                 album.original_id,
                 album.original_access_key
@@ -75,12 +74,12 @@ class AudioPlaylistSearchFragment :
         if (album.original_access_key
                 .isNullOrEmpty() || album.original_id == 0 || album.original_owner_id == 0L
         ) getAudiosInAlbumPlace(
-            presenter?.accountId ?: Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             album.owner_id,
             album.id,
             album.access_key
         ).tryOpenWith(requireActivity()) else getAudiosInAlbumPlace(
-            presenter?.accountId ?: Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             album.original_owner_id,
             album.original_id,
             album.original_access_key
@@ -91,7 +90,7 @@ class AudioPlaylistSearchFragment :
     override fun onShare(index: Int, album: AudioPlaylist) {
         startForSendAttachments(
             requireActivity(),
-            presenter?.accountId ?: Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             album
         )
     }

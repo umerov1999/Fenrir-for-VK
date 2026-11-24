@@ -74,6 +74,8 @@ object Utils {
     var shouldSelectPhoto = false
     val listSelected: ArrayList<String> = ArrayList()
 
+    private val PATTERN_FENRIR_SERVER_TRACK_HASH: Regex = Regex("hash=([^&]*)")
+
     fun registerParcelNative(pointer: Long) {
         registeredParcels.add(pointer)
     }
@@ -466,6 +468,15 @@ object Utils {
 
     fun makeMediaItem(url: String?): MediaItem {
         return MediaItem.Builder().setUri(url).build()
+    }
+
+    fun parseLocalServerURL(string: String?): String? {
+        string ?: return null
+        return try {
+            PATTERN_FENRIR_SERVER_TRACK_HASH.find(string)?.groupValues?.getOrNull(1)
+        } catch (_: NumberFormatException) {
+            null
+        }
     }
 
     fun createPageTransform(@Transformers_Types type: Int): ViewPager2.PageTransformer? {

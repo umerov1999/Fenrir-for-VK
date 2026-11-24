@@ -103,7 +103,7 @@ class SelectProfilesActivity : MainActivity(), SelectedProfilesAdapter.ActionLis
         }
         val manager: RecyclerView.LayoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        mProfilesAdapter = SelectedProfilesAdapter(this, mSelectedOwners ?: return)
+        mProfilesAdapter = SelectedProfilesAdapter(mSelectedOwners ?: return)
         mProfilesAdapter?.setActionListener(this)
         mRecyclerView = findViewById(R.id.recycleView)
         checkNotNull(mRecyclerView) { "Invalid view" }

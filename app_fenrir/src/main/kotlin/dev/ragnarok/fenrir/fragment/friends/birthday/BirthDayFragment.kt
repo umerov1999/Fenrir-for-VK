@@ -43,7 +43,7 @@ class BirthDayFragment : BaseMvpFragment<BirthDayPresenter, IBirthDayView>(),
         val recyclerView: RecyclerView = root.findViewById(R.id.recycler_view)
         mlinear = LinearLayoutManager(requireActivity())
         recyclerView.layoutManager = mlinear
-        mAdapter = BirthDayAdapter(requireActivity(), mutableListOf())
+        mAdapter = BirthDayAdapter(mutableListOf())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)

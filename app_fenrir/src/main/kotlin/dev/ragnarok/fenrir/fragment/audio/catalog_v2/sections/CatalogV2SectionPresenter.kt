@@ -18,7 +18,7 @@ import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
 
 class CatalogV2SectionPresenter(
     accountId: Long,
-    private val section_id: String,
+    private val sectionId: String,
     savedInstanceState: Bundle?
 ) :
     AccountDependencyPresenter<ICatalogV2SectionView>(accountId, savedInstanceState) {
@@ -127,7 +127,7 @@ class CatalogV2SectionPresenter(
         actualDataLoading = true
         resolveRefreshingView()
         appendJob(
-            fInteractor.getCatalogV2Section(accountId, section_id, null)
+            fInteractor.getCatalogV2Section(accountId, sectionId, null)
                 .fromIOToMain({ data -> onActualDataReceived(false, data) }) { t ->
                     onActualDataGetError(
                         t
@@ -150,7 +150,7 @@ class CatalogV2SectionPresenter(
         actualDataLoading = true
         resolveRefreshingView()
         appendJob(
-            fInteractor.getCatalogV2Section(accountId, section_id, nextFrom)
+            fInteractor.getCatalogV2Section(accountId, sectionId, nextFrom)
                 .fromIOToMain({ data -> onActualDataReceived(true, data) }) { t ->
                     onActualDataGetError(
                         t
@@ -188,6 +188,8 @@ class CatalogV2SectionPresenter(
     }
 
     fun onAdd(album: AudioPlaylist) {
+        actualDataLoading = true
+        resolveRefreshingView()
         appendJob(
             fInteractor.followPlaylist(
                 accountId,
@@ -196,10 +198,14 @@ class CatalogV2SectionPresenter(
                 album.access_key
             )
                 .fromIOToMain({
+                    actualDataLoading = false
+                    resolveRefreshingView()
                     view?.customToast?.showToast(
                         R.string.success
                     )
                 }) {
+                    actualDataLoading = false
+                    resolveRefreshingView()
                     showError(
                         it
                     )

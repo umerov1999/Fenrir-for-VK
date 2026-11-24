@@ -1,81 +1,63 @@
 package dev.ragnarok.fenrir.fragment.localserver.filemanagerremote
 
 import android.content.Context
+import android.graphics.drawable.Animatable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.fragment.app.FragmentActivity
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
 import com.squareup.picasso3.Callback
 import com.squareup.picasso3.Picasso
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
-import dev.ragnarok.fenrir.domain.InteractorFactory
-import dev.ragnarok.fenrir.domain.interfaces.ILocalServerInteractor
-import dev.ragnarok.fenrir.link.VKLinkParser
 import dev.ragnarok.fenrir.media.music.MusicPlaybackController
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.currentAudio
+import dev.ragnarok.fenrir.media.music.MusicPlaybackController.playerStatus
 import dev.ragnarok.fenrir.media.music.PlayerStatus
-import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
-import dev.ragnarok.fenrir.modalbottomsheetdialogfragment.OptionRequest
 import dev.ragnarok.fenrir.model.Audio
 import dev.ragnarok.fenrir.model.FileRemote
 import dev.ragnarok.fenrir.model.FileType
-import dev.ragnarok.fenrir.model.menu.options.FileLocalServerOption
 import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.fenrir.picasso.PicassoInstance
-import dev.ragnarok.fenrir.place.PlaceFactory.getPlayerPlace
 import dev.ragnarok.fenrir.settings.CurrentTheme
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.toColor
 import dev.ragnarok.fenrir.util.AppTextUtils.pluralNumerical
-import dev.ragnarok.fenrir.util.DownloadWorkUtils
 import dev.ragnarok.fenrir.util.Utils
-import dev.ragnarok.fenrir.util.coroutines.CancelableJob
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.fromIOToMain
-import dev.ragnarok.fenrir.util.coroutines.CoroutinesUtils.sharedFlowToMain
-import dev.ragnarok.fenrir.util.toast.CustomSnackbars
-import dev.ragnarok.fenrir.util.toast.CustomToast.Companion.createCustomToast
 import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
-class FileManagerRemoteAdapter(private var context: Context, private var data: List<FileRemote>) :
+class FileManagerRemoteAdapter(context: Context, private var data: List<FileRemote>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    @ColorInt
     private val colorPrimary = CurrentTheme.getColorPrimary(context)
+
+    @ColorInt
     private val colorOnSurface = CurrentTheme.getColorOnSurface(context)
+
+    @ColorInt
     private val messageBubbleColor = CurrentTheme.getMessageBubbleColor(context)
     private var clickListener: ClickListener? = null
-    private var mPlayerDisposable = CancelableJob()
-    private var audioListDisposable = CancelableJob()
-    private var currAudio: Audio? = MusicPlaybackController.currentAudio
-    private val factory: ILocalServerInteractor = InteractorFactory.localServer
+    private var currAudio: Audio? = currentAudio
 
     fun setItems(data: List<FileRemote>) {
         this.data = data
         notifyDataSetChanged()
     }
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-        mPlayerDisposable += MusicPlaybackController.observeServiceBinding()
-            .sharedFlowToMain { status ->
-                onServiceBindEvent(
-                    status
-                )
-            }
-    }
-
-    private fun onServiceBindEvent(@PlayerStatus status: Int) {
+    fun onServiceBindEvent(@PlayerStatus status: Int) {
         when (status) {
             PlayerStatus.UPDATE_METADATA, PlayerStatus.SERVICE_KILLED, PlayerStatus.UPDATE_PLAY_PAUSE -> {
-                updateAudio(currAudio)
-                currAudio = MusicPlaybackController.currentAudio
-                updateAudio(currAudio)
+                val tmpCurrAudio = currAudio
+                currAudio = currentAudio
+
+                if (status != PlayerStatus.UPDATE_METADATA || tmpCurrAudio != currAudio) {
+                    updateAudio(tmpCurrAudio)
+                    updateAudio(currAudio)
+                }
             }
 
             PlayerStatus.REPEAT_MODE_CHANGED, PlayerStatus.SHUFFLE_MODE_CHANGED, PlayerStatus.UPDATE_PLAY_LIST, PlayerStatus.UPDATE_TRACK_INFO -> {}
@@ -97,12 +79,6 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
         if (pos != -1) {
             notifyItemChanged(pos)
         }
-    }
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        mPlayerDisposable.cancel()
-        audioListDisposable.cancel()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -143,293 +119,23 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
         audio: FileRemote
     ) {
         if (audio.id != currAudio?.id || audio.owner_Id != currAudio?.ownerId) {
-            holder.visual.setImageResource(R.drawable.song)
-            holder.icon.clearColorFilter()
+            if (holder.visual.drawable is Animatable || holder.visual.drawable == null) {
+                holder.visual.setImageResource(R.drawable.song)
+                holder.icon.clearColorFilter()
+            }
             return
         }
-        when (MusicPlaybackController.playerStatus()) {
+        when (playerStatus()) {
             1 -> {
-                Utils.doWavesLottieBig(holder.visual, true)
+                Utils.doWavesLottie(holder.visual, true)
                 holder.icon.setColorFilter("#44000000".toColor())
             }
 
             2 -> {
-                Utils.doWavesLottieBig(holder.visual, false)
+                Utils.doWavesLottie(holder.visual, false)
                 holder.icon.setColorFilter("#44000000".toColor())
             }
         }
-    }
-
-    private fun doAudioMenu(position: Int, audio: FileRemote, view: View) {
-        val t = Audio()
-        t.setId(audio.id)
-        t.setOwnerId(audio.owner_Id)
-        t.setUrl(audio.url)
-        t.setThumb_image_big(audio.preview_url)
-        t.setThumb_image_very_big(audio.preview_url)
-        t.setThumb_image_little(audio.preview_url)
-        t.setDuration(audio.size.toInt())
-
-        var TrackName: String = audio.file_name?.replace(".mp3", "") ?: ""
-        val Artist: String
-        val arr = TrackName.split(Regex(" - ")).toTypedArray()
-        if (arr.size > 1) {
-            Artist = arr[0]
-            TrackName = TrackName.replace("$Artist - ", "")
-        } else {
-            Artist = ""
-        }
-        t.setIsLocal()
-        t.setArtist(Artist)
-        t.setTitle(TrackName)
-        val menus = ModalBottomSheetDialogFragment.Builder()
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.play_item_audio,
-                context.getString(R.string.play),
-                R.drawable.play,
-                true
-            )
-        )
-        if (MusicPlaybackController.canPlayAfterCurrent()) {
-            menus.add(
-                OptionRequest(
-                    FileLocalServerOption.play_item_after_current_audio,
-                    context.getString(R.string.play_audio_after_current),
-                    R.drawable.play_next,
-                    false
-                )
-            )
-        }
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.save_item,
-                context.getString(R.string.download),
-                R.drawable.save,
-                true
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.update_time_item,
-                context.getString(R.string.update_time),
-                R.drawable.ic_recent,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.edit_item,
-                context.getString(R.string.edit),
-                R.drawable.about_writed,
-                true
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.delete_item,
-                context.getString(R.string.delete),
-                R.drawable.ic_outline_delete,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.upload_item_audio,
-                context.getString(R.string.upload),
-                R.drawable.web,
-                true
-            )
-        )
-        menus.header(
-            audio.file_name,
-            R.drawable.song,
-            t.thumb_image_big
-        )
-        menus.columns(2)
-        menus.show(
-            (context as FragmentActivity).supportFragmentManager,
-            "audio_options", { _, option ->
-                notifyItemChanged(position)
-                when (option.id) {
-                    FileLocalServerOption.play_item_after_current_audio -> MusicPlaybackController.playAfterCurrent(
-                        t
-                    )
-
-                    FileLocalServerOption.save_item -> {
-                        when (DownloadWorkUtils.doDownloadAudio(
-                            context, t, Settings.get().accounts().current,
-                            Force = false,
-                            isLocal = true
-                        )) {
-                            0 -> {
-                                createCustomToast(
-                                    context,
-                                    null
-                                )?.showToastBottom(R.string.saved_audio)
-                            }
-
-                            1 -> {
-                                CustomSnackbars.createCustomSnackbars(view)
-                                    ?.setDurationSnack(BaseTransientBottomBar.LENGTH_LONG)
-                                    ?.themedSnack(R.string.audio_force_download)?.setAction(
-                                        R.string.button_yes
-                                    ) {
-                                        DownloadWorkUtils.doDownloadAudio(
-                                            context, t, Settings.get().accounts().current,
-                                            Force = true,
-                                            isLocal = true
-                                        )
-                                    }
-                                    ?.show()
-                            }
-
-                            2 -> {
-                                CustomSnackbars.createCustomSnackbars(view)
-                                    ?.setDurationSnack(Snackbar.LENGTH_LONG)
-                                    ?.themedSnack(R.string.audio_force_download_pc)?.setAction(
-                                        R.string.button_yes
-                                    ) {
-                                        DownloadWorkUtils.doDownloadAudio(
-                                            context,
-                                            t,
-                                            Settings.get().accounts().current,
-                                            true,
-                                            isLocal = true
-                                        )
-                                    }?.show()
-                            }
-
-                            else -> {
-                                createCustomToast(
-                                    context,
-                                    null
-                                )?.showToastBottom(R.string.error_audio)
-                            }
-                        }
-                    }
-
-                    FileLocalServerOption.upload_item_audio -> {
-                        val hash1 = VKLinkParser.parseLocalServerURL(audio.url)
-                        if (hash1.isNullOrEmpty()) {
-                            return@show
-                        }
-                        audioListDisposable +=
-                            factory.uploadAudio(hash1).fromIOToMain(
-                                {
-                                    createCustomToast(
-                                        context,
-                                        null
-                                    )?.showToast(R.string.success)
-                                }) { o ->
-                                createCustomToast(context, null)?.showToastThrowable(o)
-                            }
-                    }
-
-                    FileLocalServerOption.delete_item -> {
-                        MaterialAlertDialogBuilder(
-                            context
-                        )
-                            .setMessage(R.string.do_delete)
-                            .setTitle(R.string.confirmation)
-                            .setCancelable(true)
-                            .setPositiveButton(R.string.button_yes) { _, _ ->
-                                val hash1 =
-                                    VKLinkParser.parseLocalServerURL(audio.url)
-                                if (hash1.isNullOrEmpty()) {
-                                    return@setPositiveButton
-                                }
-                                audioListDisposable += factory
-                                    .deleteMedia(hash1)
-                                    .fromIOToMain(
-                                        {
-                                            createCustomToast(
-                                                context,
-                                                null
-                                            )?.showToast(R.string.success)
-                                        }) {
-                                        createCustomToast(context, null)?.showToastThrowable(it)
-                                    }
-                            }
-                            .setNegativeButton(R.string.button_cancel, null)
-                            .show()
-                    }
-
-                    FileLocalServerOption.update_time_item -> {
-                        val hash =
-                            VKLinkParser.parseLocalServerURL(audio.url)
-                        if (hash.isNullOrEmpty()) {
-                            return@show
-                        }
-                        audioListDisposable += factory.updateTime(hash)
-                            .fromIOToMain(
-                                { createCustomToast(context, null)?.showToast(R.string.success) }) {
-                                createCustomToast(context, null)?.showToastThrowable(it)
-                            }
-                    }
-
-                    FileLocalServerOption.edit_item -> {
-                        val hash2 =
-                            VKLinkParser.parseLocalServerURL(audio.url)
-                        if (hash2.isNullOrEmpty()) {
-                            return@show
-                        }
-                        audioListDisposable += factory.getFileName(hash2)
-                            .fromIOToMain(
-                                { t ->
-                                    val root =
-                                        View.inflate(
-                                            context,
-                                            R.layout.entry_file_name,
-                                            null
-                                        )
-                                    root.findViewById<TextInputEditText>(R.id.edit_file_name)
-                                        .setText(
-                                            t
-                                        )
-                                    MaterialAlertDialogBuilder(context)
-                                        .setTitle(R.string.change_name)
-                                        .setCancelable(true)
-                                        .setView(root)
-                                        .setPositiveButton(R.string.button_ok) { _, _ ->
-                                            audioListDisposable += factory
-                                                .updateFileName(
-                                                    hash2,
-                                                    root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
-                                                        ?.trim()
-                                                )
-                                                .fromIOToMain({
-                                                    createCustomToast(context, null)?.showToast(
-                                                        R.string.success
-                                                    )
-                                                }) {
-                                                    createCustomToast(
-                                                        context,
-                                                        null
-                                                    )?.showToastThrowable(
-                                                        it
-                                                    )
-                                                }
-                                        }
-                                        .setNegativeButton(R.string.button_cancel, null)
-                                        .show()
-                                }) {
-                                createCustomToast(context, null)?.showToastThrowable(it)
-                            }
-                    }
-
-                    FileLocalServerOption.play_item_audio -> {
-                        clickListener?.onClick(position, audio)
-                        if (Settings.get().main().isShow_mini_player) getPlayerPlace(
-                            Settings.get().accounts().current
-                        ).tryOpenWith(context)
-                    }
-
-                    else -> {}
-                }
-            }, {
-                notifyItemChanged(position)
-            })
     }
 
     private fun onBindAudioHolder(holder: AudioHolder, position: Int) {
@@ -488,146 +194,10 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
         }
         holder.itemView.setOnLongClickListener {
             holder.fileInfo.setBackgroundColor(colorPrimary)
-            doAudioMenu(holder.bindingAdapterPosition, item, it)
+            clickListener?.onOpenAudioMenu(holder.bindingAdapterPosition, item)
             true
         }
         updateAudioStatus(holder, item)
-    }
-
-    private fun doFileMenu(position: Int, file: FileRemote) {
-        val menus = ModalBottomSheetDialogFragment.Builder()
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.update_time_item,
-                context.getString(R.string.update_time),
-                R.drawable.ic_recent,
-                false
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.edit_item,
-                context.getString(R.string.edit),
-                R.drawable.about_writed,
-                true
-            )
-        )
-        menus.add(
-            OptionRequest(
-                FileLocalServerOption.delete_item,
-                context.getString(R.string.delete),
-                R.drawable.ic_outline_delete,
-                false
-            )
-        )
-        menus.header(
-            file.file_name,
-            R.drawable.file,
-            file.preview_url
-        )
-        menus.columns(2)
-        menus.show(
-            (context as FragmentActivity).supportFragmentManager,
-            "file_options", { _, option ->
-                notifyItemChanged(position)
-                when (option.id) {
-                    FileLocalServerOption.delete_item -> {
-                        MaterialAlertDialogBuilder(
-                            context
-                        )
-                            .setMessage(R.string.do_delete)
-                            .setTitle(R.string.confirmation)
-                            .setCancelable(true)
-                            .setPositiveButton(R.string.button_yes) { _, _ ->
-                                val hash1 =
-                                    VKLinkParser.parseLocalServerURL(file.url)
-                                if (hash1.isNullOrEmpty()) {
-                                    return@setPositiveButton
-                                }
-                                audioListDisposable += factory
-                                    .deleteMedia(hash1)
-                                    .fromIOToMain(
-                                        {
-                                            createCustomToast(
-                                                context,
-                                                null
-                                            )?.showToast(R.string.success)
-                                        }) {
-                                        createCustomToast(context, null)?.showToastThrowable(it)
-                                    }
-                            }
-                            .setNegativeButton(R.string.button_cancel, null)
-                            .show()
-                    }
-
-                    FileLocalServerOption.update_time_item -> {
-                        val hash =
-                            VKLinkParser.parseLocalServerURL(file.url)
-                        if (hash.isNullOrEmpty()) {
-                            return@show
-                        }
-                        audioListDisposable += factory.updateTime(hash)
-                            .fromIOToMain(
-                                { createCustomToast(context, null)?.showToast(R.string.success) }) {
-                                createCustomToast(context, null)?.showToastThrowable(it)
-                            }
-                    }
-
-                    FileLocalServerOption.edit_item -> {
-                        val hash2 =
-                            VKLinkParser.parseLocalServerURL(file.url)
-                        if (hash2.isNullOrEmpty()) {
-                            return@show
-                        }
-                        audioListDisposable += factory.getFileName(hash2)
-                            .fromIOToMain(
-                                { t ->
-                                    val root =
-                                        View.inflate(
-                                            context,
-                                            R.layout.entry_file_name,
-                                            null
-                                        )
-                                    root.findViewById<TextInputEditText>(R.id.edit_file_name)
-                                        .setText(
-                                            t
-                                        )
-                                    MaterialAlertDialogBuilder(context)
-                                        .setTitle(R.string.change_name)
-                                        .setCancelable(true)
-                                        .setView(root)
-                                        .setPositiveButton(R.string.button_ok) { _, _ ->
-                                            audioListDisposable += factory
-                                                .updateFileName(
-                                                    hash2,
-                                                    root.findViewById<TextInputEditText>(R.id.edit_file_name).text?.toString()
-                                                        ?.trim()
-                                                )
-                                                .fromIOToMain({
-                                                    createCustomToast(context, null)?.showToast(
-                                                        R.string.success
-                                                    )
-                                                }) {
-                                                    createCustomToast(
-                                                        context,
-                                                        null
-                                                    )?.showToastThrowable(
-                                                        it
-                                                    )
-                                                }
-                                        }
-                                        .setNegativeButton(R.string.button_cancel, null)
-                                        .show()
-                                }) {
-                                createCustomToast(context, null)?.showToastThrowable(it)
-                            }
-                    }
-
-                    else -> {}
-                }
-            }, {
-                notifyItemChanged(position)
-            })
     }
 
     private fun onBindFileHolder(holder: FileHolder, position: Int) {
@@ -668,7 +238,7 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
         holder.itemView.setOnLongClickListener {
             if (item.type != FileType.folder) {
                 holder.fileInfo.setBackgroundColor(colorPrimary)
-                doFileMenu(holder.bindingAdapterPosition, item)
+                clickListener?.onOpenFileMenu(holder.bindingAdapterPosition, item)
             }
             true
         }
@@ -684,6 +254,8 @@ class FileManagerRemoteAdapter(private var context: Context, private var data: L
 
     interface ClickListener {
         fun onClick(position: Int, item: FileRemote)
+        fun onOpenAudioMenu(position: Int, audio: FileRemote)
+        fun onOpenFileMenu(position: Int, file: FileRemote)
     }
 
     class FileHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

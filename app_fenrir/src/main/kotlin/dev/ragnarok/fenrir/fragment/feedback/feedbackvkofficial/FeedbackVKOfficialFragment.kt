@@ -97,7 +97,7 @@ class FeedbackVKOfficialFragment :
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = FeedbackVKOfficialAdapter(emptyList(), requireActivity())
+        mAdapter = FeedbackVKOfficialAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         return root

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.videos.localvideos
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,14 +14,14 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.util.AppTextUtils
 import dev.ragnarok.fenrir.view.AspectRatioImageView
 
-class LocalVideosAdapter(private val context: Context, private val data: List<LocalVideo>) :
+class LocalVideosAdapter(private val data: List<LocalVideo>) :
     RecyclerView.Adapter<LocalVideosAdapter.ViewHolder>() {
     private val holders: MutableSet<ViewHolder> = HashSet()
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val holder = ViewHolder(
             LayoutInflater.from(
-                context
+                parent.context
             )
                 .inflate(R.layout.item_local_video, parent, false)
         )

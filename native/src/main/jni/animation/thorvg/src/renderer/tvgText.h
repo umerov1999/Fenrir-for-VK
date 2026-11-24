@@ -103,8 +103,8 @@ struct TextImpl : Text
 
     RenderRegion bounds()
     {
-        if (!load()) return {};
-        return to<ShapeImpl>(shape)->bounds();
+        if (load()) return to<ShapeImpl>(shape)->bounds();
+        return {};
     }
 
     bool render(RenderMethod* renderer, TVG_UNUSED CompositionFlag flag)
@@ -153,10 +153,14 @@ struct TextImpl : Text
         impl.mark(RenderUpdateFlag::Path);
     }
 
+    uint32_t length()
+    {
+        return load() ? fm.length : 0;
+    }
+
     uint32_t lines()
     {
-        if (load()) return fm.lines;
-        return 0;
+        return load() ? fm.lines : 0;
     }
 
     void layout(float w, float h)

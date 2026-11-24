@@ -94,7 +94,7 @@ class PhotosLocalServerFragment :
         }
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
         recyclerView = root.findViewById(R.id.recycler_view)
-        val columns = requireActivity().resources.getInteger(R.integer.photos_column_count)
+        val columns = resources.getInteger(R.integer.photos_column_count)
         val manager =
             if (Settings.get().main().single_line_photos) Utils.getSingleElementsLayoutManager(
                 requireActivity()

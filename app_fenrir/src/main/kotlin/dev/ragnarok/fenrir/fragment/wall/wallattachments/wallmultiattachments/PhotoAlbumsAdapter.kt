@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.wall.wallattachments.wallmultiattachments
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,14 +15,14 @@ import dev.ragnarok.fenrir.picasso.PicassoInstance.Companion.with
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils
 
-class PhotoAlbumsAdapter(private var data: List<PhotoAlbum>, private val context: Context) :
+class PhotoAlbumsAdapter(private var data: List<PhotoAlbum>) :
     RecyclerView.Adapter<PhotoAlbumsAdapter.Holder>() {
     @PhotoSize
     private val mPhotoPreviewSize: Int = Settings.get().main().prefPreviewImageSize
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
-            LayoutInflater.from(context).inflate(R.layout.item_photo_album, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_photo_album, parent, false)
         )
     }
 
@@ -41,13 +40,14 @@ class PhotoAlbumsAdapter(private var data: List<PhotoAlbum>, private val context
             with().cancelRequest(holder.thumb)
             holder.thumb.visibility = View.INVISIBLE
         }
-        holder.count.text = context.getString(R.string.photos_count, album.size)
+        holder.count.text = holder.count.context.getString(R.string.photos_count, album.size)
         holder.name.text = album.getDisplayTitle(holder.name.context)
         if (album.description.isNullOrEmpty()) holder.description.visibility = View.GONE else {
             holder.description.visibility = View.VISIBLE
             holder.description.text = album.description
         }
-        holder.update.text = AppTextUtils.getDateFromUnixTime(context, album.updatedTime)
+        holder.update.text =
+            AppTextUtils.getDateFromUnixTime(holder.update.context, album.updatedTime)
         holder.album_container.setOnClickListener {
             clickListener?.onAlbumClick(holder.bindingAdapterPosition, album)
         }

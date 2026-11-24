@@ -1,6 +1,5 @@
 package dev.ragnarok.filegallery.fragment.tagowner
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.LinearGradient
@@ -23,12 +22,14 @@ import dev.ragnarok.filegallery.orZero
 import dev.ragnarok.filegallery.toColor
 import dev.ragnarok.filegallery.util.AppTextUtils.pluralNumerical
 
-class TagOwnerAdapter(private var data: List<TagOwner>, private val context: Context) :
+class TagOwnerAdapter(private var data: List<TagOwner>) :
     RecyclerView.Adapter<TagOwnerAdapter.Holder>() {
     private var recyclerView: RecyclerView? = null
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_tag_owner, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_tag_owner, parent, false)
+        )
     }
 
     private fun createGradientImage(width: Int, height: Int, owner_id: Long): Bitmap {
@@ -118,7 +119,7 @@ class TagOwnerAdapter(private var data: List<TagOwner>, private val context: Con
             holder.tvTitle.text = item.name
         }
         holder.tvPath.text = pluralNumerical(
-            context,
+            holder.tvPath.context,
             item.count,
             R.string.tag_count_a,
             R.string.tag_count_b,

@@ -146,7 +146,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                     Settings.get().accounts().getLogin(accountFromTmp)
                         ?: return@registerForActivityResult
                 )
-            val messageData = requireActivity().getString(
+            val messageData = getString(
                 R.string.restore_login_info,
                 restore.login,
                 restore.password,
@@ -309,7 +309,7 @@ class AccountsFragment : BaseMvpFragment<AccountsPresenter, IAccountsView>(), IA
                 startDirectLogin()
             }
         }
-        mAdapter = AccountAdapter(requireActivity(), emptyList(), this)
+        mAdapter = AccountAdapter(emptyList(), this)
         mRecyclerView?.adapter = mAdapter
         return root
     }

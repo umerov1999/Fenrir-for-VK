@@ -256,7 +256,7 @@ class DeltaOwnerActivity : AppCompatActivity(), PlaceProvider, ActivityFuturesLi
 
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val list = DeltaOwner.content[position]
-            val adapter = OwnersAdapter(this@DeltaOwnerActivity, list.ownerList)
+            val adapter = OwnersAdapter(list.ownerList)
             adapter.setClickListener(object : OwnersAdapter.ClickListener {
                 override fun onOwnerClick(owner: Owner) {
                     PlaceFactory.getOwnerWallPlace(accountId, owner)

@@ -547,11 +547,11 @@ internal class DialogsStorage(base: AppStorages) : AbsStorage(base), IDialogsSto
             return "unread$accountId"
         }
 
-        private fun encodeCmIds(cmIds: List<Int>): String? {
+        internal fun encodeCmIds(cmIds: List<Int>): String? {
             return if (cmIds.isEmpty()) null else cmIds.joinToString(",")
         }
 
-        private fun decodeCmIds(value: String?): List<Int> {
+        internal fun decodeCmIds(value: String?): List<Int> {
             if (value.isNullOrEmpty()) {
                 return emptyList()
             }

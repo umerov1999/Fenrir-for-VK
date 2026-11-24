@@ -8,7 +8,7 @@
 
 #define TVG_VERSION_MAJOR 1  // for compile-time checks
 #define TVG_VERSION_MINOR 1  // for compile-time checks
-#define TVG_VERSION_MICRO 3  // for compile-time checks
+#define TVG_VERSION_MICRO 4  // for compile-time checks
 
 #ifdef TVG_API
     #undef TVG_API
@@ -1850,33 +1850,53 @@ struct TVG_API Picture : Paint
      * @note If the memory data pointed to by @p data is modified, calling this API will re-upload the updated content to the canvas.
      * @note @c ColorSpace::XBGR8888 and @c ColorSpace::XRGB8888 overwrite fully covered pixels without alpha blending.
      *
+     * @deprecated Use Picture::load(const uint32_t*, uint32_t, uint32_t, uint32_t, ColorSpace, bool)
      * @since 0.9
      */
-    Result load(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, bool copy = false) noexcept;
+    TVG_DEPRECATED Result load(const uint32_t* data, uint32_t w, uint32_t h, ColorSpace cs, bool copy = false) noexcept;
 
     /**
-     * @brief Sets the asset resolver callback for handling external resources (e.g., images and fonts).
+     * @brief Loads raw image data from memory.
      *
-     * This callback is invoked when an external asset reference (such as an image source or file path)
-     * is encountered in a Picture object. It allows the user to provide a custom mechanism for loading
-     * or substituting assets, such as loading from an external source or a virtual filesystem.
+     * @param[in] data A pointer to the raw image data.
+     * @param[in] stride The number of pixels between the starts of consecutive rows, including padding. Must be at least @p w.
+     * @param[in] w The width of the image in pixels.
+     * @param[in] h The height of the image in pixels.
+     * @param[in] cs Specifies how the 32-bit color values should be interpreted.
+     * @param[in] userOwned If @c false, ownership of @p data is transferred to ThorVG, which releases the memory when it is no longer needed.
+     *                      If @c true, the caller retains ownership and must keep the memory valid while ThorVG uses it. The default is @c false.
+     *
+     * @warning Transferred memory must be allocated with malloc() or a compatible allocator.
+     * @since 1.2
+     */
+    Result load(const uint32_t* data, uint32_t stride, uint32_t w, uint32_t h, ColorSpace cs, bool userOwned = false) noexcept;
+
+    /**
+     * @brief Sets the asset resolver callback for external images and fonts.
+     *
+     * The callback allows the user to load assets from an external source or a virtual filesystem,
+     * or provide a substitute. By default, it is invoked only when internal resolution fails.
+     * Set @p fallback to @c false to invoke the callback before internal resolution.
      *
      * @param[in] func A user-defined function that handles the resolution of asset paths.
-     *                 @p resolver can return @c true if the asset was successfully resolved by the user, or @c false if it was not.
+     *                 Return @c true if the asset was successfully resolved by the user, or @c false if it was not.
      * @param[in] data A pointer to user-defined data that will be passed to the callback each time it is invoked.
      *                 This can be used to maintain context or access external resources.
+     * @param[in] fallback If @c true, invoke the callback only after internal resolution fails.
+     *                     If @c false, invoke it first and attempt internal resolution only if it returns @c false.
      *
-     * @retval Result::InsufficientCondition If the picture is already loaded.
-     * 
-     * @warning This function must be called before @ref Picture::load()
-     *          Setting the resolver after loading will have no effect on asset resolution for that asset.
-     * @note @p src will be either a font path or a font name. In the case of a font name, @p src will begin with "name:", e.g., "name:FreeSans-Medium".
-     * @note If @c false is returned by @p func, ThorVG will attempt to resolve the resource using its internal resolution mechanism as a fallback.
-     * @note To unset the resolver, pass @c nullptr as the @p func parameter.
+     * @retval Result::InsufficientCondition If the picture is already loaded. The resolver is not changed.
+     *
+     * @warning This function must be called before @ref Picture::load().
+     * @note Available embedded image and font data is loaded internally without invoking the callback.
+     * @note @p src identifies the asset to resolve, such as an image path, a font path, or a font name.
+     *       Font names are prefixed with "name:" (e.g., "name:FreeSans-Medium") to distinguish them from paths.
+     * @note For fonts, if neither the callback nor internal resolution succeeds, ThorVG attempts to use an available font.
+     * @note To unset the resolver before loading, pass @c nullptr as the @p func parameter.
      *
      * @note Experimental API
      */
-    Result resolver(std::function<bool(Paint* paint, const char* src, void* data)> func, void* data) noexcept;
+    Result resolver(std::function<bool(Paint* paint, const char* src, void* data)> func, void* data, bool fallback = true) noexcept;
 
     /**
      * @brief Sets the image filtering method for rendering this picture.
@@ -2342,13 +2362,26 @@ struct TVG_API Text : Paint
      *                  following the processed UTF-8 character.
      *
      * @return Result::InsufficientCondition if no font or size has been set yet.
-     * @return Result::InvalidArguments if the given character is invalid or not supported.
+     * @return Result::InvalidArguments if the character or its glyph data is invalid.
      *
      * @see GlyphMetrics
      * @note Currently, ThorVG only supports horizontal text layout.
      * @note Experimental API
      */
     Result metrics(const char* ch, GlyphMetrics& metrics, const char** next = nullptr) const noexcept;
+
+    /**
+     * @brief Retrieves the number of glyphs in the laid-out text.
+     *
+     * @return The number of output glyphs, or zero if text layout is unavailable.
+     *
+     * @note Each displayed Unicode codepoint counts as one glyph, including spaces and missing glyphs.
+     *       Line breaks and characters omitted by ellipsis are excluded.
+     *       Dots added for ellipsis are included.
+     * @see Text::text()
+     * @note Experimental API
+     */
+    uint32_t length() const noexcept;
 
     /**
      * @brief Loads a scalable font data (ttf/otf) from a file.

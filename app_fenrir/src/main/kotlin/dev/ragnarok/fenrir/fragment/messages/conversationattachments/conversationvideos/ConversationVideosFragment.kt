@@ -18,7 +18,7 @@ class ConversationVideosFragment :
     }
 
     override fun createAdapter(): RecyclerView.Adapter<*> {
-        val adapter = VideosAdapter(requireActivity(), emptyList())
+        val adapter = VideosAdapter(emptyList())
         adapter.setVideoOnClickListener(this)
         return adapter
     }

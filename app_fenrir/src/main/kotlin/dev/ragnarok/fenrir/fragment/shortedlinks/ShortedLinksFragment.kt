@@ -94,7 +94,7 @@ class ShortedLinksFragment : BaseMvpFragment<ShortedLinksPresenter, IShortedLink
             presenter?.fireRefresh()
         }
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = ShortedLinksAdapter(emptyList(), requireActivity())
+        mAdapter = ShortedLinksAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyText()

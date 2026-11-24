@@ -122,7 +122,12 @@ static void _dashCubicTo(SwDashStroke& dash, const Point& ctrl1, const Point& ct
         while ((len - dash.curLen) > DASH_PATTERN_THRESHOLD) {
             Bezier left, right;
             if (dash.curLen > 0) {
-                len -= dash.curLen;
+                auto remaining = len - dash.curLen;
+                if (!(remaining < len)) {
+                    TVGERR("SW_ENGINE", "Dash data overflow!");
+                    break;
+                }
+                len = remaining;
                 cur.split(dash.curLen, left, right);
                 if (!dash.curOpGap) {
                     if (dash.move || dash.pattern[dash.curIdx] - dash.curLen < FLOAT_EPSILON) {
@@ -440,9 +445,8 @@ bool shapeStrokeBBox(SwShape& shape, const RenderShape* rshape, Point* pt4, cons
         strokeParseOutline(shape.stroke, *outline);
 
         auto func = [](SwStrokeBorder* border, const Matrix& m, Point& min, Point& max) {
-            ARRAY_FOREACH(pts, border->pts)
-            {
-                auto t = *pts * m;
+            for (auto& pts : border->pts) {
+                auto t = pts * m;
                 if (t.x < min.x) min.x = t.x;
                 if (t.x > max.x) max.x = t.x;
                 if (t.y < min.y) min.y = t.y;

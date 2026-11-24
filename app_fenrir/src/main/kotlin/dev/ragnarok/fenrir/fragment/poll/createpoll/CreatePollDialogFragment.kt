@@ -47,7 +47,7 @@ class CreatePollDialogFragment :
         mPollBackground = root.findViewById(R.id.poll_background_option)
         mPollBackground?.layoutManager =
             LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false)
-        mPollBackgroundAdapter = HorizontalPollBackgroundAdapter(emptyList(), requireActivity(), 0)
+        mPollBackgroundAdapter = HorizontalPollBackgroundAdapter(emptyList(), 0)
         mPollBackgroundAdapter?.setClickListener(object :
             HorizontalPollBackgroundAdapter.ClickListener {
             override fun onSelect(position: Int) {

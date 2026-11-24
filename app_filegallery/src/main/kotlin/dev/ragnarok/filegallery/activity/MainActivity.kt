@@ -36,11 +36,11 @@ import dev.ragnarok.fenrir.module.FenrirNative
 import dev.ragnarok.filegallery.Extra
 import dev.ragnarok.filegallery.R
 import dev.ragnarok.filegallery.activity.photopager.PhotoPagerActivity
-import dev.ragnarok.filegallery.fragment.AudioPlayerFragment
 import dev.ragnarok.filegallery.fragment.PreferencesFragment
 import dev.ragnarok.filegallery.fragment.SecurityPreferencesFragment
 import dev.ragnarok.filegallery.fragment.filemanager.FileManagerFragment
 import dev.ragnarok.filegallery.fragment.localserver.LocalServerTabsFragment
+import dev.ragnarok.filegallery.fragment.player.AudioPlayerFragment
 import dev.ragnarok.filegallery.fragment.tagdir.TagDirFragment
 import dev.ragnarok.filegallery.fragment.tagowner.TagOwnerFragment
 import dev.ragnarok.filegallery.fragment.theme.ThemeFragment

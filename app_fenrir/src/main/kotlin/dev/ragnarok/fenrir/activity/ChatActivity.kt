@@ -16,8 +16,8 @@ import dev.ragnarok.fenrir.activity.shortvideopager.ShortVideoPagerActivity
 import dev.ragnarok.fenrir.activity.slidr.Slidr.attach
 import dev.ragnarok.fenrir.activity.slidr.model.SlidrConfig
 import dev.ragnarok.fenrir.activity.storypager.StoryPagerActivity
-import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
-import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment.Companion.newInstance
+import dev.ragnarok.fenrir.fragment.audio.player.AudioPlayerFragment
+import dev.ragnarok.fenrir.fragment.audio.player.AudioPlayerFragment.Companion.newInstance
 import dev.ragnarok.fenrir.fragment.messages.chat.ChatFragment.Companion.newInstance
 import dev.ragnarok.fenrir.getParcelableCompat
 import dev.ragnarok.fenrir.getParcelableExtraCompat

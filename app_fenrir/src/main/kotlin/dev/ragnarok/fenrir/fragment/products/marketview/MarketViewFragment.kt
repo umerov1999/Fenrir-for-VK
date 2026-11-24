@@ -139,7 +139,7 @@ class MarketViewFragment : BaseMvpFragment<MarketViewPresenter, IMarketViewView>
         if (market.description.isNullOrEmpty()) description?.visibility = View.GONE else {
             description?.visibility = View.VISIBLE
             description?.text = OwnerLinkSpanFactory.withSpans(
-                requireActivity().getString(
+                getString(
                     R.string.markets_description,
                     market.description
                 ),
@@ -165,16 +165,16 @@ class MarketViewFragment : BaseMvpFragment<MarketViewPresenter, IMarketViewView>
         }
         if (market.sku.isNullOrEmpty()) sku?.visibility = View.GONE else {
             sku?.visibility = View.VISIBLE
-            sku?.text = requireActivity().getString(R.string.markets_sku, market.sku)
+            sku?.text = getString(R.string.markets_sku, market.sku)
         }
         if (market.weight == 0) weight?.visibility = View.GONE else {
             weight?.visibility = View.VISIBLE
-            weight?.text = requireActivity().getString(R.string.markets_weight, market.weight)
+            weight?.text = getString(R.string.markets_weight, market.weight)
         }
         if (market.dimensions.isNullOrEmpty()) dimensions?.visibility = View.GONE else {
             dimensions?.visibility = View.VISIBLE
             dimensions?.text =
-                requireActivity().getString(R.string.markets_dimensions, market.dimensions)
+                getString(R.string.markets_dimensions, market.dimensions)
         }
     }
 

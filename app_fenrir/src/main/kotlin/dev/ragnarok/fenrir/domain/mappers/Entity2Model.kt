@@ -182,6 +182,12 @@ object Entity2Model {
     fun buildCommunityDetailsFromDbo(dbo: CommunityDetailsEntity): CommunityDetails {
         val details = CommunityDetails()
             .setCanMessage(dbo.isCanMessage)
+            .setCanUploadVideo(dbo.isCanUploadVideo)
+            .setCanPost(dbo.isCanPost)
+            .setCanSeeAllPost(dbo.isCanSeeAllPost)
+            .setCanUploadDoc(dbo.isCanUploadDoc)
+            .setCanUploadStory(dbo.isCanUploadStory)
+            .setCanCreateTopic(dbo.isCanCreateTopic)
             .setFavorite(dbo.isSetFavorite)
             .setSubscribed(dbo.isSetSubscribed)
             .setStatus(dbo.status)

@@ -236,7 +236,7 @@ class AudioPlaylistsFragment : BaseMvpFragment<AudioPlaylistsPresenter, IAudioPl
             requireActivity().finish()
         } else {
             getAudiosInAlbumPlace(
-                presenter?.accountId ?: Settings.get().accounts().current,
+                requireArguments().getLong(Extra.ACCOUNT_ID),
                 album.owner_id,
                 album.id,
                 album.access_key
@@ -246,7 +246,7 @@ class AudioPlaylistsFragment : BaseMvpFragment<AudioPlaylistsPresenter, IAudioPl
 
     override fun onOpenClick(index: Int, album: AudioPlaylist) {
         getAudiosInAlbumPlace(
-            presenter?.accountId ?: Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             album.owner_id,
             album.id,
             album.access_key
@@ -263,7 +263,7 @@ class AudioPlaylistsFragment : BaseMvpFragment<AudioPlaylistsPresenter, IAudioPl
     override fun onShare(index: Int, album: AudioPlaylist) {
         startForSendAttachments(
             requireActivity(),
-            presenter?.accountId ?: Settings.get().accounts().current,
+            requireArguments().getLong(Extra.ACCOUNT_ID),
             album
         )
     }

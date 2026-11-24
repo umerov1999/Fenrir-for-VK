@@ -568,14 +568,9 @@ void ScaleColsUp2_16_C(uint16_t* dst_ptr,
 }
 
 // (1-f)a + fb can be replaced with a + f(b-a)
-#if defined(__arm__) || defined(__aarch64__)
-#define BLENDER(a, b, f) \
-  (uint8_t)((int)(a) + ((((int)((f)) * ((int)(b) - (int)(a))) + 0x8000) >> 16))
-#else
-// Intel uses 7 bit math with rounding.
+// 7 bit math with rounding matches all SIMD implementations.
 #define BLENDER(a, b, f) \
   (uint8_t)((int)(a) + (((int)((f) >> 9) * ((int)(b) - (int)(a)) + 0x40) >> 7))
-#endif
 
 void ScaleFilterCols_C(uint8_t* dst_ptr,
                        const uint8_t* src_ptr,
@@ -1749,6 +1744,11 @@ void ScalePlaneVertical_16(int src_height,
     }
   }
 #endif
+#if defined(HAS_INTERPOLATEROW_16_SVE2)
+  if (TestCpuFlag(kCpuHasSVE2)) {
+    InterpolateRow = InterpolateRow_16_SVE2;
+  }
+#endif
 #if defined(HAS_INTERPOLATEROW_16_SME)
   if (TestCpuFlag(kCpuHasSME)) {
     InterpolateRow = InterpolateRow_16_SME;
@@ -1757,6 +1757,11 @@ void ScalePlaneVertical_16(int src_height,
 #if defined(HAS_INTERPOLATEROW_16_HVX)
   if (TestCpuFlag(kCpuHasHVX)) {
     InterpolateRow = InterpolateRow_16_HVX;
+  }
+#endif
+#if defined(HAS_INTERPOLATEROW_16_RVV)
+  if (TestCpuFlag(kCpuHasRVV)) {
+    InterpolateRow = InterpolateRow_16_RVV;
   }
 #endif
 #if defined(HAS_INTERPOLATEROW_16_WASMSIMD)
@@ -1887,8 +1892,11 @@ void ScaleSlope(int src_width,
     } else if (dst_width <= Abs(src_width)) {
       *dx = FixedDiv(Abs(src_width), dst_width);
       *x = CENTERSTART(*dx, -32768);  // Subtract 0.5 (32768) to center filter.
-    } else if (src_width > 1 && dst_width > 1) {
+    } else if (Abs(src_width) > 1 && dst_width > 1) {
       *dx = FixedDiv1(Abs(src_width), dst_width);
+      *x = 0;
+    } else {
+      *dx = 0;
       *x = 0;
     }
     if (dst_height == 1 && src_height >= 32768) {
@@ -1900,6 +1908,9 @@ void ScaleSlope(int src_width,
     } else if (src_height > 1 && dst_height > 1) {
       *dy = FixedDiv1(src_height, dst_height);
       *y = 0;
+    } else {
+      *dy = 0;
+      *y = 0;
     }
   } else if (filtering == kFilterLinear) {
     // Scale step for bilinear sampling renders last pixel once for upsample.
@@ -1909,8 +1920,11 @@ void ScaleSlope(int src_width,
     } else if (dst_width <= Abs(src_width)) {
       *dx = FixedDiv(Abs(src_width), dst_width);
       *x = CENTERSTART(*dx, -32768);  // Subtract 0.5 (32768) to center filter.
-    } else if (src_width > 1 && dst_width > 1) {
+    } else if (Abs(src_width) > 1 && dst_width > 1) {
       *dx = FixedDiv1(Abs(src_width), dst_width);
+      *x = 0;
+    } else {
+      *dx = 0;
       *x = 0;
     }
     if (dst_height == 1 && src_height >= 32768) {

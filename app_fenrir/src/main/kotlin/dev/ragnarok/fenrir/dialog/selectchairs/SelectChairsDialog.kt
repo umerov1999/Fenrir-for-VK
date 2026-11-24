@@ -37,7 +37,7 @@ class SelectChairsDialog : AccountDependencyDialogFragment(), ChairsAdapter.List
             mData = ArrayList()
             firstRun = true
         }
-        mAdapter = ChairsAdapter(requireActivity(), mData ?: emptyList())
+        mAdapter = ChairsAdapter(mData ?: emptyList())
         mAdapter?.setListener(this)
         mRecyclerView.adapter = mAdapter
         if (firstRun) {

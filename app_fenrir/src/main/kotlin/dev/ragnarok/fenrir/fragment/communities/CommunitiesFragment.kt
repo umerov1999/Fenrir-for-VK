@@ -66,7 +66,7 @@ class CommunitiesFragment : BaseMvpFragment<CommunitiesPresenter, ICommunitiesVi
                 presenter?.fireScrollToEnd()
             }
         })
-        mAdapter = CommunitiesAdapter(requireActivity(), emptyList(), arrayOfNulls(0))
+        mAdapter = CommunitiesAdapter(emptyList(), arrayOfNulls(0))
         mAdapter?.setActionListener(this)
         recyclerView.adapter = mAdapter
         mSearchView = root.findViewById(R.id.searchview)

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.ownerarticles
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,11 +15,13 @@ import dev.ragnarok.fenrir.nonNullNoEmpty
 import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 
-class OwnerArticlesAdapter(private var data: List<Article>, private val context: Context) :
+class OwnerArticlesAdapter(private var data: List<Article>) :
     RecyclerView.Adapter<OwnerArticlesAdapter.Holder>() {
     private var clickListener: ClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        return Holder(LayoutInflater.from(context).inflate(R.layout.item_article, parent, false))
+        return Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_article, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {

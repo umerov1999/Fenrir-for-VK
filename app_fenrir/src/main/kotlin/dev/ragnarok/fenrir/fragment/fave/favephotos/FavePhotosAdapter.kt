@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.Constants
 import dev.ragnarok.fenrir.R
@@ -20,6 +21,7 @@ import dev.ragnarok.fenrir.view.natives.animation.ThorVGLottieView
 
 class FavePhotosAdapter(context: Context, private var data: List<Photo>) :
     RecyclerView.Adapter<FavePhotosAdapter.ViewHolder>() {
+    @ColorInt
     private val colorPrimary: Int = CurrentTheme.getColorPrimary(context)
     private var photoSelectionListener: PhotoSelectionListener? = null
     private var photoConversationListener: PhotoConversationListener? = null

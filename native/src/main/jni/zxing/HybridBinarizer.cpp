@@ -192,12 +192,12 @@ static std::shared_ptr<BitMatrix> CalculateMatrix(const uint8_t* __restrict lumi
 // (max - min > MIN_DYNAMIC_RANGE) ? (max + min) / 2 : 0
 static Matrix<T_t> BlockThresholds(const ImageView iv)
 {
-	int subWidth = (iv.width() + BLOCK_SIZE - 1) / BLOCK_SIZE; // ceil(width/BS)
+	int subWidth = (iv.width() + BLOCK_SIZE - 1) / BLOCK_SIZE;   // ceil(width/BS)
 	int subHeight = (iv.height() + BLOCK_SIZE - 1) / BLOCK_SIZE; // ceil(height/BS)
 
 	Matrix<T_t> thresholds(subWidth, subHeight);
 
-#if defined(__x86_64__) || defined(__ARM_NEON__) || defined(__aarch64__)
+#if defined(__AVX__) || defined(__ARM_NEON)
 	std::vector<uint8_t> mins(iv.width()), maxs(iv.width()); // min/max per column within the current row of blocks
 
 	for (int y = 0; y < subHeight; y++) {
@@ -325,7 +325,7 @@ static std::shared_ptr<BitMatrix> ThresholdImage(const ImageView iv, const Matri
 	Matrix<uint8_t> out(iv.width(), iv.height());
 #endif
 
-#if defined(__x86_64__) || defined(__ARM_NEON__) || defined(__aarch64__)
+#if defined(__AVX__) || defined(__ARM_NEON)
 	// Apply the block-wise thresholds to the image to generate the binary matrix. Apply to image row by row for maximum
 	// vectorization efficiency.
 	std::vector<T_t> rowThresholds(iv.width());
@@ -382,10 +382,9 @@ std::shared_ptr<const BitMatrix> HybridBinarizer::getBlackMatrix() const
 		return ThresholdImage(_buffer, thrs);
 #else
 		const uint8_t* luminances = _buffer.data();
-		int subWidth = (width() + BLOCK_SIZE - 1) / BLOCK_SIZE; // ceil(width/BS)
+		int subWidth = (width() + BLOCK_SIZE - 1) / BLOCK_SIZE;   // ceil(width/BS)
 		int subHeight = (height() + BLOCK_SIZE - 1) / BLOCK_SIZE; // ceil(height/BS)
-		auto blackPoints =
-			CalculateBlackPoints(luminances, subWidth, subHeight, width(), height(), _buffer.rowStride());
+		auto blackPoints = CalculateBlackPoints(luminances, subWidth, subHeight, width(), height(), _buffer.rowStride());
 
 		return CalculateMatrix(luminances, subWidth, subHeight, width(), height(), _buffer.rowStride(), blackPoints);
 #endif
@@ -395,4 +394,4 @@ std::shared_ptr<const BitMatrix> HybridBinarizer::getBlackMatrix() const
 	}
 }
 
-} // ZXing
+} // namespace ZXing

@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.dialog.selectuniversity
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,13 +8,13 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ragnarok.fenrir.R
 import dev.ragnarok.fenrir.model.database.University
 
-class UniversitiesAdapter(private val mContext: Context, private val mData: List<University>) :
+class UniversitiesAdapter(private val mData: List<University>) :
     RecyclerView.Adapter<UniversitiesAdapter.Holder>() {
     private var mListener: Listener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
             LayoutInflater.from(
-                mContext
+                parent.context
             ).inflate(R.layout.item_country, parent, false)
         )
     }

@@ -102,7 +102,7 @@ import dev.ragnarok.fenrir.model.PeerType
 import dev.ragnarok.fenrir.model.Photo
 import dev.ragnarok.fenrir.model.Poll
 import dev.ragnarok.fenrir.model.Sticker
-import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInDialog
+import dev.ragnarok.fenrir.model.TypingMessageOrUploadingInConversation
 import dev.ragnarok.fenrir.model.VoiceMessage
 import dev.ragnarok.fenrir.model.selection.FileManagerSelectableSource
 import dev.ragnarok.fenrir.model.selection.LocalGallerySelectableSource
@@ -505,31 +505,31 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         }
     }
 
-    override fun displayTypingMessageOrUploading(typingMessageOrUploadingInDialog: TypingMessageOrUploadingInDialog) {
-        if (typingMessageOrUploadingInDialog.getFrom_ids().isEmpty()) {
+    override fun displayTypingMessageOrUploading(typingMessageOrUploadingInConversation: TypingMessageOrUploadingInConversation) {
+        if (typingMessageOrUploadingInConversation.getFromIds().isEmpty()) {
             return
         }
         typingMsgGroup?.visibility = View.VISIBLE
         typingMsgGroup?.alpha = 0.0f
         ObjectAnimator.ofFloat(typingMsgGroup, View.ALPHA, 1f).setDuration(200).start()
 
-        when (typingMessageOrUploadingInDialog.action) {
-            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_DIALOG -> {
+        when (typingMessageOrUploadingInConversation.action) {
+            AbsLongpollEvent.ACTION_USER_RECORDING_VOICE_IN_CONVERSATION -> {
                 typingMsg?.setText(R.string.user_recording_voice_message)
                 typingMsgType?.setImageResource(R.drawable.voice)
             }
 
-            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_DIALOG -> {
+            AbsLongpollEvent.ACTION_USER_UPLOADING_PHOTO_IN_CONVERSATION -> {
                 typingMsg?.setText(R.string.user_uploading_photo)
                 typingMsgType?.setImageResource(R.drawable.ic_notification_upload)
             }
 
-            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_DIALOG -> {
+            AbsLongpollEvent.ACTION_USER_UPLOADING_VIDEO_IN_CONVERSATION -> {
                 typingMsg?.setText(R.string.user_uploading_video)
                 typingMsgType?.setImageResource(R.drawable.ic_notification_upload)
             }
 
-            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_DIALOG -> {
+            AbsLongpollEvent.ACTION_USER_UPLOADING_FILE_IN_CONVERSATION -> {
                 typingMsg?.setText(R.string.user_uploading_file)
                 typingMsgType?.setImageResource(R.drawable.ic_notification_upload)
             }
@@ -542,7 +542,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
         typingMsgAva?.setImageResource(R.drawable.background_gray_round)
         presenter?.resolveTypingMessageOrUploading(
             requireActivity(),
-            typingMessageOrUploadingInDialog
+            typingMessageOrUploadingInConversation
         )
     }
 
@@ -1846,7 +1846,7 @@ class ChatFragment : PlaceSupportMvpFragment<ChatPresenter, IChatView>(), IChatV
 
     override fun showChatMembers(accountId: Long, chatId: Long) {
         ChatUsersDomainFragment.newInstance(
-            Settings.get().accounts().current,
+            accountId,
             chatId, object : ChatUsersDomainFragment.Listener {
                 override fun onSelected(user: Owner) {
                     insertDomain(user)

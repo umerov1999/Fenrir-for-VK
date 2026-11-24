@@ -119,7 +119,7 @@ class LocalPhotosFragment : BaseMvpFragment<LocalPhotosPresenter, ILocalPhotosVi
     }
 
     override fun displayData(data: List<LocalPhoto>) {
-        mAdapter = LocalPhotosAdapter(requireActivity(), data)
+        mAdapter = LocalPhotosAdapter(data)
         mAdapter?.setClickListener(this)
         mRecyclerView?.adapter = mAdapter
     }

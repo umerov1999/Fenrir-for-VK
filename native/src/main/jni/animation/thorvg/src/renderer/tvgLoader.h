@@ -37,6 +37,7 @@ struct AssetResolver
 {
     std::function<bool(Paint* paint, const char* src, void* data)> func;
     void* data;
+    bool fallback;
 };
 
 // Specifying how ownership of supplied data is handled.
@@ -85,18 +86,9 @@ struct Loader
         tvg::free(hashpath);
     }
 
-    bool allowCache()
-    {
-        if (type == FileType::Lot) return false;
-        if (type == FileType::Gif) return false;
-        if (type == FileType::Media) return false;
-
-        return true;
-    }
-
     bool cache(uintptr_t data)
     {
-        if (!allowCache()) return false;
+        if (!cacheable()) return false;
         hashkey = data;
         cached = true;
         return true;
@@ -104,8 +96,7 @@ struct Loader
 
     bool cache(const char* path)
     {
-        if (!allowCache()) return false;
-
+        if (!cacheable()) return false;
         hashpath = tvg::duplicate(path);
         cached = true;
         return true;
@@ -115,6 +106,7 @@ struct Loader
     virtual Result open(const char* data, uint32_t size, const LoaderOps& ops) { return Result::NonSupport; }
     virtual bool resize(Paint* paint, float w, float h) { return false; }
     virtual bool sync() { return false; };  // finish immediately if any async update jobs, return true if something has been updated.
+    virtual bool cacheable() { return true; }
 
     virtual bool read()
     {
@@ -187,13 +179,13 @@ struct BitmapLoader : ImageLoader
 struct AnimLoader : ImageLoader
 {
     float segmentBegin = 0.0f;
-    float segmentEnd;  // initialize the value with the total frame number
+    float segmentEnd = 0.0f;
 
     AnimLoader(FileType type) : ImageLoader(type, true) {}
     virtual ~AnimLoader() {}
 
     virtual bool frame(float no) = 0;  // set the current frame number
-    virtual float totalFrame() = 0;  // return the total frame count
+    virtual float totalFrame() { return segmentEnd - segmentBegin; }  // return the total frame count
     virtual float curFrame() = 0;  // return the current frame number
     virtual float duration() = 0;  // return the animation duration in seconds
     virtual Result segment(float begin, float end) = 0;
@@ -212,6 +204,7 @@ struct FontMetrics
     Point align{}, box{}, spacing{1.0f, 1.0f};
     float fontSize = 0.0f;
     uint32_t lines = 1;  // line count
+    uint32_t length = 0;  // output glyph count
     TextWrap wrap = TextWrap::None;
 
     void* engine = nullptr;  // engine extension

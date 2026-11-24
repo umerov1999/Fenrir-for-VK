@@ -45,8 +45,8 @@ import dev.ragnarok.filegallery.activity.slidr.Slidr
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrConfig
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrListener
 import dev.ragnarok.filegallery.activity.slidr.model.SlidrPosition
-import dev.ragnarok.filegallery.fragment.AudioPlayerFragment
 import dev.ragnarok.filegallery.fragment.base.horizontal.ImageListAdapter
+import dev.ragnarok.filegallery.fragment.player.AudioPlayerFragment
 import dev.ragnarok.filegallery.model.Photo
 import dev.ragnarok.filegallery.model.Video
 import dev.ragnarok.filegallery.picasso.PicassoInstance

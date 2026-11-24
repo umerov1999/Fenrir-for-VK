@@ -256,7 +256,8 @@ class GroupWallPresenter(
         view?.openVideosLibrary(
             accountId,
             ownerId,
-            community
+            community,
+            details.isCanUploadVideo
         )
     }
 

@@ -25,16 +25,6 @@
 }
 
 
-#Firebase Installation
--keep class com.google.firebase.installations.** { *; }
-
-
-#image
--keep class com.yalantis.ucrop.** { *; }
--keep class me.minetsh.imaging.** { *; }
-
-
-
 #material
 # CoordinatorLayout resolves the behaviors of its child components with reflection.
 -keep public class * extends androidx.coordinatorlayout.widget.CoordinatorLayout$Behavior {
@@ -49,15 +39,13 @@
 }
 
 
-#picasso
--keep class com.squareup.picasso3.** { *; }
+#recyclerview
+-keep public class * extends androidx.recyclerview.widget.RecyclerView$LayoutManager {
+    public <init>(android.content.Context, android.util.AttributeSet, int, int);
+    public <init>();
+}
 
-
-#preferences
--keep class de.maxr1998.modernpreferences.** { *; }
-
-
-
-#viewpager2
--keep class androidx.recyclerview.** { *; }
--keep class androidx.viewpager2.** { *; }
+-keepclassmembers class androidx.recyclerview.widget.RecyclerView {
+    public void suppressLayout(boolean);
+    public boolean isLayoutSuppressed();
+}

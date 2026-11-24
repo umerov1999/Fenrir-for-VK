@@ -45,7 +45,7 @@ class FaveProductsFragment : BaseMvpFragment<FaveProductsPresenter, IFaveProduct
         mSwipeRefreshLayout = root.findViewById(R.id.refresh)
         mSwipeRefreshLayout?.setOnRefreshListener(this)
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
-        mAdapter = MarketAdapter(emptyList(), requireActivity())
+        mAdapter = MarketAdapter(emptyList())
         mAdapter?.setClickListener(this)
         recyclerView.adapter = mAdapter
         resolveEmptyTextVisibility()

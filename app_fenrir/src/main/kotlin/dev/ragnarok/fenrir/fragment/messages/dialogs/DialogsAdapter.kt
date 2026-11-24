@@ -38,7 +38,7 @@ import dev.ragnarok.fenrir.view.OnlineView
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class DialogsAdapter(private val mContext: Context, private var mDialogs: List<Dialog>) :
+class DialogsAdapter(context: Context, private var mDialogs: List<Dialog>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val DF_TODAY = SimpleDateFormat("HH:mm", Utils.appLocale)
     private val DF_OLD = SimpleDateFormat("dd/MM", Utils.appLocale)
@@ -47,7 +47,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
     @DrawableRes
     private val mFavoritesAvatar = CurrentTheme.createFavoritesAvatar()
     private val mForegroundColorSpan: ForegroundColorSpan =
-        ForegroundColorSpan(CurrentTheme.getPrimaryTextColorCode(mContext))
+        ForegroundColorSpan(CurrentTheme.getPrimaryTextColorCode(context))
     private val mDataObserver: AdapterDataObserver
     private val headerInDialog: Boolean = Settings.get().main().isHeaders_in_dialog
     private var showHidden = false
@@ -78,11 +78,11 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             DATA_TYPE_HIDDEN -> HiddenViewHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.line_hidden, parent, false)
+                LayoutInflater.from(parent.context).inflate(R.layout.line_hidden, parent, false)
             )
 
             DATA_TYPE_NORMAL -> DialogViewHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.item_dialog, parent, false)
+                LayoutInflater.from(parent.context).inflate(R.layout.item_dialog, parent, false)
             )
 
             else -> throw UnsupportedOperationException()
@@ -138,21 +138,21 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         }
         if (attachment_message != MessageType.NO) {
             val type: String = when (attachment_message) {
-                MessageType.AUDIO -> mContext.getString(R.string.audio_message)
-                MessageType.CALL -> mContext.getString(R.string.call_message)
-                MessageType.DOC -> mContext.getString(R.string.doc_message)
-                MessageType.GIFT -> mContext.getString(R.string.gift_message)
-                MessageType.GRAFFITI -> mContext.getString(R.string.graffiti_message)
-                MessageType.PHOTO -> mContext.getString(R.string.photo_message)
-                MessageType.STICKER -> mContext.getString(R.string.sticker_message)
-                MessageType.VIDEO -> mContext.getString(R.string.video_message)
-                MessageType.VOICE -> mContext.getString(R.string.voice_message)
-                MessageType.WALL -> mContext.getString(R.string.wall_message)
-                else -> mContext.getString(R.string.attachments)
+                MessageType.AUDIO -> holder.mDialogMessage.context.getString(R.string.audio_message)
+                MessageType.CALL -> holder.mDialogMessage.context.getString(R.string.call_message)
+                MessageType.DOC -> holder.mDialogMessage.context.getString(R.string.doc_message)
+                MessageType.GIFT -> holder.mDialogMessage.context.getString(R.string.gift_message)
+                MessageType.GRAFFITI -> holder.mDialogMessage.context.getString(R.string.graffiti_message)
+                MessageType.PHOTO -> holder.mDialogMessage.context.getString(R.string.photo_message)
+                MessageType.STICKER -> holder.mDialogMessage.context.getString(R.string.sticker_message)
+                MessageType.VIDEO -> holder.mDialogMessage.context.getString(R.string.video_message)
+                MessageType.VOICE -> holder.mDialogMessage.context.getString(R.string.voice_message)
+                MessageType.WALL -> holder.mDialogMessage.context.getString(R.string.wall_message)
+                else -> holder.mDialogMessage.context.getString(R.string.attachments)
             }
             val spannable = SpannableStringBuilder.valueOf(type)
             spannable.setSpan(
-                ForegroundColorSpan(CurrentTheme.getColorPrimary(mContext)),
+                ForegroundColorSpan(CurrentTheme.getColorPrimary(holder.mDialogMessage.context)),
                 0,
                 spannable.length,
                 Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -162,9 +162,9 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         }
         if (dialog.hasForwardMessages()) {
             val spannable =
-                SpannableStringBuilder.valueOf(mContext.getString(R.string.forward_messages))
+                SpannableStringBuilder.valueOf(holder.mDialogMessage.context.getString(R.string.forward_messages))
             spannable.setSpan(
-                ForegroundColorSpan(CurrentTheme.getColorPrimary(mContext)),
+                ForegroundColorSpan(CurrentTheme.getColorPrimary(holder.mDialogMessage.context)),
                 0,
                 spannable.length,
                 Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -175,9 +175,9 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         val lastMessageAction = dialog.lastMessageAction
         if (lastMessageAction != ChatAction.NO_ACTION) {
             val spannable =
-                SpannableStringBuilder.valueOf(mContext.getString(R.string.service_message))
+                SpannableStringBuilder.valueOf(holder.mDialogMessage.context.getString(R.string.service_message))
             spannable.setSpan(
-                ForegroundColorSpan(CurrentTheme.getColorPrimary(mContext)),
+                ForegroundColorSpan(CurrentTheme.getColorPrimary(holder.mDialogMessage.context)),
                 0,
                 spannable.length,
                 Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -186,8 +186,8 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         }
         if (dialog.isChat) {
             val spannable = SpannableStringBuilder.valueOf(
-                if (dialog.isLastMessageOut) mContext.getString(R.string.dialog_me) else dialog.getSenderShortName(
-                    mContext
+                if (dialog.isLastMessageOut) holder.mDialogMessage.context.getString(R.string.dialog_me) else dialog.getSenderShortName(
+                    holder.mDialogMessage.context
                 )
             )
             spannable.setSpan(
@@ -211,7 +211,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
             val interlocutor = dialog.interlocutor as User
             holder.mDialogTitle.setTextColor(
                 Utils.getVerifiedColor(
-                    mContext,
+                    holder.mDialogTitle.context,
                     interlocutor.isVerified
                 )
             )
@@ -233,7 +233,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
             if (dialog.interlocutor is Community) {
                 holder.mDialogTitle.setTextColor(
                     Utils.getVerifiedColor(
-                        mContext,
+                        holder.mDialogTitle.context,
                         dialog.interlocutor?.isVerified == true
                     )
                 )
@@ -241,7 +241,12 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
                     if (dialog.interlocutor?.isVerified == true) View.VISIBLE else View.GONE
             } else {
                 holder.ivVerified.visibility = View.GONE
-                holder.mDialogTitle.setTextColor(Utils.getVerifiedColor(mContext, false))
+                holder.mDialogTitle.setTextColor(
+                    Utils.getVerifiedColor(
+                        holder.mDialogTitle.context,
+                        false
+                    )
+                )
             }
             holder.blacklisted.visibility = View.GONE
         }
@@ -300,18 +305,18 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
         }
         DATE.time = lastMessageJavaTime
         if (lastMessageJavaTime < mStartOfToday) {
-            holder.tvDate.setTextColor(CurrentTheme.getSecondaryTextColorCode(mContext))
+            holder.tvDate.setTextColor(CurrentTheme.getSecondaryTextColorCode(holder.tvDate.context))
             if (getStatus(dialog) == DIV_YESTERDAY || getStatus(dialog) == DIV_PINNED) holder.tvDate.text =
                 DF_TODAY.format(
                     DATE
                 ) else holder.tvDate.text = DF_OLD.format(DATE)
         } else {
             holder.tvDate.text = DF_TODAY.format(DATE)
-            holder.tvDate.setTextColor(CurrentTheme.getColorPrimary(mContext))
+            holder.tvDate.setTextColor(CurrentTheme.getColorPrimary(holder.tvDate.context))
         }
 
         if (accountId != dialog.peerId) {
-            holder.mDialogTitle.text = dialog.getDisplayTitle(mContext)
+            holder.mDialogTitle.text = dialog.getDisplayTitle(holder.mDialogTitle.context)
             if (dialog.imageUrl != null) {
                 holder.EmptyAvatar.visibility = View.INVISIBLE
                 displayAvatar(
@@ -323,7 +328,7 @@ class DialogsAdapter(private val mContext: Context, private var mDialogs: List<D
                 )
             } else {
                 with().cancelRequest(holder.ivAvatar)
-                dialog.getDisplayTitle(mContext).ifNonNullNoEmpty({
+                dialog.getDisplayTitle(holder.EmptyAvatar.context).ifNonNullNoEmpty({
                     holder.EmptyAvatar.visibility = View.VISIBLE
                     var name = it
                     if (name.length > 2) name = name.take(2)

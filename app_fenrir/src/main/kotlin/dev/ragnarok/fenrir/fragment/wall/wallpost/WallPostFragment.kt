@@ -42,7 +42,6 @@ import dev.ragnarok.fenrir.model.Post
 import dev.ragnarok.fenrir.place.PlaceFactory.getSingleTabSearchPlace
 import dev.ragnarok.fenrir.place.PlaceUtil.goToPostEditor
 import dev.ragnarok.fenrir.settings.CurrentTheme
-import dev.ragnarok.fenrir.settings.Settings
 import dev.ragnarok.fenrir.util.AppTextUtils.getDateFromUnixTime
 import dev.ragnarok.fenrir.util.PostDownload
 import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
@@ -381,7 +380,7 @@ class WallPostFragment : PlaceSupportMvpFragment<WallPostPresenter, IWallPostVie
             tvCopyright.setOnClickListener {
                 LinkHelper.openUrl(
                     requireActivity(),
-                    Settings.get().accounts().current,
+                    requireArguments().getLong(Extra.ACCOUNT_ID),
                     vit.link
                 )
             }

@@ -54,11 +54,11 @@ class LongPollEventSaver {
                 )
             )
         }
-        if (updates.typingMessageOrUploadingInDialogUpdates.nonNullNoEmpty()) {
+        if (updates.typingMessageOrUploadingInConversationUpdates.nonNullNoEmpty()) {
             completable = completable.andThen(
-                messagesInteractor.handleTypingMessageOrUploadingInDialogUpdates(
+                messagesInteractor.handleTypingMessageOrUploadingInConversationUpdates(
                     accountId,
-                    updates.typingMessageOrUploadingInDialogUpdates
+                    updates.typingMessageOrUploadingInConversationUpdates
                 )
             )
         }
@@ -67,6 +67,14 @@ class LongPollEventSaver {
                 messagesInteractor.handleMessageReactionsChangedUpdates(
                     accountId,
                     updates.messageReactionChangedUpdates
+                )
+            )
+        }
+        if (updates.reactionsUnreadInConversationUpdates.nonNullNoEmpty()) {
+            completable = completable.andThen(
+                messagesInteractor.handleReactionsUnreadInConversationUpdates(
+                    accountId,
+                    updates.reactionsUnreadInConversationUpdates
                 )
             )
         }

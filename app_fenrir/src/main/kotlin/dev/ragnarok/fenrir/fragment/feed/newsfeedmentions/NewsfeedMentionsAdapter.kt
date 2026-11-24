@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso3.Transformation
@@ -49,13 +50,17 @@ import dev.ragnarok.fenrir.view.natives.animation.AnimatedShapeableImageView
 import dev.ragnarok.fenrir.view.natives.animation.AspectRatioAnimatedShapeableImageView
 
 class NewsfeedMentionsAdapter(
-    private val context: Context, private var data: List<NewsfeedComment>,
+    context: Context, private var data: List<NewsfeedComment>,
     callback: OnAttachmentsActionCallback
 ) : AbsRecyclerViewAdapter<AbsHolder>() {
     private val attachmentsViewBinder: AttachmentsViewBinder =
         AttachmentsViewBinder(context, callback)
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
+
+    @ColorInt
     private val colorTextSecondary: Int = CurrentTheme.getSecondaryTextColorCode(context)
+
+    @ColorInt
     private val iconColorActive: Int = CurrentTheme.getColorPrimary(context)
 
     private val isAutoPlayVideo = Settings.get().main().isAutoplay_video_on_posts
@@ -152,7 +157,7 @@ class NewsfeedMentionsAdapter(
         )
         addOwnerAvatarClickHandling(holder.ownerAvatar, photo.ownerId)
         holder.ownerName.text = owner.fullName
-        holder.dateTime.text = AppTextUtils.getDateFromUnixTime(context, photo.date)
+        holder.dateTime.text = AppTextUtils.getDateFromUnixTime(holder.dateTime.context, photo.date)
         holder.title.visibility =
             if (photo.text.nonNullNoEmpty()) View.VISIBLE else View.GONE
         holder.title.text = photo.text
@@ -180,7 +185,7 @@ class NewsfeedMentionsAdapter(
         val owner = wrapper.owner
         holder.title.text = video.title
         holder.viewsCounter.text = String.format(Utils.appLocale, "%d", video.views)
-        holder.datitime.text = AppTextUtils.getDateFromUnixTime(context, video.date)
+        holder.dateTime.text = AppTextUtils.getDateFromUnixTime(holder.dateTime.context, video.date)
         val serviceIcon = getIconByType(video.platform)
         if (serviceIcon != null) {
             holder.service.visibility = View.VISIBLE
@@ -264,7 +269,8 @@ class NewsfeedMentionsAdapter(
             Constants.PICASSO_TAG
         )
         holder.commentAuthorName.text = comment.fullAuthorName
-        holder.commentDatetime.text = AppTextUtils.getDateFromUnixTime(context, comment.date)
+        holder.commentDatetime.text =
+            AppTextUtils.getDateFromUnixTime(holder.commentDatetime.context, comment.date)
         holder.commentText.precompute(
             OwnerLinkSpanFactory.withSpans(
                 comment.text,
@@ -306,7 +312,8 @@ class NewsfeedMentionsAdapter(
             R.layout.item_copy_history_post
         )
         holder.ownerName.text = post.authorName
-        holder.postDatetime.text = AppTextUtils.getDateFromUnixTime(context, post.date)
+        holder.postDatetime.text =
+            AppTextUtils.getDateFromUnixTime(holder.postDatetime.context, post.date)
         displayAvatar(holder.ownerAvatar, transformation, post.authorPhoto, Constants.PICASSO_TAG)
         addOwnerAvatarClickHandling(holder.ownerAvatar, post.ownerId)
         val reduced = AppTextUtils.reduceStringForPost(post.text)
@@ -429,11 +436,11 @@ class NewsfeedMentionsAdapter(
 
     private class VideoHolder(itemView: View) : AbsHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.video_title)
-        val datitime: TextView = itemView.findViewById(R.id.video_datetime)
+        val dateTime: TextView = itemView.findViewById(R.id.video_datetime)
         val viewsCounter: TextView = itemView.findViewById(R.id.video_views_counter)
         val service: ImageView = itemView.findViewById(R.id.video_service)
         val image: AspectRatioAnimatedShapeableImageView = itemView.findViewById(R.id.video_image)
-        val duration: TextView = itemView.findViewById(R.id.video_lenght)
+        val duration: TextView = itemView.findViewById(R.id.video_length)
         val avatar: ImageView = itemView.findViewById(R.id.video_owner_avatar)
         val ownerName: TextView = itemView.findViewById(R.id.video_owner_name)
     }

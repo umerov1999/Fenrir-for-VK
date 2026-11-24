@@ -21,7 +21,7 @@ class PeopleSearchFragment :
 
     override fun postCreate(root: View) {}
     override fun createAdapter(data: MutableList<User>): PeopleAdapter {
-        val adapter = PeopleAdapter(requireActivity(), data)
+        val adapter = PeopleAdapter(data)
         adapter.setClickListener(this)
         return adapter
     }

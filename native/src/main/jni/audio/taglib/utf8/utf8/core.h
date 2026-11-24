@@ -584,6 +584,25 @@ namespace internal
     }
 
 
+    template <typename word_iterator>
+    inline word_iterator find_invalid16(word_iterator start, word_iterator end)
+    {
+        word_iterator result = start;
+        while (result != end) {
+            utfchar32_t dummy_cp = 0;
+            utf8::internal::utf_error err_code = utf8::internal::validate_next16(result, end, dummy_cp);
+            if (err_code != internal::UTF8_OK)
+                return result;
+        }
+        return result;
+    }
+
+    template <typename word_iterator>
+    inline bool is_valid16(word_iterator start, word_iterator end)
+    {
+        return (utf8::find_invalid16(start, end) == end);
+    }
+
 
     template <typename octet_iterator>
     inline bool starts_with_bom (octet_iterator it, octet_iterator end)

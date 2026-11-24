@@ -65,7 +65,6 @@ import dev.ragnarok.fenrir.fragment.attachments.commentedit.CommentEditFragment
 import dev.ragnarok.fenrir.fragment.attachments.postcreate.PostCreateFragment
 import dev.ragnarok.fenrir.fragment.attachments.postedit.PostEditFragment
 import dev.ragnarok.fenrir.fragment.attachments.repost.RepostFragment
-import dev.ragnarok.fenrir.fragment.audio.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.audio.AudiosTabsFragment
 import dev.ragnarok.fenrir.fragment.audio.audios.AudiosFragment
 import dev.ragnarok.fenrir.fragment.audio.audiosbyartist.AudiosByArtistFragment
@@ -73,6 +72,7 @@ import dev.ragnarok.fenrir.fragment.audio.audiosrecommendation.AudiosRecommendat
 import dev.ragnarok.fenrir.fragment.audio.catalog_v2.listedit.CatalogV2ListEditFragment
 import dev.ragnarok.fenrir.fragment.audio.catalog_v2.lists.CatalogV2ListFragment
 import dev.ragnarok.fenrir.fragment.audio.catalog_v2.sections.CatalogV2SectionFragment
+import dev.ragnarok.fenrir.fragment.audio.player.AudioPlayerFragment
 import dev.ragnarok.fenrir.fragment.comments.CommentsFragment
 import dev.ragnarok.fenrir.fragment.communities.CommunitiesFragment
 import dev.ragnarok.fenrir.fragment.communities.communitycontrol.CommunityControlFragment
@@ -1274,7 +1274,8 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                         PlaceFactory.getVideosPlace(
                             aid,
                             aid,
-                            IVideosListView.ACTION_SHOW
+                            IVideosListView.ACTION_SHOW,
+                            false
                         )
                     )
 
@@ -1542,7 +1543,14 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
             Place.TOPICS -> attachToFront(TopicsFragment.newInstance(args))
             Place.CHAT_MEMBERS -> attachToFront(ChatMembersFragment.newInstance(args))
             Place.FEED_BAN -> attachToFront(FeedBannedFragment.newInstance(args))
-            Place.REMOTE_FILE_MANAGER -> attachToFront(FileManagerRemoteFragment())
+            Place.REMOTE_FILE_MANAGER -> attachToFront(
+                FileManagerRemoteFragment.newInstance(
+                    args.getLong(
+                        Extra.ACCOUNT_ID
+                    )
+                )
+            )
+
             Place.COMMUNITIES -> {
                 val communitiesFragment = CommunitiesFragment.newInstance(
                     args.getLong(Extra.ACCOUNT_ID),
@@ -1634,7 +1642,7 @@ open class MainActivity : AppCompatActivity(), NavigationDrawerCallbacks, OnSect
                 if (Utils.isOfficialVKAccount(mAccountId)) {
                     attachToFront(
                         FeedbackVKOfficialFragment.newInstance(
-                            Settings.get().accounts().current
+                            mAccountId
                         )
                     )
                 } else {

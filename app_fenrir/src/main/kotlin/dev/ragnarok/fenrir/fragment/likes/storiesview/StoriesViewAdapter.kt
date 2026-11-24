@@ -1,6 +1,5 @@
 package dev.ragnarok.fenrir.fragment.likes.storiesview
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +26,6 @@ import dev.ragnarok.fenrir.util.ViewUtils.displayAvatar
 import dev.ragnarok.fenrir.view.OnlineView
 
 class StoriesViewAdapter(
-    private val mContext: Context,
     private var mData: List<Pair<Owner, Boolean>>
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -39,11 +37,13 @@ class StoriesViewAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             TYPE_USER -> PeopleHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.item_people_with_like, parent, false)
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_people_with_like, parent, false)
             )
 
             TYPE_COMMUNITY -> CommunityHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.item_group_with_like, parent, false)
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_group_with_like, parent, false)
             )
 
             else -> throw RuntimeException("StoriesViewAdapter.onCreateViewHolder")
@@ -68,11 +68,16 @@ class StoriesViewAdapter(
 
     private fun bindCommunityHolder(holder: CommunityHolder, community: Community, liked: Boolean) {
         holder.tvName.text = community.fullName
-        holder.tvName.setTextColor(Utils.getVerifiedColor(mContext, community.isVerified))
+        holder.tvName.setTextColor(
+            Utils.getVerifiedColor(
+                holder.tvName.context,
+                community.isVerified
+            )
+        )
         holder.ivVerified.visibility = if (community.isVerified) View.VISIBLE else View.GONE
         holder.liked.visibility = if (liked) View.VISIBLE else View.GONE
-        holder.tvType.text = getCommunityType(mContext, community)
-        holder.tvMembersCount.text = mContext.getString(
+        holder.tvType.text = getCommunityType(holder.tvType.context, community)
+        holder.tvMembersCount.text = holder.tvMembersCount.context.getString(
             R.string.members_count,
             if (community.membersCount > 0) AppTextUtils.getCounterWithK(community.membersCount) else "-"
         )
@@ -93,11 +98,12 @@ class StoriesViewAdapter(
 
     private fun bindUserHolder(holder: PeopleHolder, user: User, liked: Boolean) {
         holder.name.text = user.fullName
-        holder.name.setTextColor(Utils.getVerifiedColor(mContext, user.isVerified))
+        holder.name.setTextColor(Utils.getVerifiedColor(holder.name.context, user.isVerified))
         holder.ivVerified.visibility = if (user.isVerified) View.VISIBLE else View.GONE
         holder.blacklisted.visibility = if (user.blacklisted) View.VISIBLE else View.GONE
-        holder.subtitle.text = UserInfoResolveUtil.getUserActivityLine(mContext, user, true)
-        holder.subtitle.setTextColor(if (user.isOnline) CurrentTheme.getColorPrimary(mContext) else STATUS_COLOR_OFFLINE)
+        holder.subtitle.text =
+            UserInfoResolveUtil.getUserActivityLine(holder.subtitle.context, user, true)
+        holder.subtitle.setTextColor(if (user.isOnline) CurrentTheme.getColorPrimary(holder.subtitle.context) else STATUS_COLOR_OFFLINE)
         holder.liked.visibility = if (liked) View.VISIBLE else View.GONE
         holder.online.visibility = if (user.isOnline) View.VISIBLE else View.GONE
         val onlineIcon =
@@ -124,7 +130,7 @@ class StoriesViewAdapter(
                 user
             ) == true
         }
-        addSelectionProfileSupport(mContext, holder.avatarRoot, user)
+        addSelectionProfileSupport(holder.avatarRoot.context, holder.avatarRoot, user)
     }
 
     override fun getItemCount(): Int {

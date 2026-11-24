@@ -35,7 +35,7 @@ import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.LinkHelperTextView
 
 class FeedAdapter(
-    private val context: Context,
+    context: Context,
     data: MutableList<News>,
     attachmentsActionCallback: OnAttachmentsActionCallback
 ) : RecyclerBindableAdapter<News, FeedAdapter.PostHolder>(data) {
@@ -139,7 +139,7 @@ class FeedAdapter(
             }
         }
         */
-        val postTime = AppTextUtils.getDateFromUnixTime(context, item.date)
+        val postTime = AppTextUtils.getDateFromUnixTime(viewHolder.tvTime.context, item.date)
         viewHolder.tvTime.text = postTime
         viewHolder.tvText.visibility =
             if (item.text.isNullOrEmpty() && !force) View.GONE else View.VISIBLE

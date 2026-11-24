@@ -100,9 +100,9 @@ class CatalogV2SectionFragment :
         }
         setupSwipeRefreshLayoutWithCurrentTheme(requireActivity(), mSwipeRefreshLayout)
         mAdapter = CatalogV2SectionAdapter(
-            mutableListOf(),
-            presenter?.accountId ?: Settings.get().accounts().current,
-            requireActivity()
+            data = mutableListOf(),
+            accountId = requireArguments().getLong(Extra.ACCOUNT_ID),
+            context = requireActivity()
         )
         mAdapter?.setClickListener(this)
         val footerView =
@@ -121,7 +121,7 @@ class CatalogV2SectionFragment :
         gotoButton.setOnLongClickListener {
             val curr = MusicPlaybackController.currentAudio
             if (curr != null) {
-                PlaceFactory.getPlayerPlace(Settings.get().accounts().current)
+                PlaceFactory.getPlayerPlace(requireArguments().getLong(Extra.ACCOUNT_ID))
                     .tryOpenWith(requireActivity())
             } else {
                 customToast?.showToastError(R.string.null_audio)

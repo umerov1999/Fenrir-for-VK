@@ -33,13 +33,13 @@ import dev.ragnarok.fenrir.view.CircleCounterButton
 import dev.ragnarok.fenrir.view.LinkHelperTextView
 
 class WallAdapter(
-    private val mContext: Context,
+    context: Context,
     items: MutableList<Post>,
     attachmentsActionCallback: OnAttachmentsActionCallback,
     adapterListener: ClickListener
 ) : RecyclerBindableAdapter<Post, RecyclerView.ViewHolder>(items) {
     private val attachmentsViewBinder: AttachmentsViewBinder =
-        AttachmentsViewBinder(mContext, attachmentsActionCallback)
+        AttachmentsViewBinder(context, attachmentsActionCallback)
     private val transformation: Transformation = CurrentTheme.createTransformationForAvatar()
     private val clickListener: ClickListener = adapterListener
     private val mLinkActionAdapter = object : OwnerLinkSpanFactory.ActionListener() {
@@ -164,16 +164,16 @@ class WallAdapter(
 
     private fun fillNormalPostButtonsBlock(holder: NormalHolder, post: Post) {
         holder.pinRoot.visibility = if (post.isPinned) View.VISIBLE else View.GONE
-        val formattedDate = AppTextUtils.getDateFromUnixTime(mContext, post.date)
+        val formattedDate = AppTextUtils.getDateFromUnixTime(holder.tvTime.context, post.date)
         var postSubtitle = formattedDate
         post.source.requireNonNull {
             postSubtitle = when (it.getData()) {
-                VKApiPostSource.Data.PROFILE_ACTIVITY -> mContext.getString(
+                VKApiPostSource.Data.PROFILE_ACTIVITY -> holder.tvTime.context.getString(
                     R.string.updated_status_at,
                     formattedDate
                 )
 
-                VKApiPostSource.Data.PROFILE_PHOTO -> mContext.getString(
+                VKApiPostSource.Data.PROFILE_PHOTO -> holder.tvTime.context.getString(
                     R.string.updated_profile_photo_at,
                     formattedDate
                 )
